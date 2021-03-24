@@ -3,6 +3,10 @@ package com.rekijan.initiativetrackersecondedition.helper;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rekijan.initiativetrackersecondedition.AppExtension;
@@ -205,7 +209,7 @@ public class HitPointAndDyingChangeHelper {
             character.setIsDying(false);
             character.setDyingValue(0);
             character.setWoundedValue(character.getWoundedValue()+1);
-            String toastString = context.getString(R.string.toast_recovered_from_dying, character.getCharacterName());
+            String toastString = context.getString(R.string.toast_recovered_from_dying_by_healing, character.getCharacterName());
             Toast.makeText(context, toastString, Toast.LENGTH_LONG).show();
         }
 
@@ -255,8 +259,8 @@ public class HitPointAndDyingChangeHelper {
                     app.getCharacterAdapter().getList().get(i+1).setIsFirstRound(true);
                 }
                 character.setIsDying(true);
-                character.setDyingValue(dyingValueIncrease);
-                checkIfCharacterDied(character, context);
+                character.setDyingValue(dyingValueIncrease+character.getWoundedValue());
+                promptHeroPointUseDialog(character, context);
                 app.getCharacterAdapter().getList().add(character);
                 posToRemove = i;
                 break;
@@ -278,13 +282,13 @@ public class HitPointAndDyingChangeHelper {
         dyingCritDialog.setPositiveButton(context.getString(R.string.dialog_dying_damaged_again_positive), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                increaseCharacterToDying(character, 2, context);
+                increaseCharacterDyingValue(character, 2, context);
             }
         });
         dyingCritDialog.setNegativeButton(context.getString(R.string.dialog_dying_damaged_again_negative), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                increaseCharacterToDying(character, 1, context);
+                increaseCharacterDyingValue(character, 1, context);
             }
         });
 
@@ -293,29 +297,178 @@ public class HitPointAndDyingChangeHelper {
     }
 
     /**
-     * Increases the character's dying value by the amount
+     * Increases the character's dying value by the amount, and handle rest of process
      * @param character
      * @param dyingValueIncrease
      */
-    public void increaseCharacterToDying(CharacterModel character, int dyingValueIncrease, Context context) {
+    public void increaseCharacterDyingValue(CharacterModel character, int dyingValueIncrease, Context context) {
+        character.setDyingValue(character.getDyingValue()+dyingValueIncrease);
+        promptHeroPointUseDialog(character, context);
+    }
+
+    /**
+     * Increases the character's dying value by the amount, then check if stabilized
+     * @param character
+     * @param dyingValueDecrease
+     */
+    private void decreaseCharacterDyingValue(CharacterModel character, int dyingValueDecrease, Context context) {
         AppExtension app = (AppExtension) context.getApplicationContext();
 
-        for (int i = 0; i < app.getCharacterAdapter().getList().size(); i++) {
-            if (app.getCharacterAdapter().getList().get(i) == character) {
-                character.setDyingValue(character.getDyingValue()+dyingValueIncrease);
-                checkIfCharacterDied(character, context);
-                break;
-            }
+        character.setDyingValue(character.getDyingValue()-dyingValueDecrease);
+
+        if (character.getDyingValue() <= 0)
+        {
+            character.setIsDying(false);
+            character.setDyingValue(0);
+            character.setHp(0);
+            Toast.makeText(context, context.getString(R.string.toast_recovered_from_dying_by_recovery_checks, character.getCharacterName()), Toast.LENGTH_LONG).show();
         }
+        app.getCharacterAdapter().notifyDataSetChanged();
+    }
+
+
+    /**
+     * Ask if the character wants to use its remaining hero points to negate the dying (offered when dying value increases)<br>
+     *     If yes then handle it in {@link #useHeroPoint(CharacterModel, Context)} otherwise goes to {@link #checkIfCharacterDied(CharacterModel, Context)}
+     * @param character
+     * @param context
+     */
+    private void promptHeroPointUseDialog(final CharacterModel character, final Context context)
+    {
+        if (character.getHeroPoints() > 0) {
+            //Build dialog
+            AlertDialog.Builder useHeroPointDialog = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
+            useHeroPointDialog.setTitle(context.getString(R.string.dialog_dying_hero_point_title))
+                    .setMessage(context.getString(R.string.dialog_dying_hero_point));
+            useHeroPointDialog.setPositiveButton(context.getString(R.string.dialog_dying_hero_point_positive), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    useHeroPoint(character, context);
+                }
+            });
+            useHeroPointDialog.setNegativeButton(context.getString(R.string.dialog_dying_hero_point_negative), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    checkIfCharacterDied(character, context);
+                }
+            });
+
+            AlertDialog removalDialog = useHeroPointDialog.create();
+            removalDialog.show();
+        } else {
+            checkIfCharacterDied(character, context);
+        }
+    }
+
+    /**
+     * If the character uses all its hero points to prevent death, set its hero points and hit points to 0 and remove the dying condition.
+     * @param character
+     * @param context
+     */
+    private void useHeroPoint(CharacterModel character, Context context) {
+        character.setHeroPoints(0);
+        character.setIsDying(false);
+        character.setDyingValue(0);
+        character.setHp(0);
+        AppExtension app = (AppExtension) context.getApplicationContext();
+        app.getCharacterAdapter().notifyDataSetChanged();
     }
 
     /**
      *
      * @param character
      */
-    public void checkIfCharacterDied(CharacterModel character, Context context){
-        AppExtension app = (AppExtension) context.getApplicationContext();
-        //TODO checkIfCharacterDied
+    public void checkIfCharacterDied(final CharacterModel character, Context context){
+        final AppExtension app = (AppExtension) context.getApplicationContext();
+
+        if (character.getDyingValue() >= character.getMaxDyingValue()-character.getDoomedValue())
+        {
+            AlertDialog.Builder removalBuilder = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
+            removalBuilder.setTitle(context.getString(R.string.dialog_delete_low_title))
+                    .setMessage(context.getString(R.string.dialog_delete_low));
+            removalBuilder.setPositiveButton(context.getString(R.string.dialog_delete_low_positive), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    app.getCharacterAdapter().remove(character);
+                    app.getCharacterAdapter().notifyDataSetChanged();
+
+                }
+            });
+            removalBuilder.setNegativeButton(context.getString(R.string.dialog_delete_low_negative), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                }
+            });
+
+            AlertDialog removalDialog = removalBuilder.create();
+            removalDialog.show();
+        }
         app.getCharacterAdapter().notifyDataSetChanged();
+    }
+
+    public void promptRecoveryCheckDialog(final CharacterModel character, final Context context) {
+        final AppExtension app = (AppExtension) context.getApplicationContext();
+
+        //Build a dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
+        //Add custom layout to dialog
+        LayoutInflater inflater = LayoutInflater.from(context);
+        final View alertDialogView = inflater.inflate(R.layout.recovery_dialog, null);
+        builder.setTitle(context.getString(R.string.dialog_recovery_title));
+        //Set button to close and cancel
+        builder.setNegativeButton(context.getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+
+        //Get views
+        TextView recoveryDcTextView = alertDialogView.findViewById(R.id.recovery_dialog_dc_label);
+        Button recoveryCritSuccessButton = alertDialogView.findViewById(R.id.recovery_dialog_crit_success_btn);
+        Button recoverySuccessButton = alertDialogView.findViewById(R.id.recovery_dialog_success_btn);
+        Button recoveryFailureButton = alertDialogView.findViewById(R.id.recovery_dialog_failure_btn);
+        Button recoveryCritFailureButton = alertDialogView.findViewById(R.id.recovery_dialog_crit_failure_btn);
+
+        //Bind view to the dialog builder and create it
+        builder.setView(alertDialogView);
+        final AlertDialog dialog = builder.create();
+
+        // Set views
+        recoveryDcTextView.setText(context.getString(R.string.dialog_recovery_dc, character.getRecoveryDC()+character.getDyingValue()+character.getWoundedValue()));
+
+        recoveryCritSuccessButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                decreaseCharacterDyingValue(character, 2, context);
+                dialog.dismiss();
+            }
+        });
+
+        recoverySuccessButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                decreaseCharacterDyingValue(character, 1, context);
+                dialog.dismiss();
+            }
+        });
+
+        recoveryFailureButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                increaseCharacterDyingValue(character, 1, context);
+                dialog.dismiss();
+            }
+        });
+
+        recoveryCritFailureButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                increaseCharacterDyingValue(character, 2, context);
+                dialog.dismiss();
+            }
+        });
+
+        //Show the main dialog
+        dialog.show();
     }
 }

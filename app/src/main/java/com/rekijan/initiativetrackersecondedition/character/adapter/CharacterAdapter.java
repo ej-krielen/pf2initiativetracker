@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.character.model.CharacterModel;
 import com.rekijan.initiativetrackersecondedition.character.model.DebuffModel;
+import com.rekijan.initiativetrackersecondedition.helper.DialogHelper;
 import com.rekijan.initiativetrackersecondedition.helper.HitPointAndDyingChangeHelper;
 import com.rekijan.initiativetrackersecondedition.listeners.GenericTextWatcher;
 import com.rekijan.initiativetrackersecondedition.listeners.HpTextWatcher;
@@ -174,7 +175,9 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         HitPointAndDyingChangeHelper.getInstance().automaticHealingCheck(characterModel, context);
         characterModel.setReactionAvailable(true);
         //TODO also set custom reactions to true
-        //TODO check if dying and prompt for recovery check
+        if (characterModel.isDying()) {
+            HitPointAndDyingChangeHelper.getInstance().promptRecoveryCheckDialog(characterModel, context);
+        }
         this.notifyDataSetChanged();
         return characters.get(0).isFirstRound();
     }
@@ -370,7 +373,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         if (character.isDying()) {
             holder.dyingLabel.setVisibility(View.VISIBLE);
             holder.dyingRulesImageView.setVisibility(View.VISIBLE);
-            int currentDyingValue = character.getDyingValue()+character.getWoundedValue();
+            int currentDyingValue = character.getDyingValue();
             int maxDyingValue = character.getMaxDyingValue() - character.getDoomedValue();
             String labelString = context.getString(R.string.char_card_dying_label, currentDyingValue, maxDyingValue,
                     character.getWoundedValue(), character.getDoomedValue(), (character.getRecoveryDC()+currentDyingValue));
@@ -378,12 +381,28 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
 
             holder.dyingTextLayout.setVisibility(View.VISIBLE);
             holder.dyingImageLayout.setVisibility(View.VISIBLE);
-            for (int i = 0; i < holder.dyingTextLayout.getChildCount(); i++) {
 
+            holder.dyingRulesImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DialogHelper.getInstance().deathDyingRulesDialog(context);
+                }
+            });
+
+            for (int i = 0; i < holder.dyingTextLayout.getChildCount(); i++) {
                 //Only show up the the max dying value
                 if (i >= character.getMaxDyingValue()) {
                     holder.dyingTextLayout.getChildAt(i).setVisibility(View.GONE);
                     holder.dyingImageLayout.getChildAt(i).setVisibility(View.GONE);
+                }
+
+                // Mark dying value
+                if (i < (character.getDyingValue())) {
+                    holder.dyingTextLayout.getChildAt(i).setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.dying_dying_rounded_corners, context.getTheme()));
+                    ((ImageView)holder.dyingImageLayout.getChildAt(i)).setImageResource(R.drawable.ic_dying_dying);
+                } else {
+                    holder.dyingTextLayout.getChildAt(i).setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.dying_healthy_rounded_corners, context.getTheme()));
+                    ((ImageView)holder.dyingImageLayout.getChildAt(i)).setImageResource(R.drawable.ic_dying_healthy);
                 }
 
                 //Mark doomed value
@@ -391,12 +410,6 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
                     holder.dyingTextLayout.getChildAt(i).setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.dying_doomed_rounded_corners, context.getTheme()));
                     ((ImageView)holder.dyingImageLayout.getChildAt(i)).setImageResource(R.drawable.ic_dying_doomed);
                     ((TextView)holder.dyingTextLayout.getChildAt(i)).setText("X");
-                }
-
-                // Mark dying value
-                if (i < (character.getDyingValue()+character.getWoundedValue())) {
-                    holder.dyingTextLayout.getChildAt(i).setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.dying_dying_rounded_corners, context.getTheme()));
-                    ((ImageView)holder.dyingImageLayout.getChildAt(i)).setImageResource(R.drawable.ic_dying_dying);
                 }
             }
 

@@ -24,7 +24,8 @@
     <!-- Toast -->
     <string name="toast_max_hp">The following PCs did not get updated because their max hp was not higher then their current hp.\n\u0020\n%1$s</string>
     <string name="toast_wounded_removed">The healed PC(s) had their wounded value reset to 0 (because they were healed to max).</string>
-    <string name="toast_recovered_from_dying">%1$s received healing and is no longer dying, wounded value has been increased as well.</string>
+    <string name="toast_recovered_from_dying_by_healing">%1$s received healing and is no longer dying, wounded value has been increased as well.</string>
+    <string name="toast_recovered_from_dying_by_recovery_checks">%1$s reduced its dying value to 0 and is no longer dying, wounded value has been increased.</string>
 
     <!-- Character Cards-->
     <string name="char_card_initiative">Init</string>
@@ -151,6 +152,26 @@ The last step of starting your turn is always the same.\n\n\n
     <string name="dialog_dying_damaged_again">If the character that was dying received damage from a critical hit they dying value will increase by 2 instead of 1.</string>
     <string name="dialog_dying_damaged_again_positive">Yes (increase by 2)</string>
     <string name="dialog_dying_damaged_again_negative">No (increase by 1)</string>
+
+    <string name="dialog_dying_rules_title">Rules concerning death and dying</string>
+    <string name="dialog_dying_rules">Since the rules are quite extensive please visit the official SRD</string>
+
+    <string name="dialog_dying_hero_point_title">Dying value increased</string>
+    <string name="dialog_dying_hero_point">The dying value of the character increased, it has the opportunity now to use all his remaining Hero Points to avoid death.\n
+        The character will lose the dying condition entirely and stabilize with 0 Hit Points, gains no additional wounded condition or increase its value from losing the dying condition in this way, but if it already had that condition, it does not lose it or decrease its value.</string>
+    <string name="dialog_dying_hero_point_positive">Yes, use all remaining Hero Points</string>
+    <string name="dialog_dying_hero_point_negative">No, keep Hero Points (but remain Dying)</string>
+
+    <string name="dialog_recovery_title">Recovery Check</string>
+    <string name="dialog_recovery_dc">Recovery Check is DC%1$d (This is a flat check).</string>
+    <string name="dialog_button_crit_success">Critical Success</string>
+    <string name="dialog_button_success">Success</string>
+    <string name="dialog_button_failure">Failure</string>
+    <string name="dialog_button_crit_failure">Critical Failure</string>
+    <string name="dialog_recovery_info_crit_success">Reduce dying value by 2.</string>
+    <string name="dialog_recovery_info_success">Reduce dying value by 1.</string>
+    <string name="dialog_recovery_info_failure">Reduce dying value by 1.</string>
+    <string name="dialog_recovery_info_crit_failure">Reduce dying value by 2.</string>
 
     <!--Round counter-->
     <string name="plus_round_button_label">+</string>

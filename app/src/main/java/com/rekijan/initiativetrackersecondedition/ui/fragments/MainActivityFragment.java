@@ -3,9 +3,7 @@ package com.rekijan.initiativetrackersecondedition.ui.fragments;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.GestureDetector;
@@ -167,30 +165,6 @@ public class MainActivityFragment extends Fragment {
         dialog.show();
     }
 
-    /**
-     * Show dialog explaining more info is available on the website
-     */
-    public void aboutInfo() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
-        builder.setMessage(getString(R.string.dialog_about_info))
-                .setTitle(getString(R.string.dialog_about_info_title));
-        builder.setPositiveButton(getString(R.string.dialog_about_ok), new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                Intent siteIntent =
-                        new Intent("android.intent.action.VIEW",
-                                Uri.parse("http://www.rekijan.nl/"));
-                startActivity(siteIntent);
-            }
-        });
-        builder.setNegativeButton(getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {}
-        });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
-
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         AppExtension app = (AppExtension) getActivity().getApplicationContext();
@@ -238,7 +212,7 @@ public class MainActivityFragment extends Fragment {
             DialogHelper.getInstance().simpleDialog(getActivity(), getString(R.string.dialog_turn_end_info_title), getString(R.string.dialog_turn_end_info));
             return true;
         } else if (itemId == R.id.action_settings_about) {
-            aboutInfo();
+            DialogHelper.getInstance().aboutInfo(getActivity());
             return true;
         } else {
             return super.onOptionsItemSelected(item);

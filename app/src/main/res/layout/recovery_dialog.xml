@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryLight">
+
+    <TextView
+        android:id="@+id/recovery_dialog_dc_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginRight="24dp"
+        android:text="@string/dialog_recovery_dc"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/recovery_dialog_crit_success_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/dialog_button_crit_success"
+        android:theme="@style/AppTheme.Button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recovery_dialog_dc_label" />
+
+    <Button
+        android:id="@+id/recovery_dialog_success_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/dialog_button_success"
+        android:theme="@style/AppTheme.Button"
+        app:layout_constraintEnd_toEndOf="@+id/recovery_dialog_crit_success_btn"
+        app:layout_constraintTop_toBottomOf="@+id/recovery_dialog_crit_success_btn" />
+
+    <Button
+        android:id="@+id/recovery_dialog_failure_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/dialog_button_failure"
+        android:theme="@style/AppTheme.Button"
+        app:layout_constraintEnd_toEndOf="@+id/recovery_dialog_crit_success_btn"
+        app:layout_constraintTop_toBottomOf="@+id/recovery_dialog_success_btn" />
+
+    <Button
+        android:id="@+id/recovery_dialog_crit_failure_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/dialog_button_crit_failure"
+        android:theme="@style/AppTheme.Button"
+        app:layout_constraintEnd_toEndOf="@+id/recovery_dialog_crit_success_btn"
+        app:layout_constraintTop_toBottomOf="@+id/recovery_dialog_failure_btn" />
+
+    <TextView
+        android:id="@+id/recovery_label_crit_success"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:text="@string/dialog_recovery_info_crit_success"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/recovery_dialog_crit_success_btn"
+        app:layout_constraintStart_toEndOf="@+id/recovery_dialog_crit_success_btn"
+        app:layout_constraintTop_toTopOf="@+id/recovery_dialog_crit_success_btn" />
+
+    <TextView
+        android:id="@+id/recovery_label_success"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:text="@string/dialog_recovery_info_success"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/recovery_dialog_success_btn"
+        app:layout_constraintStart_toEndOf="@+id/recovery_dialog_success_btn"
+        app:layout_constraintTop_toTopOf="@+id/recovery_dialog_success_btn" />
+
+    <TextView
+        android:id="@+id/recovery_label_failure"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:text="@string/dialog_recovery_info_failure"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/recovery_dialog_failure_btn"
+        app:layout_constraintStart_toEndOf="@+id/recovery_dialog_failure_btn"
+        app:layout_constraintTop_toTopOf="@+id/recovery_dialog_failure_btn" />
+
+    <TextView
+        android:id="@+id/recovery_label_crit_failure"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+
+        android:layout_marginLeft="16dp"
+        android:text="@string/dialog_recovery_info_crit_failure"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/recovery_dialog_crit_failure_btn"
+        app:layout_constraintStart_toEndOf="@+id/recovery_dialog_crit_failure_btn"
+        app:layout_constraintTop_toTopOf="@+id/recovery_dialog_crit_failure_btn" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
