@@ -85,7 +85,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="imagePath" value="E:\hobby\apps\initiative tracker\darktheme\ic_launcher_clear.png" />
+                                                <entry key="imagePath" value="E:\hobby\apps\pf2initiativetracker\darktheme\ic_launcher_clear.png" />
                                                 <entry key="scalingPercent" value="53" />
                                               </map>
                                             </option>
@@ -119,8 +119,7 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
-                                      <entry key="backgroundColor" value="606060" />
-                                      <entry key="outputName" value="ic_launcher_c" />
+                                      <entry key="backgroundColor" value="303f9f" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -301,7 +300,39 @@
         </entry>
         <entry key="vectorWizard">
           <value>
-            <PersistentState />
+            <PersistentState>
+              <option name="children">
+                <map>
+                  <entry key="vectorAssetStep">
+                    <value>
+                      <PersistentState>
+                        <option name="children">
+                          <map>
+                            <entry key="clipartAsset">
+                              <value>
+                                <PersistentState>
+                                  <option name="values">
+                                    <map>
+                                      <entry key="url" value="file:/$PROJECT_DIR$/../../../AppData/Local/Android/sdk/icons/material/materialicons/info/baseline_info_24.xml" />
+                                    </map>
+                                  </option>
+                                </PersistentState>
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
+                        <option name="values">
+                          <map>
+                            <entry key="outputName" value="ic_baseline_info_24" />
+                            <entry key="sourceFile" value="E:\Android\Projects\InitiativeTrackerSecondEdition" />
+                          </map>
+                        </option>
+                      </PersistentState>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </PersistentState>
           </value>
         </entry>
       </map>

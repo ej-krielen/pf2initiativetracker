@@ -5,11 +5,11 @@ android {
     buildToolsVersion '29.0.3'
 
     defaultConfig {
-        applicationId "com.rekijan.initiativetracker"
+        applicationId "com.rekijan.initiativetrackersecondedition"
         minSdkVersion 16
         targetSdkVersion 30
-        versionCode 29
-        versionName "1.29"
+        versionCode 1
+        versionName "1.0.0"
     }
     buildTypes {
         release {

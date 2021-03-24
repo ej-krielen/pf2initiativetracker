@@ -7,7 +7,7 @@
     <TextView
         android:id="@+id/character_detail_textView"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="48dp"
         android:background="@color/colorPrimaryLight"
         android:gravity="center"
         android:paddingStart="8dp"
@@ -30,14 +30,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <Switch
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/is_pc_switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                app:layout_constraintStart_toStartOf="@+id/guideline_50"
+                app:layout_constraintEnd_toEndOf="@+id/guideline_50"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -49,7 +49,29 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
                 android:text="@string/char_detail_switch_pc_on"
-                app:layout_constraintEnd_toEndOf="@+id/guideline_50"
+                app:layout_constraintEnd_toEndOf="@+id/guideline_33"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/is_dying_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintStart_toStartOf="@+id/guideline_75"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/is_dying_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/char_detail_switch_is_dying_on"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_75"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <EditText
@@ -84,7 +106,7 @@
                 android:imeOptions="actionDone"
                 android:inputType="number"
                 android:selectAllOnFocus="true"
-                app:layout_constraintStart_toStartOf="@+id/guideline_67"
+                app:layout_constraintStart_toStartOf="@+id/guideline_75"
                 app:layout_constraintTop_toBottomOf="@+id/is_pc_switch" />
 
             <TextView
@@ -96,7 +118,7 @@
                 android:layout_marginBottom="8dp"
                 android:text="@string/char_detail_max_hp"
                 app:layout_constraintBottom_toBottomOf="@+id/initiative_bonus_editText"
-                app:layout_constraintEnd_toStartOf="@+id/guideline_67" />
+                app:layout_constraintEnd_toStartOf="@+id/guideline_75" />
 
             <EditText
                 android:id="@+id/fast_healing_editText"
@@ -144,6 +166,136 @@
                 app:layout_constraintBottom_toBottomOf="@+id/fast_healing_editText"
                 app:layout_constraintEnd_toStartOf="@+id/guideline_75" />
 
+            <EditText
+                android:id="@+id/dying_editText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:imeOptions="actionDone"
+                android:inputType="number"
+                android:selectAllOnFocus="true"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_50"
+                app:layout_constraintTop_toBottomOf="@+id/fast_healing_editText"/>
+
+            <TextView
+                android:id="@+id/dying_label_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/char_detail_dying"
+                app:layout_constraintBottom_toBottomOf="@+id/dying_editText"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_33" />
+
+            <EditText
+                android:id="@+id/max_dying_editText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:imeOptions="actionDone"
+                android:inputType="number"
+                android:selectAllOnFocus="true"
+                app:layout_constraintStart_toStartOf="@+id/guideline_75"
+                app:layout_constraintTop_toTopOf="@+id/dying_editText" />
+
+            <TextView
+                android:id="@+id/max_dying_label_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/char_detail_max_dying"
+                app:layout_constraintBottom_toBottomOf="@+id/dying_editText"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_75" />
+
+            <TextView
+                android:id="@+id/wounded_label_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="@string/char_detail_wounded"
+                app:layout_constraintBottom_toBottomOf="@+id/wounded_editText"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_33" />
+
+            <EditText
+                android:id="@+id/wounded_editText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:imeOptions="actionDone"
+                android:inputType="number"
+                android:selectAllOnFocus="true"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_50"
+                app:layout_constraintTop_toBottomOf="@+id/dying_editText" />
+
+            <TextView
+                android:id="@+id/doomed_label_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="@string/char_detail_doomed"
+                app:layout_constraintBottom_toBottomOf="@+id/wounded_editText"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_75" />
+
+            <EditText
+                android:id="@+id/doomed_editText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:imeOptions="actionDone"
+                android:inputType="number"
+                android:selectAllOnFocus="true"
+                app:layout_constraintStart_toStartOf="@+id/guideline_75"
+                app:layout_constraintTop_toBottomOf="@+id/dying_editText" />
+
+            <TextView
+                android:id="@+id/recovery_dc_label_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="@string/char_detail_recovery_dc"
+                app:layout_constraintBottom_toBottomOf="@+id/hero_points_editText"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_33" />
+
+            <EditText
+                android:id="@+id/recovery_dc_editText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:imeOptions="actionDone"
+                android:inputType="number"
+                android:selectAllOnFocus="true"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_50"
+                app:layout_constraintTop_toBottomOf="@+id/wounded_editText" />
+
+            <TextView
+                android:id="@+id/hero_points_label_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="@string/char_detail_hero_points"
+                app:layout_constraintBottom_toBottomOf="@+id/hero_points_editText"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_75" />
+
+            <EditText
+                android:id="@+id/hero_points_editText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:imeOptions="actionDone"
+                android:inputType="number"
+                android:selectAllOnFocus="true"
+                app:layout_constraintStart_toStartOf="@+id/guideline_75"
+                app:layout_constraintTop_toBottomOf="@+id/wounded_editText" />
+
             <TextView
                 android:id="@+id/skill_label_textView"
                 android:layout_width="wrap_content"
@@ -153,7 +305,7 @@
                 android:layout_marginBottom="8dp"
                 android:text="@string/char_detail_skills"
                 app:layout_constraintBottom_toBottomOf="@+id/skills_editText"
-                app:layout_constraintEnd_toStartOf="@+id/guideline_50" />
+                app:layout_constraintEnd_toStartOf="@+id/guideline_33" />
 
             <EditText
                 android:id="@+id/skills_editText"
@@ -163,8 +315,8 @@
                 android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="textMultiLine"
-                app:layout_constraintStart_toStartOf="@+id/guideline_50"
-                app:layout_constraintTop_toBottomOf="@+id/fast_healing_editText" />
+                app:layout_constraintStart_toStartOf="@+id/guideline_33"
+                app:layout_constraintTop_toBottomOf="@+id/hero_points_editText" />
 
             <EditText
                 android:id="@+id/attack_routine_editText"
@@ -175,7 +327,7 @@
                 android:hint="@string/char_detail_attack_routine_hint"
                 android:imeOptions="actionDone"
                 android:inputType="textMultiLine"
-                app:layout_constraintStart_toStartOf="@+id/guideline_50"
+                app:layout_constraintStart_toStartOf="@+id/guideline_33"
                 app:layout_constraintTop_toBottomOf="@+id/skills_editText" />
 
             <TextView
@@ -187,7 +339,7 @@
                 android:layout_marginBottom="8dp"
                 android:text="@string/char_detail_attack_routine"
                 app:layout_constraintBottom_toBottomOf="@+id/attack_routine_editText"
-                app:layout_constraintEnd_toStartOf="@+id/guideline_50" />
+                app:layout_constraintEnd_toStartOf="@+id/guideline_33" />
 
             <EditText
                 android:id="@+id/ac_editText"
@@ -197,7 +349,7 @@
                 android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="textMultiLine"
-                app:layout_constraintStart_toStartOf="@+id/guideline_50"
+                app:layout_constraintStart_toStartOf="@+id/guideline_33"
                 app:layout_constraintTop_toBottomOf="@+id/attack_routine_editText" />
 
             <TextView
@@ -209,29 +361,7 @@
                 android:layout_marginBottom="8dp"
                 android:text="@string/char_detail_ac"
                 app:layout_constraintBottom_toBottomOf="@+id/ac_editText"
-                app:layout_constraintEnd_toStartOf="@+id/guideline_50" />
-
-            <EditText
-                android:id="@+id/maneuvers_editText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:imeOptions="actionDone"
-                android:inputType="textMultiLine"
-                app:layout_constraintStart_toStartOf="@+id/guideline_50"
-                app:layout_constraintTop_toBottomOf="@+id/ac_editText" />
-
-            <TextView
-                android:id="@+id/maneuvers_label_textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/char_detail_maneuvers"
-                app:layout_constraintBottom_toBottomOf="@+id/maneuvers_editText"
-                app:layout_constraintEnd_toStartOf="@+id/guideline_50" />
+                app:layout_constraintEnd_toStartOf="@+id/guideline_33" />
 
             <EditText
                 android:id="@+id/saves_editText"
@@ -241,8 +371,8 @@
                 android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="textMultiLine"
-                app:layout_constraintStart_toStartOf="@+id/guideline_50"
-                app:layout_constraintTop_toBottomOf="@+id/maneuvers_editText" />
+                app:layout_constraintStart_toStartOf="@+id/guideline_33"
+                app:layout_constraintTop_toBottomOf="@+id/ac_editText" />
 
             <TextView
                 android:id="@+id/saves_label_textView"
@@ -253,7 +383,7 @@
                 android:layout_marginBottom="8dp"
                 android:text="@string/char_detail_saves"
                 app:layout_constraintBottom_toBottomOf="@+id/saves_editText"
-                app:layout_constraintEnd_toStartOf="@+id/guideline_50" />
+                app:layout_constraintEnd_toStartOf="@+id/guideline_33" />
 
             <TextView
                 android:id="@+id/notes_label_textView"
@@ -272,6 +402,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
+                android:layout_marginTop="8dp"
                 android:background="@color/colorBackgroundLight"
                 android:hint="@string/char_detail_notes"
                 android:lines="5"

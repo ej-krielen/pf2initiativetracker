@@ -43,4 +43,24 @@
         <item name="android:itemBackground">@color/colorPrimaryLight</item>
     </style>
 
+    <style name="dyingHealthyTextStyle" parent="@android:style/TextAppearance.Widget.TextView">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:background">@drawable/dying_healthy_rounded_corners</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginLeft">16dp</item>
+        <item name="android:paddingTop">32dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+    </style>
+
+    <style name="dyingImageStyle" parent="@android:style/TextAppearance.Widget.TextView">
+        <item name="android:layout_marginStart">33dp</item>
+        <item name="android:layout_marginLeft">33dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">32dp</item>
+    </style>
+
 </resources>

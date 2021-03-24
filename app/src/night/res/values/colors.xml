@@ -10,6 +10,14 @@
 
     <color name="npcColor">#B3F6ACA6</color>
     <color name="pcColor">#6F848E</color>
+    <color name="characterDying">#4DEF2D1E</color>
+
+    <color name="dyingHealthy">#558753</color>
+    <color name="dyingDying">#D3635B</color>
+    <color name="dyingDoomed">#805E87</color>
+
+    <color name="dyingIcon">#80FFFFFF</color>
+
 
     <color name="text_background_color">#000000</color>
     <color name="text_color">#FFFFFF</color>
@@ -17,6 +25,5 @@
     <color name="edit_text_color">#B3FFFFFF</color>
 
     <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
 
 </resources>

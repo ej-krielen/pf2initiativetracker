@@ -13,14 +13,18 @@
     <!-- Menu-->
     <string name="action_next_turn">Next turn</string>
     <string name="action_sort">Sort</string>
-    <string name="action_party_select">Select a party</string>
     <string name="action_add_character">Add a character</string>
     <string name="action_delete_character">Delete a character</string>
     <string name="action_set_pcs_max_hp">Set PCs at max hp</string>
+    <string name="action_start_turn_info">Start Turn info</string>
+    <string name="action_end_turn_info">End Turn info</string>
     <string name="action_about">About</string>
     <string name="action_tip">Tip the dev</string>
 
+    <!-- Toast -->
     <string name="toast_max_hp">The following PCs did not get updated because their max hp was not higher then their current hp.\n\u0020\n%1$s</string>
+    <string name="toast_wounded_removed">The healed PC(s) had their wounded value reset to 0 (because they were healed to max).</string>
+    <string name="toast_recovered_from_dying">%1$s received healing and is no longer dying, wounded value has been increased as well.</string>
 
     <!-- Character Cards-->
     <string name="char_card_initiative">Init</string>
@@ -28,6 +32,10 @@
     <string name="char_card_buffs">Buffs or</string>
     <string name="char_card_debuffs">(De)buffs:</string>
     <string name="char_card_show_more">Show\nMore</string>
+    <string name="char_card_other_reactions">Other\nReactions</string>
+    <string name="char_card_hero_points">Hero Points</string>
+    <string name="char_card_reaction">Reaction</string>
+    <string name="char_card_dying_label">Dying: %1$d out of %2$d (wounded %3$d, doomed %4$d). Recovery Check: DC%5$d.</string>
 
     <!--Debuff Cards-->
     <string name="debuff_card_name">(De)buff name</string>
@@ -38,15 +46,21 @@
 
     <!--Character detail fragment-->
     <string name="char_detail_switch_pc_on">Character is a  PC</string>
+    <string name="char_detail_switch_is_dying_on">Is dying</string>
     <string name="char_detail_initiative_bonus">Initiative bonus</string>
     <string name="char_detail_max_hp">Max hp</string>
     <string name="char_detail_fast_healing">Fast Healing</string>
     <string name="char_detail_regeneration">Regeneration</string>
+    <string name="char_detail_dying">Dying value</string>
+    <string name="char_detail_max_dying">Max</string>
+    <string name="char_detail_wounded">Wounded value</string>
+    <string name="char_detail_doomed">Doomed value</string>
+    <string name="char_detail_recovery_dc">Starting\nRecovery DC</string>
+    <string name="char_detail_hero_points">Hero points</string>
     <string name="char_detail_skills">Skills</string>
     <string name="char_detail_attack_routine">Attack routine</string>
     <string name="char_detail_attack_routine_hint">to hit/damage</string>
-    <string name="char_detail_ac">AC touch AC ff AC</string>
-    <string name="char_detail_maneuvers">Maneuvers</string>
+    <string name="char_detail_ac">AC</string>
     <string name="char_detail_saves">Fort Ref Will</string>
     <string name="char_detail_notes">Notes</string>
     <string name="char_detail_debuffs">Debuffs, buffs, spells</string>
@@ -56,6 +70,7 @@
     <!-- Edit Order fragment -->
     <string name="up_button_label">Λ</string>
     <string name="down_button_label">v</string>
+    <string name="edit_order_instruction">Press and hold a character to set it to be the one first in the round.</string>
 
     <!-- EditText Hints-->
     <string name="EH_character_name">Character name</string>
@@ -81,6 +96,20 @@
     <string name="dialog_delete_title">Warning: Confirm delete</string>
     <string name="dialog_delete_info">To delete a character press down on it, and hold until a confirmation dialog appears.</string>
     <string name="dialog_delete_info_title">How to delete a character</string>
+    <string name="dialog_turn_start_info">At the start of each of your turns, take these steps in any order you choose:\n\n\n
+&#8226; If you created an effect lasting for a certain number of rounds, reduce the number of rounds remaining by 1. The effect ends if the duration is reduced to 0.\n\n
+&#8226; You can use 1 free action or reaction with a trigger of “Your turn begins” or something similar.\n\n
+&#8226; If you are dying, roll a recovery check.\n\n
+&#8226; Do anything else that is specified to happen at the start of your turn, such as regaining Hit Points from fast healing or regeneration.\n\n\n
+The last step of starting your turn is always the same.\n\n\n
+&#8226; Regain your 3 actions and 1 reaction. If you have not spent your reaction from your last turn, you lose it—you can not “save” actions or reactions from one turn to use during the next turn. If a condition prevents you from being able to act, you don not regain any actions or your reaction. Some abilities or conditions (such as quickened and slowed) can change how many actions you regain and whether you regain your reaction. If you lose actions and gain additional actions (such as if you are both quickened and slowed), you choose which actions to lose.</string>
+    <string name="dialog_turn_start_info_title">Start Your Turn info</string>
+    <string name="dialog_turn_end_info">Take the following steps in any order you choose. Play then proceeds to the next creature in the initiative order.\n\n\n
+&#8226; End any effects that last until the end of your turn. For example, spells with a sustained duration end at the end of your turn unless you used the Sustain a Spell action during your turn to extend them. Some effects caused by enemies might also last through a certain number of your turns, and you decrease the remaining duration by 1 during this step, ending the effect if its duration is reduced to 0.\n\n
+&#8226; If you have a persistent damage condition, you take the damage at this point. After you take the damage, you can attempt the flat check to end the persistent damage. You then attempt any saving throws for ongoing afflictions. Many other conditions change at the end of your turn, such as the frightened condition decreasing in severity. These take place after you have taken any persistent damage, attempted flat checks to end the persistent damage, and attempted saves against any afflictions.\n\n
+&#8226; You can use 1 free action or reaction with a trigger of “Your turn ends” or something similar.\n\n
+&#8226; Resolve anything else specified to happen at the end of your turn.</string>
+    <string name="dialog_turn_end_info_title">End Your Turn info</string>
     <string name="dialog_about_info">To learn more about the app, and its developer, please visit the website.</string>
     <string name="dialog_about_info_title">About</string>
     <string name="dialog_about_ok">Go to website</string>
@@ -110,6 +139,19 @@
     <string name="dialog_delete_low_positive">OK, delete</string>
     <string name="dialog_delete_low_negative">NO, keep character</string>
 
+    <string name="dialog_dying_pc_title">Character dying?</string>
+    <string name="dialog_dying_pc">This character dropped to 0 or lower hp, do you want to set it to dying?</string>
+    <string name="dialog_dying_pc_positive">OK, proceed</string>
+    <string name="dialog_pc_dying_negative">NO, keep things as is</string>
+
+    <string name="dialog_dying_crit_title">Was it a critical hit?</string>
+    <string name="dialog_dying_crit">If the character went down to a critical hit its dying condition will start at 2 instead of 1.\n\nPlease note that if it died to a Death effect it is instantly killed and you should remove it.</string>
+    <string name="dialog_dying_crit_positive">Yes (Start at dying 2)</string>
+    <string name="dialog_dying_crit_negative">No (Start dying 1)</string>
+    <string name="dialog_dying_damaged_again">If the character that was dying received damage from a critical hit they dying value will increase by 2 instead of 1.</string>
+    <string name="dialog_dying_damaged_again_positive">Yes (increase by 2)</string>
+    <string name="dialog_dying_damaged_again_negative">No (increase by 1)</string>
+
     <!--Round counter-->
     <string name="plus_round_button_label">+</string>
     <string name="minus_round_button_label">-</string>
@@ -118,9 +160,8 @@
 
     <!--Character details-->
     <string name="character_details_name_title">Character details for :\u0020 %1$s</string>
-    <string name="standard_ac">AC %1$d (touch %1$d, flatfooted %1$d)</string>
+    <string name="character_details_ac">AC %1$d</string>
     <string name="standard_saves">Fort %1$d Ref %1$d Will %1$d</string>
-    <string name="standard_mobile_ac">AC %1$d (touch %1$d, \n flatfooted %1$d)</string>
     <string name="standard__mobile_saves">Fort %1$d Ref %1$d \n Will %1$d</string>
     <string name="maneuvers">CMB +%1$d CMD %2$d</string>
 

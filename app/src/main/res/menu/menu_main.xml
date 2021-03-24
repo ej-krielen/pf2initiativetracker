@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.rekijan.initiativetracker.ui.activities.MainActivity">
+    tools:context="com.rekijan.initiativetrackersecondedition.ui.activities.MainActivity">
     <item
         android:id="@+id/action_settings_next_turn"
         android:orderInCategory="1"
@@ -28,13 +28,23 @@
         android:title="@string/action_set_pcs_max_hp"
         app:showAsAction="ifRoom"/>
     <item
+        android:id="@+id/action_settings_start_turn_info"
+        android:orderInCategory="6"
+        android:title="@string/action_start_turn_info"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_settings_end_turn_info"
+        android:orderInCategory="7"
+        android:title="@string/action_end_turn_info"
+        app:showAsAction="ifRoom"/>
+    <item
         android:id="@+id/action_settings_about"
-        android:orderInCategory="5"
+        android:orderInCategory="8"
         android:title="@string/action_about"
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/action_settings_tip"
-        android:orderInCategory="5"
+        android:orderInCategory="9"
         android:title="@string/action_tip"
         app:showAsAction="ifRoom"/>
     <!--<item
