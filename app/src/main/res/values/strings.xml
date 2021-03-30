@@ -25,7 +25,8 @@
     <string name="toast_max_hp">The following PCs did not get updated because their max hp was not higher then their current hp.\n\u0020\n%1$s</string>
     <string name="toast_wounded_removed">The healed PC(s) had their wounded value reset to 0 (because they were healed to max).</string>
     <string name="toast_recovered_from_dying_by_healing">%1$s received healing and is no longer dying, wounded value has been increased as well.</string>
-    <string name="toast_recovered_from_dying_by_recovery_checks">%1$s reduced its dying value to 0 and is no longer dying, wounded value has been increased.</string>
+    <string name="toast_recovered_from_dying_by_recovery_checks">%1$s reduced its dying entirely and is now stabilized at 0hp (wounded value has been increased).\nIt now takes its turn normally (though it might be still unconscious at 0hp).</string>
+    <string name="toast_recovered_from_dying_by_hero_points">%1$s used its Hero Points to remove dying entirely and is now stabilized at 0hp (no increase to its wounded value).\nIt now takes its turn normally (though it might be still unconscious at 0hp).</string>
 
     <!-- Character Cards-->
     <string name="char_card_initiative">Init</string>

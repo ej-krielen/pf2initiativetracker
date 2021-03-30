@@ -320,6 +320,7 @@ public class HitPointAndDyingChangeHelper {
         {
             character.setIsDying(false);
             character.setDyingValue(0);
+            character.setWoundedValue(character.getWoundedValue()+1);
             character.setHp(0);
             Toast.makeText(context, context.getString(R.string.toast_recovered_from_dying_by_recovery_checks, character.getCharacterName()), Toast.LENGTH_LONG).show();
         }
@@ -372,6 +373,7 @@ public class HitPointAndDyingChangeHelper {
         character.setHp(0);
         AppExtension app = (AppExtension) context.getApplicationContext();
         app.getCharacterAdapter().notifyDataSetChanged();
+        Toast.makeText(context, context.getString(R.string.toast_recovered_from_dying_by_hero_points, character.getCharacterName()), Toast.LENGTH_LONG).show();
     }
 
     /**

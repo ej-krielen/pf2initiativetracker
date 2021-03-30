@@ -14,7 +14,6 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.rekijan.initiativetrackersecondedition.R;
@@ -156,9 +155,9 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
      * Each {@link CharacterModel} is pushed down the list by one, bottom one becomes the top.<br>
      *     Also handles stuff that happen at the start of the round for the CharacterModel whose turn it is now.
      * @return true if its the first character in the round so the round counter can be updated
-     * @param activity
+     * @param context
      */
-    public boolean nextTurn(FragmentActivity activity) {
+    public boolean nextTurn(Context context) {
         //Create temporary list
         ArrayList<CharacterModel> newList = new ArrayList<>();
         //Add all the items in the new order
@@ -171,7 +170,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         characters = newList;
         //Update the top character whose turn it is now
         CharacterModel characterModel = characters.get(0);
-        characterModel.updateDebuffs(activity);
+        characterModel.updateDebuffs(context);
         HitPointAndDyingChangeHelper.getInstance().automaticHealingCheck(characterModel, context);
         characterModel.setReactionAvailable(true);
         //TODO also set custom reactions to true
