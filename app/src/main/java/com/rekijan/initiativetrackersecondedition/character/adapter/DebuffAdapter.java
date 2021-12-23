@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class DebuffAdapter extends RecyclerView.Adapter<DebuffAdapter.DebuffViewHolder> {
 
-    // Field for the list of CharacterModels
+    // Field for the list of DebuffModels
     private final ArrayList<DebuffModel> debuffs = new ArrayList<>();
     // Reference to character to which the debuffs belong
     private final CharacterModel character;

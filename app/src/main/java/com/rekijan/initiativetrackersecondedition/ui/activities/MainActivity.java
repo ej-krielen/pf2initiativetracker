@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
             List<Purchase> listPurchase = billingClient.queryPurchases(BillingClient.SkuType.INAPP).getPurchasesList();
             if (listPurchase!=null){
                 for (Purchase purchase: listPurchase){
-                    if (purchase.isAcknowledged() && (purchase.getSku().equals(ITEM_SKU_FIVE) || purchase.getSku().equals(ITEM_SKU_TEN))){
+                    if (purchase.isAcknowledged() && (purchase.getSkus().contains(ITEM_SKU_FIVE) || purchase.getSkus().contains(ITEM_SKU_TEN))){
                         // they have the purchase so make it available
                         consumePurchase(purchase.getPurchaseToken(), purchase.getDeveloperPayload());
                     }
@@ -323,7 +323,7 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
     // put whatever you want in this method - BUT REMEMBER TO ACKNOWLEDGE THE PURCHASE
     private void handlePurchase(Purchase purchase) {
 
-        if ((purchase.getSku().equals(ITEM_SKU_FIVE) || purchase.getSku().equals(ITEM_SKU_TEN)) && purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
+        if ((purchase.getSkus().contains(ITEM_SKU_FIVE) || purchase.getSkus().contains(ITEM_SKU_TEN)) && purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
 
             if (!purchase.isAcknowledged()) {
                 AcknowledgePurchaseParams acknowledgePurchaseParams =

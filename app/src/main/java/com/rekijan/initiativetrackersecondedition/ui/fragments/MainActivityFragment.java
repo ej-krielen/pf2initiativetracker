@@ -1,5 +1,8 @@
 package com.rekijan.initiativetrackersecondedition.ui.fragments;
 
+import static com.rekijan.initiativetrackersecondedition.AppConstants.ROUND_COUNTER;
+import static com.rekijan.initiativetrackersecondedition.AppConstants.SHARED_PREF_TAG;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -28,9 +31,6 @@ import com.rekijan.initiativetrackersecondedition.character.model.CharacterModel
 import com.rekijan.initiativetrackersecondedition.helper.DialogHelper;
 import com.rekijan.initiativetrackersecondedition.helper.HitPointAndDyingChangeHelper;
 import com.rekijan.initiativetrackersecondedition.ui.activities.MainActivity;
-
-import static com.rekijan.initiativetrackersecondedition.AppConstants.ROUND_COUNTER;
-import static com.rekijan.initiativetrackersecondedition.AppConstants.SHARED_PREF_TAG;
 
 /**
  * A fragment containing the list of CharacterModels
@@ -220,7 +220,7 @@ public class MainActivityFragment extends Fragment {
     }
 
     /**
-     * Called from {@link CharacterAdapter#nextTurn(androidx.fragment.app.FragmentActivity)} if the {@link CharacterModel} whose turn it is marks the start of a new round<br>
+     * Called from {@link CharacterAdapter#nextTurn} if the {@link CharacterModel} whose turn it is marks the start of a new round<br>
      *     Ups the round counter by 1
      */
     private void nextRound() {
