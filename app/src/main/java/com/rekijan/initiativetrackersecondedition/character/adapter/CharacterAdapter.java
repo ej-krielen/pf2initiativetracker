@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.character.model.CharacterModel;
 import com.rekijan.initiativetrackersecondedition.character.model.DebuffModel;
+import com.rekijan.initiativetrackersecondedition.character.model.ReactionModel;
 import com.rekijan.initiativetrackersecondedition.helper.DialogHelper;
 import com.rekijan.initiativetrackersecondedition.helper.HitPointAndDyingChangeHelper;
 import com.rekijan.initiativetrackersecondedition.listeners.GenericTextWatcher;
@@ -172,8 +173,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         CharacterModel characterModel = characters.get(0);
         characterModel.updateDebuffs(context);
         HitPointAndDyingChangeHelper.getInstance().automaticHealingCheck(characterModel, context);
-        characterModel.setReactionAvailable(true);
-        //TODO also set custom reactions to true
+        characterModel.updateReactions();
         if (characterModel.isDying()) {
             HitPointAndDyingChangeHelper.getInstance().promptRecoveryCheckDialog(characterModel, context);
         }
@@ -194,6 +194,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         TextView debuffOverviewTextView;
         Button showCharacterDetailButton;
         SwitchCompat reactionSwitch;
+        TextView reactionsAvailableTextView;
         Button reactionsButton;
         Button collapseReactionButton;
         Button openReactionButton;
@@ -214,6 +215,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
             reactionSwitch = itemView.findViewById(R.id.is_reaction_available_switch);
             reactionsButton = itemView.findViewById(R.id.other_reactions_button);
             collapseReactionButton = itemView.findViewById(R.id.collapse_reaction_button);
+            reactionsAvailableTextView = itemView.findViewById(R.id.reactions_available_textView);
             openReactionButton = itemView.findViewById(R.id.open_reaction_button);
             reactionLabel = itemView.findViewById(R.id.reaction_label_textView);
             dyingLabel = itemView.findViewById(R.id.char_card_dying_label);
@@ -306,12 +308,20 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
 
         //Start of reaction section
 
+        holder.reactionsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((MainActivity)context).replaceReactionDetailFragment(holder.getAdapterPosition());
+            }
+        });
+
         holder.collapseReactionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 holder.collapseReactionButton.setVisibility(View.INVISIBLE);
                 holder.reactionSwitch.setVisibility(View.GONE);
                 holder.reactionLabel.setVisibility(View.GONE);
+                holder.reactionsAvailableTextView.setVisibility(View.GONE);
                 holder.reactionsButton.setVisibility(View.GONE);
                 holder.openReactionButton.setVisibility(View.VISIBLE);
                 character.setReactionCollapsed(true);
@@ -324,6 +334,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
                 holder.openReactionButton.setVisibility(View.INVISIBLE);
                 holder.reactionSwitch.setVisibility(View.VISIBLE);
                 holder.reactionLabel.setVisibility(View.VISIBLE);
+                holder.reactionsAvailableTextView.setVisibility(View.VISIBLE);
                 holder.reactionsButton.setVisibility(View.VISIBLE);
                 holder.collapseReactionButton.setVisibility(View.VISIBLE);
                 character.setReactionCollapsed(false);
@@ -345,26 +356,39 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
             holder.collapseReactionButton.setVisibility(View.GONE);
             holder.reactionSwitch.setVisibility(View.GONE);
             holder.reactionLabel.setVisibility(View.GONE);
+            holder.reactionsAvailableTextView.setVisibility(View.GONE);
             holder.reactionsButton.setVisibility(View.GONE);
             holder.openReactionButton.setVisibility(View.GONE);
         } else if (character.isReactionCollapsed()) {
             holder.collapseReactionButton.setVisibility(View.INVISIBLE);
             holder.reactionSwitch.setVisibility(View.GONE);
             holder.reactionLabel.setVisibility(View.GONE);
+            holder.reactionsAvailableTextView.setVisibility(View.GONE);
             holder.reactionsButton.setVisibility(View.GONE);
             holder.openReactionButton.setVisibility(View.VISIBLE);
         } else {
             holder.openReactionButton.setVisibility(View.INVISIBLE);
             holder.reactionSwitch.setVisibility(View.VISIBLE);
             holder.reactionLabel.setVisibility(View.VISIBLE);
+            holder.reactionsAvailableTextView.setVisibility(View.VISIBLE);
             holder.reactionsButton.setVisibility(View.VISIBLE);
             holder.collapseReactionButton.setVisibility(View.VISIBLE);
         }
 
         holder.reactionSwitch.setChecked(character.isReactionAvailable());
 
-        //TODO add button if multiple reactions are active and show a list in popup to switch them on/off
-        holder.reactionsButton.setVisibility(View.GONE);
+        int nofAvailableReactions = 0;
+        if (character.getReactionList() != null) {
+            for (ReactionModel r: character.getReactionList()) {
+                if (r.isAvailable()) nofAvailableReactions++;
+            }
+        }
+        if (nofAvailableReactions == 1) {
+            holder.reactionsAvailableTextView.setText(context.getResources().getString(R.string.char_card_reaction_available_label));
+        } else {
+            holder.reactionsAvailableTextView.setText(String.format(context.getResources().getString(R.string.char_card_reactions_available_label), nofAvailableReactions));
+        }
+
 
         //End of reaction section
 

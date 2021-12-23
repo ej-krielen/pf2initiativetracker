@@ -37,6 +37,8 @@
     <string name="char_card_other_reactions">Other\nReactions</string>
     <string name="char_card_hero_points">Hero Points</string>
     <string name="char_card_reaction">Reaction</string>
+    <string name="char_card_reactions_available_label">%1$d other reactions available</string>
+    <string name="char_card_reaction_available_label">1 other reaction available</string>
     <string name="char_card_dying_label">Dying: %1$d out of %2$d (wounded %3$d, doomed %4$d). Recovery Check: DC%5$d.</string>
 
     <!--Debuff Cards-->
@@ -45,6 +47,16 @@
     <string name="debuff_card_duration_label">Duration</string>
     <string name="debuff_card_description">(De)buff description</string>
     <string name="debuff_card_remove_button">Remove</string>
+
+    <!--Reaction detail fragment-->
+    <string name="reaction_details_name_title">Non-standard reactions for :\u0020 %1$s</string>
+
+
+    <!--Reaction Cards-->
+    <string name="reaction_card_name">Reaction name</string>
+    <string name="reaction_card_available">Available</string>
+    <string name="reaction_card_description">Reaction description</string>
+    <string name="reaction_card_remove_button">Remove</string>
 
     <!--Character detail fragment-->
     <string name="char_detail_switch_pc_on">Character is a  PC</string>

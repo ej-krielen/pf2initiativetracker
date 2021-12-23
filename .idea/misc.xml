@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Android/Projects/InitiativeTrackerSecondEdition/app/src/main/res/layout/character_card.xml" value="0.33695652173913043" />
+        <entry key="..\:/Android/Projects/InitiativeTrackerSecondEdition/app/src/main/res/layout/debuff_card.xml" value="0.33695652173913043" />
+        <entry key="..\:/Android/Projects/InitiativeTrackerSecondEdition/app/src/main/res/layout/fragment_reactions_detail.xml" value="0.33695652173913043" />
+        <entry key="..\:/Android/Projects/InitiativeTrackerSecondEdition/app/src/main/res/layout/reactions_card.xml" value="0.33695652173913043" />
+      </map>
+    </option>
+  </component>
   <component name="NullableNotNullManager">
     <option name="myDefaultNullable" value="android.support.annotation.Nullable" />
     <option name="myDefaultNotNull" value="android.support.annotation.NonNull" />

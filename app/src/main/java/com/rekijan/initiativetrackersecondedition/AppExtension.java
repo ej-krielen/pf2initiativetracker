@@ -1,5 +1,9 @@
 package com.rekijan.initiativetrackersecondedition;
 
+import static com.rekijan.initiativetrackersecondedition.AppConstants.GSON_TAG;
+import static com.rekijan.initiativetrackersecondedition.AppConstants.ROUND_COUNTER;
+import static com.rekijan.initiativetrackersecondedition.AppConstants.SHARED_PREF_TAG;
+
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -12,10 +16,6 @@ import com.rekijan.initiativetrackersecondedition.ui.activities.MainActivity;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-
-import static com.rekijan.initiativetrackersecondedition.AppConstants.GSON_TAG;
-import static com.rekijan.initiativetrackersecondedition.AppConstants.ROUND_COUNTER;
-import static com.rekijan.initiativetrackersecondedition.AppConstants.SHARED_PREF_TAG;
 
 /**
  * Extends Application to store and manipulate top-level data
@@ -60,6 +60,10 @@ public class AppExtension extends Application {
                     if (c.getDebuffList() != null)
                     {
                         tempCharacter.setDebuffList(c.getDebuffList());
+                    }
+                    if (c.getReactionList() != null)
+                    {
+                        tempCharacter.setReactionList(c.getReactionList());
                     }
                     mCharacterAdapter.add(tempCharacter);
                 }

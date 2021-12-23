@@ -130,6 +130,16 @@
             card_view:layout_constraintTop_toBottomOf="@+id/debuff_description_editText" />
 
         <TextView
+            android:id="@+id/reactions_available_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="@string/char_card_reactions_available_label"
+            card_view:layout_constraintBottom_toBottomOf="@+id/other_reactions_button"
+            card_view:layout_constraintEnd_toStartOf="@+id/other_reactions_button"
+            card_view:layout_constraintTop_toTopOf="@+id/other_reactions_button" />
+
+        <TextView
             android:id="@+id/reaction_label_textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

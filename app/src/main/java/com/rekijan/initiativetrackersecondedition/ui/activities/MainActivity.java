@@ -36,6 +36,7 @@ import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.ui.fragments.CharacterDetailFragment;
 import com.rekijan.initiativetrackersecondedition.ui.fragments.EditOrderFragment;
 import com.rekijan.initiativetrackersecondedition.ui.fragments.MainActivityFragment;
+import com.rekijan.initiativetrackersecondedition.ui.fragments.ReactionsDetailFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -201,6 +202,22 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
             transaction.commit();
         } else {
             transaction.replace(R.id.main_fragment_container, CharacterDetailFragment.newInstance(position));
+            transaction.addToBackStack(null);
+            transaction.commit();
+            //Enable the back button in action bar
+            if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            AppExtension app = (AppExtension) this.getApplicationContext();
+            app.setShowBackNavigation(true);
+        }
+    }
+
+    public void replaceReactionDetailFragment(int position) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        if (getResources().getBoolean(R.bool.isTablet)) {
+            transaction.replace(R.id.second_fragment_container, ReactionsDetailFragment.newInstance(position));
+            transaction.commit();
+        } else {
+            transaction.replace(R.id.main_fragment_container, ReactionsDetailFragment.newInstance(position));
             transaction.addToBackStack(null);
             transaction.commit();
             //Enable the back button in action bar

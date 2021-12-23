@@ -1,5 +1,9 @@
 package com.rekijan.initiativetrackersecondedition.character.model;
 
+import static com.rekijan.initiativetrackersecondedition.AppConstants.AC_AND_SAVES;
+import static com.rekijan.initiativetrackersecondedition.AppConstants.HP;
+import static com.rekijan.initiativetrackersecondedition.AppConstants.INITIATIVE;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,10 +13,6 @@ import android.os.Parcelable;
 import com.rekijan.initiativetrackersecondedition.R;
 
 import java.util.ArrayList;
-
-import static com.rekijan.initiativetrackersecondedition.AppConstants.AC_AND_SAVES;
-import static com.rekijan.initiativetrackersecondedition.AppConstants.HP;
-import static com.rekijan.initiativetrackersecondedition.AppConstants.INITIATIVE;
 
 /**
  * Model class for the Character
@@ -53,6 +53,7 @@ public class CharacterModel implements Parcelable {
     private String characterNotes;
 
     private ArrayList<DebuffModel> debuffList = new ArrayList<>();
+    private ArrayList<ReactionModel> reactionsList = new ArrayList<>();
 
     public CharacterModel(Context context) {
         initiative = INITIATIVE;
@@ -129,6 +130,13 @@ public class CharacterModel implements Parcelable {
             debuffPosition++;
         }
         this.setDebuffList(debuffList);
+    }
+
+    public void updateReactions() {
+        setReactionAvailable(true);
+        for (ReactionModel r: reactionsList) {
+            r.setAvailable(true);
+        }
     }
 
     /**
@@ -356,8 +364,18 @@ public class CharacterModel implements Parcelable {
         return debuffList;
     }
 
+    public ArrayList<ReactionModel> getReactionList() {
+        //Need to check for null because previous iteration didn't have this array list
+        if (reactionsList == null) reactionsList = new ArrayList<>();
+        return reactionsList;
+    }
+
     public void setDebuffList(ArrayList<DebuffModel> debuffList) {
         this.debuffList = debuffList;
+    }
+
+    public void setReactionList(ArrayList<ReactionModel> reactionsList) {
+        this.reactionsList = reactionsList;
     }
 
     @Override

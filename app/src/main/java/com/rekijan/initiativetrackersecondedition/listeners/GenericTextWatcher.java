@@ -8,6 +8,7 @@ import android.view.View;
 import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.character.model.CharacterModel;
 import com.rekijan.initiativetrackersecondedition.character.model.DebuffModel;
+import com.rekijan.initiativetrackersecondedition.character.model.ReactionModel;
 
 /**
  * <p>Listener for EditText</p>
@@ -19,6 +20,7 @@ public class GenericTextWatcher implements TextWatcher {
     private final View view;
     private CharacterModel character;
     private DebuffModel debuff;
+    private ReactionModel reaction;
 
     public GenericTextWatcher(CharacterModel character, View view) {
         this.character = character;
@@ -27,6 +29,11 @@ public class GenericTextWatcher implements TextWatcher {
 
     public GenericTextWatcher(DebuffModel debuff, View view) {
         this.debuff = debuff;
+        this.view = view;
+    }
+
+    public GenericTextWatcher(ReactionModel reaction, View view) {
+        this.reaction = reaction;
         this.view = view;
     }
 
@@ -80,6 +87,10 @@ public class GenericTextWatcher implements TextWatcher {
             debuff.setDuration(inputIntText(text));
         } else if (viewId == R.id.debuff_description_editText) {
             debuff.setDescription(text);
+        } else if (viewId == R.id.reaction_name_editText) {
+            reaction.setName(text);
+        } else if (viewId == R.id.reaction_description_editText) {
+            reaction.setDescription(text);
         }
     }
 
