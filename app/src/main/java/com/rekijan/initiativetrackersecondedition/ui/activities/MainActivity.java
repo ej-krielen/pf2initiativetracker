@@ -34,6 +34,7 @@ import com.android.billingclient.api.SkuDetailsResponseListener;
 import com.rekijan.initiativetrackersecondedition.AppExtension;
 import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.ui.fragments.CharacterDetailFragment;
+import com.rekijan.initiativetrackersecondedition.ui.fragments.DebuffWizardFragment;
 import com.rekijan.initiativetrackersecondedition.ui.fragments.EditOrderFragment;
 import com.rekijan.initiativetrackersecondedition.ui.fragments.MainActivityFragment;
 import com.rekijan.initiativetrackersecondedition.ui.fragments.ReactionsDetailFragment;
@@ -227,6 +228,22 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
         }
     }
 
+    public void replaceDebuffWizardFragment(int position) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        if (getResources().getBoolean(R.bool.isTablet)) {
+            transaction.replace(R.id.second_fragment_container, DebuffWizardFragment.newInstance(position));
+            transaction.commit();
+        } else {
+            transaction.replace(R.id.main_fragment_container, DebuffWizardFragment.newInstance(position));
+            transaction.addToBackStack(null);
+            transaction.commit();
+            //Enable the back button in action bar
+            if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            AppExtension app = (AppExtension) this.getApplicationContext();
+            app.setShowBackNavigation(true);
+        }
+    }
+
     public void replaceEditOrderFragment() {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.main_fragment_container, EditOrderFragment.newInstance());
@@ -254,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
         //Add custom layout to dialog
         LayoutInflater inflater = LayoutInflater.from(this);
-        final View alertDialogView = inflater.inflate(R.layout.tip_dialog, null);
+        final View alertDialogView = inflater.inflate(R.layout.dialog_tip, null);
         builder.setTitle(this.getString(R.string.tip_dialog_title));
         //Set button to close and cancel
         builder.setNegativeButton(this.getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {

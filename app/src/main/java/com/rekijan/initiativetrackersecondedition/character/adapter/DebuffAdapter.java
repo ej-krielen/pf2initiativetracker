@@ -23,7 +23,11 @@ import java.util.List;
  * @author Erik-Jan Krielen ej.krielen@gmail.com
  * @since 1-6-2019
  */
-public class DebuffAdapter extends RecyclerView.Adapter<DebuffAdapter.DebuffViewHolder> {
+public class DebuffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private static final int TYPE_DEBUFF = 0;
+    private static final int TYPE_PERSISTENT_DAMAGE = 1;
+    private static final int TYPE_POISON = 2;
 
     // Field for the list of DebuffModels
     private final ArrayList<DebuffModel> debuffs = new ArrayList<>();
@@ -91,59 +95,181 @@ public class DebuffAdapter extends RecyclerView.Adapter<DebuffAdapter.DebuffView
             removeDebuffButton = itemView.findViewById(R.id.remove_debuff_button);
         }
     }
+
+    public static class PersistentDamageViewHolder extends RecyclerView.ViewHolder {
+        CardView persistentDamageCardView;
+        EditText persistentDamageNameEditText;
+        EditText persistentDamageTypeEditText;
+        EditText persistentDamageValueEditText;
+        EditText persistentDamageDcEditText;
+        EditText persistentDamageDurationEditText;
+        EditText persistentDamageDescriptionEditText;
+        Button removePersistentDamageButton;
+
+        PersistentDamageViewHolder(View itemView) {
+            super(itemView);
+            persistentDamageCardView = itemView.findViewById(R.id.persistent_damage_cardView);
+            persistentDamageNameEditText = itemView.findViewById(R.id.persistent_damage_name_editText);
+            persistentDamageTypeEditText = itemView.findViewById(R.id.persistent_damage_type_editText);
+            persistentDamageValueEditText = itemView.findViewById(R.id.persistent_damage_value_editText);
+            persistentDamageDcEditText = itemView.findViewById(R.id.persistent_damage_dc_editText);
+            persistentDamageDurationEditText = itemView.findViewById(R.id.persistent_damage_duration_editText);
+            persistentDamageDescriptionEditText = itemView.findViewById(R.id.persistent_damage_description_editText);
+            removePersistentDamageButton = itemView.findViewById(R.id.remove_persistent_damage_button);
+        }
+    }
     /* End of Viewholder region */
 
     @Override
-    public DebuffViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.debuff_card, parent, false);
-        return new DebuffViewHolder(v);
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if (viewType == TYPE_DEBUFF)
+        {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_debuff, parent, false);
+            return new DebuffViewHolder(v);
+        } else {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_persistent_damage_create, parent, false);
+            return new PersistentDamageViewHolder(v);
+        }
     }
 
     @Override
-    public void onBindViewHolder(final DebuffViewHolder holder, int position) {
-        //Remove watcher if they exist to avoid double watchers
-        GenericTextWatcher oldDebuffNameWatcher = (GenericTextWatcher) holder.debuffNameEditText.getTag();
-        if (oldDebuffNameWatcher != null) {
-            holder.debuffNameEditText.removeTextChangedListener(oldDebuffNameWatcher);
-        }
-        GenericTextWatcher oldDebuffDurationWatcher = (GenericTextWatcher) holder.debuffDurationEditText.getTag();
-        if (oldDebuffDurationWatcher != null) {
-            holder.debuffDurationEditText.removeTextChangedListener(oldDebuffDurationWatcher);
-        }
-        GenericTextWatcher oldDebuffDescriptionWatcher = (GenericTextWatcher) holder.debuffDescriptionEditText.getTag();
-        if (oldDebuffDescriptionWatcher != null) {
-            holder.debuffDescriptionEditText.removeTextChangedListener(oldDebuffDescriptionWatcher);
-        }
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-        //Get corresponding debuff
-        final DebuffModel debuff = debuffs.get(position);
-
-        //Set TextView and EditText values
-        holder.debuffNameEditText.setText(debuff.getName());
-        holder.debuffDurationEditText.setText(String.valueOf(debuff.getDuration()));
-        holder.debuffDescriptionEditText.setText(debuff.getDescription());
-
-        //Add new text watchers
-        GenericTextWatcher newDebuffNameWatcher = new GenericTextWatcher(debuff, holder.debuffNameEditText);
-        holder.debuffNameEditText.setTag(newDebuffNameWatcher);
-        holder.debuffNameEditText.addTextChangedListener(newDebuffNameWatcher);
-
-        GenericTextWatcher newDebuffDurationWatcher = new GenericTextWatcher(debuff, holder.debuffDurationEditText);
-        holder.debuffDurationEditText.setTag(newDebuffDurationWatcher);
-        holder.debuffDurationEditText.addTextChangedListener(newDebuffDurationWatcher);
-
-        GenericTextWatcher newDebuffDescriptionWatcher = new GenericTextWatcher(debuff, holder.debuffDescriptionEditText);
-        holder.debuffDescriptionEditText.setTag(newDebuffDescriptionWatcher);
-        holder.debuffDescriptionEditText.addTextChangedListener(newDebuffDescriptionWatcher);
-
-        holder.removeDebuffButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Remove from adapter and CharacterModel
-                character.getDebuffList().remove(holder.getAdapterPosition());
-                remove(holder.getAdapterPosition());
+        if (holder instanceof DebuffViewHolder)
+        {
+            DebuffViewHolder debuffHolder = (DebuffViewHolder) holder;
+            //Remove watcher if they exist to avoid double watchers
+            GenericTextWatcher oldDebuffNameWatcher = (GenericTextWatcher) debuffHolder.debuffNameEditText.getTag();
+            if (oldDebuffNameWatcher != null) {
+                debuffHolder.debuffNameEditText.removeTextChangedListener(oldDebuffNameWatcher);
             }
-        });
+            GenericTextWatcher oldDebuffDurationWatcher = (GenericTextWatcher) debuffHolder.debuffDurationEditText.getTag();
+            if (oldDebuffDurationWatcher != null) {
+                debuffHolder.debuffDurationEditText.removeTextChangedListener(oldDebuffDurationWatcher);
+            }
+            GenericTextWatcher oldDebuffDescriptionWatcher = (GenericTextWatcher) debuffHolder.debuffDescriptionEditText.getTag();
+            if (oldDebuffDescriptionWatcher != null) {
+                debuffHolder.debuffDescriptionEditText.removeTextChangedListener(oldDebuffDescriptionWatcher);
+            }
+
+            //Get corresponding debuff
+            final DebuffModel debuff = debuffs.get(position);
+
+            //Set TextView and EditText values
+            debuffHolder.debuffNameEditText.setText(debuff.getName());
+            debuffHolder.debuffDurationEditText.setText(String.valueOf(debuff.getDuration()));
+            debuffHolder.debuffDescriptionEditText.setText(debuff.getDescription());
+
+            //Add new text watchers
+            GenericTextWatcher newDebuffNameWatcher = new GenericTextWatcher(debuff, debuffHolder.debuffNameEditText);
+            debuffHolder.debuffNameEditText.setTag(newDebuffNameWatcher);
+            debuffHolder.debuffNameEditText.addTextChangedListener(newDebuffNameWatcher);
+
+            GenericTextWatcher newDebuffDurationWatcher = new GenericTextWatcher(debuff, debuffHolder.debuffDurationEditText);
+            debuffHolder.debuffDurationEditText.setTag(newDebuffDurationWatcher);
+            debuffHolder.debuffDurationEditText.addTextChangedListener(newDebuffDurationWatcher);
+
+            GenericTextWatcher newDebuffDescriptionWatcher = new GenericTextWatcher(debuff, debuffHolder.debuffDescriptionEditText);
+            debuffHolder.debuffDescriptionEditText.setTag(newDebuffDescriptionWatcher);
+            debuffHolder.debuffDescriptionEditText.addTextChangedListener(newDebuffDescriptionWatcher);
+
+            debuffHolder.removeDebuffButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //Remove from adapter and CharacterModel
+                    character.getDebuffList().remove(holder.getAdapterPosition());
+                    remove(holder.getAdapterPosition());
+                }
+            });
+        }
+
+        if (holder instanceof PersistentDamageViewHolder)
+        {
+            PersistentDamageViewHolder persistentDamageHolder = (PersistentDamageViewHolder) holder;
+            //Remove watcher if they exist to avoid double watchers
+            GenericTextWatcher oldPersistentDamageNameWatcher = (GenericTextWatcher) persistentDamageHolder.persistentDamageNameEditText.getTag();
+            if (oldPersistentDamageNameWatcher != null) {
+                persistentDamageHolder.persistentDamageNameEditText.removeTextChangedListener(oldPersistentDamageNameWatcher);
+            }
+            GenericTextWatcher oldPersistentDamageTypeWatcher = (GenericTextWatcher) persistentDamageHolder.persistentDamageTypeEditText.getTag();
+            if (oldPersistentDamageTypeWatcher != null) {
+                persistentDamageHolder.persistentDamageTypeEditText.removeTextChangedListener(oldPersistentDamageTypeWatcher);
+            }
+            GenericTextWatcher oldPersistentDamageValueWatcher = (GenericTextWatcher) persistentDamageHolder.persistentDamageValueEditText.getTag();
+            if (oldPersistentDamageValueWatcher != null) {
+                persistentDamageHolder.persistentDamageValueEditText.removeTextChangedListener(oldPersistentDamageValueWatcher);
+            }
+            GenericTextWatcher oldPersistentDamageDcWatcher = (GenericTextWatcher) persistentDamageHolder.persistentDamageDcEditText.getTag();
+            if (oldPersistentDamageDcWatcher != null) {
+                persistentDamageHolder.persistentDamageDcEditText.removeTextChangedListener(oldPersistentDamageDcWatcher);
+            }
+            GenericTextWatcher oldPersistentDamageDurationWatcher = (GenericTextWatcher) persistentDamageHolder.persistentDamageDurationEditText.getTag();
+            if (oldPersistentDamageDurationWatcher != null) {
+                persistentDamageHolder.persistentDamageDurationEditText.removeTextChangedListener(oldPersistentDamageDurationWatcher);
+            }
+            GenericTextWatcher oldPersistentDamageDescriptionWatcher = (GenericTextWatcher) persistentDamageHolder.persistentDamageDescriptionEditText.getTag();
+            if (oldPersistentDamageDescriptionWatcher != null) {
+                persistentDamageHolder.persistentDamageDescriptionEditText.removeTextChangedListener(oldPersistentDamageDescriptionWatcher);
+            }
+
+            //Get corresponding debuff
+            final DebuffModel debuff = debuffs.get(position);
+
+            //Set TextView and EditText values
+            persistentDamageHolder.persistentDamageNameEditText.setText(debuff.getName());
+            persistentDamageHolder.persistentDamageTypeEditText.setText(debuff.getDamageType());
+            persistentDamageHolder.persistentDamageValueEditText.setText(debuff.getDamageValue());
+            persistentDamageHolder.persistentDamageDcEditText.setText(String.valueOf(debuff.getDifficultyClass()));
+            persistentDamageHolder.persistentDamageDurationEditText.setText(String.valueOf(debuff.getDuration()));
+            persistentDamageHolder.persistentDamageDescriptionEditText.setText(debuff.getDescription());
+
+            //Add new text watchers
+            GenericTextWatcher newPersistentDamageNameWatcher = new GenericTextWatcher(debuff, persistentDamageHolder.persistentDamageNameEditText);
+            persistentDamageHolder.persistentDamageNameEditText.setTag(newPersistentDamageNameWatcher);
+            persistentDamageHolder.persistentDamageNameEditText.addTextChangedListener(newPersistentDamageNameWatcher);
+
+            GenericTextWatcher newPersistentDamageTypeWatcher = new GenericTextWatcher(debuff, persistentDamageHolder.persistentDamageTypeEditText);
+            persistentDamageHolder.persistentDamageTypeEditText.setTag(newPersistentDamageTypeWatcher);
+            persistentDamageHolder.persistentDamageTypeEditText.addTextChangedListener(newPersistentDamageTypeWatcher);
+
+            GenericTextWatcher newPersistentDamageValueWatcher = new GenericTextWatcher(debuff, persistentDamageHolder.persistentDamageValueEditText);
+            persistentDamageHolder.persistentDamageValueEditText.setTag(newPersistentDamageValueWatcher);
+            persistentDamageHolder.persistentDamageValueEditText.addTextChangedListener(newPersistentDamageValueWatcher);
+
+            GenericTextWatcher newPersistentDamageDcWatcher = new GenericTextWatcher(debuff, persistentDamageHolder.persistentDamageDcEditText);
+            persistentDamageHolder.persistentDamageDcEditText.setTag(newPersistentDamageDcWatcher);
+            persistentDamageHolder.persistentDamageDcEditText.addTextChangedListener(newPersistentDamageDcWatcher);
+
+            GenericTextWatcher newPersistentDamageDurationWatcher = new GenericTextWatcher(debuff, persistentDamageHolder.persistentDamageDurationEditText);
+            persistentDamageHolder.persistentDamageDurationEditText.setTag(newPersistentDamageDurationWatcher);
+            persistentDamageHolder.persistentDamageDurationEditText.addTextChangedListener(newPersistentDamageDurationWatcher);
+
+            GenericTextWatcher newPersistentDamageDescriptionWatcher = new GenericTextWatcher(debuff, persistentDamageHolder.persistentDamageDescriptionEditText);
+            persistentDamageHolder.persistentDamageDescriptionEditText.setTag(newPersistentDamageDescriptionWatcher);
+            persistentDamageHolder.persistentDamageDescriptionEditText.addTextChangedListener(newPersistentDamageDescriptionWatcher);
+
+            persistentDamageHolder.removePersistentDamageButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //Remove from adapter and CharacterModel
+                    character.getDebuffList().remove(holder.getAdapterPosition());
+                    remove(holder.getAdapterPosition());
+                }
+            });
+        }
+
+
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (isPersistentDamage(position))
+            return TYPE_PERSISTENT_DAMAGE;
+        return TYPE_DEBUFF;
+    }
+
+    private boolean isPersistentDamage(int position) {
+        return debuffs.get(position).isPersistentDamage();
     }
 
     @Override

@@ -42,7 +42,7 @@ public class HpTextWatcher implements View.OnClickListener {
         AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
         //Add custom layout to dialog
         LayoutInflater inflater = LayoutInflater.from(context);
-        final View alertDialogView = inflater.inflate(R.layout.hp_dialog, null);
+        final View alertDialogView = inflater.inflate(R.layout.dialog_hp, null);
         builder.setTitle(context.getString(R.string.hp_dialog_title));
         //Set button to close and cancel
         builder.setNegativeButton(context.getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {

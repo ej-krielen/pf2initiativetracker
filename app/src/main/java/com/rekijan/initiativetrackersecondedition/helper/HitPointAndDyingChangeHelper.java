@@ -9,8 +9,12 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.rekijan.initiativetrackersecondedition.AppExtension;
 import com.rekijan.initiativetrackersecondedition.R;
+import com.rekijan.initiativetrackersecondedition.character.adapter.PersistentDamageAdapter;
 import com.rekijan.initiativetrackersecondedition.character.model.CharacterModel;
 
 /**
@@ -415,7 +419,7 @@ public class HitPointAndDyingChangeHelper {
         AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
         //Add custom layout to dialog
         LayoutInflater inflater = LayoutInflater.from(context);
-        final View alertDialogView = inflater.inflate(R.layout.recovery_dialog, null);
+        final View alertDialogView = inflater.inflate(R.layout.dialog_recovery, null);
         builder.setTitle(context.getString(R.string.dialog_recovery_title));
         //Set button to close and cancel
         builder.setNegativeButton(context.getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
@@ -470,6 +474,59 @@ public class HitPointAndDyingChangeHelper {
             }
         });
 
+        //Show the main dialog
+        dialog.show();
+    }
+
+    public void promptPersistentDamageDialog(CharacterModel character, Context context) {
+
+        //Build a dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
+        //Add custom layout to dialog
+        LayoutInflater inflater = LayoutInflater.from(context);
+        final View alertDialogView = inflater.inflate(R.layout.dialog_persistent_damage_activate, null);
+
+        builder.setTitle(String.format(context.getString(R.string.persistent_damage_dialog_title), character.getCharacterName()));
+        //Set button to close and cancel
+        builder.setNegativeButton(context.getString(R.string.persistent_damage_dialog_close), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                handleCharacterHpChange(character, character.getHp(), context);
+            }
+        });
+
+        //Get views
+        Button applyAllButton = alertDialogView.findViewById(R.id.persistent_damage_apply_all_button);
+        RecyclerView recyclerView = alertDialogView.findViewById(R.id.persistent_damage_apply_all_button_recyclerView);
+
+        //Setup recycler view
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager llm = new LinearLayoutManager(context);
+        recyclerView.setLayoutManager(llm);
+        PersistentDamageAdapter adapter = new PersistentDamageAdapter(character, context);
+        adapter.addAll(character.getPersistentDamageModels());
+        recyclerView.setAdapter(adapter);
+
+        applyAllButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                character.setHp(character.getHp()-adapter.applyAllDamage());
+                adapter.removeAll();
+                adapter.notifyDataSetChanged();
+                ((AppExtension)context.getApplicationContext()).getCharacterAdapter().notifyDataSetChanged();
+            }
+        });
+
+        //Bind view to the dialog builder and create it
+        builder.setView(alertDialogView);
+        final AlertDialog dialog = builder.create();
+
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                handleCharacterHpChange(character, character.getHp(), context);
+            }
+        });
         //Show the main dialog
         dialog.show();
     }

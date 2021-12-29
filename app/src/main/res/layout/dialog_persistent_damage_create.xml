@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimaryLight"
+    android:paddingBottom="8dp">
+
+    <EditText
+        android:id="@+id/persistent_damage_dialog_type_editText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:hint="@string/persistent_type_hint"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white_hint"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/persistent_damage_dialog_value_editText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:hint="@string/persistent_damage_hint"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white_hint"
+        app:layout_constraintEnd_toEndOf="@id/persistent_damage_dialog_value_textView"
+        app:layout_constraintStart_toStartOf="@id/persistent_damage_dialog_value_textView"
+        app:layout_constraintTop_toBottomOf="@id/persistent_damage_dialog_type_editText" />
+
+    <TextView
+        android:id="@+id/persistent_damage_dialog_value_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/persistent_damage_label"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/persistent_damage_dialog_value_editText" />
+
+    <EditText
+        android:id="@+id/persistent_damage_dialog_dc_editText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:hint="@string/persistent_dc_hint"
+        android:inputType="number"
+        android:maxLength="5"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white_hint"
+        app:layout_constraintEnd_toEndOf="@id/persistent_damage_dialog_dc_textView"
+        app:layout_constraintStart_toStartOf="@id/persistent_damage_dialog_dc_textView"
+        app:layout_constraintTop_toBottomOf="@id/persistent_damage_dialog_type_editText" />
+
+    <TextView
+        android:id="@+id/persistent_damage_dialog_dc_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:text="@string/persistent_dc_label"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toStartOf="@+id/persistent_damage_dialog_duration_textView"
+        app:layout_constraintStart_toEndOf="@id/persistent_damage_dialog_value_textView"
+        app:layout_constraintTop_toBottomOf="@id/persistent_damage_dialog_dc_editText" />
+
+    <EditText
+        android:id="@+id/persistent_damage_dialog_duration_editText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:hint="@string/persistent_duration_hint"
+        android:inputType="number"
+        android:maxLength="5"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white_hint"
+        app:layout_constraintEnd_toEndOf="@id/persistent_damage_dialog_duration_textView"
+        app:layout_constraintStart_toStartOf="@id/persistent_damage_dialog_duration_textView"
+        app:layout_constraintTop_toBottomOf="@id/persistent_damage_dialog_type_editText" />
+
+    <TextView
+        android:id="@+id/persistent_damage_dialog_duration_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/persistent_duration_label"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/persistent_damage_dialog_dc_editText" />
+
+    <EditText
+        android:id="@+id/persistent_damage_dialog_description_editText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:hint="@string/persistent_description_hint"
+        android:inputType="textCapSentences"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white_hint"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/persistent_damage_dialog_value_textView" />
+
+    <Button
+        android:id="@+id/dialog_add_persistent_damage_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:text="@string/add_persistent_dialog"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/persistent_damage_dialog_description_editText" />
+
+    <TextView
+        android:id="@+id/dialog_persistent_input_warning_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:text="@string/persistent_error_label"
+        android:textStyle="bold"
+        android:textAllCaps="true"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintBottom_toBottomOf="@+id/dialog_add_persistent_damage_button"
+        app:layout_constraintEnd_toStartOf="@+id/dialog_add_persistent_damage_button"
+        app:layout_constraintTop_toTopOf="@+id/dialog_add_persistent_damage_button" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

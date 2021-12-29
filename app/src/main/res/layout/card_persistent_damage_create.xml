@@ -1,0 +1,128 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/persistent_damage_cardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="@dimen/activity_vertical_margin"
+    android:layout_marginTop="2dp"
+    android:layout_marginRight="@dimen/activity_vertical_margin"
+    android:layout_marginBottom="2dp"
+    card_view:cardUseCompatPadding="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:background="@color/cardBackgroundLight">
+
+        <EditText
+            android:id="@+id/persistent_damage_name_editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:hint="@string/persistent_name_hint"
+            card_view:layout_constraintStart_toStartOf="parent"
+            card_view:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/persistent_damage_type_editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:hint="@string/persistent_type_hint"
+            card_view:layout_constraintStart_toStartOf="parent"
+            card_view:layout_constraintTop_toBottomOf="@id/persistent_damage_name_editText" />
+
+        <EditText
+            android:id="@+id/persistent_damage_value_editText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:hint="@string/persistent_damage_hint"
+            card_view:layout_constraintEnd_toEndOf="@id/persistent_damage_value_textView"
+            card_view:layout_constraintStart_toStartOf="@id/persistent_damage_value_textView"
+            card_view:layout_constraintTop_toBottomOf="@+id/persistent_damage_type_editText" />
+
+        <TextView
+            android:id="@+id/persistent_damage_value_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="24dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/persistent_damage_label"
+            card_view:layout_constraintStart_toStartOf="parent"
+            card_view:layout_constraintTop_toBottomOf="@id/persistent_damage_value_editText" />
+
+        <EditText
+            android:id="@+id/persistent_damage_dc_editText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:hint="@string/persistent_dc_hint"
+            android:inputType="number"
+            android:maxLength="5"
+            card_view:layout_constraintEnd_toEndOf="@id/persistent_damage_dc_textView"
+            card_view:layout_constraintStart_toStartOf="@id/persistent_damage_dc_textView"
+            card_view:layout_constraintTop_toBottomOf="@+id/persistent_damage_type_editText" />
+
+        <TextView
+            android:id="@+id/persistent_damage_dc_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="@string/persistent_dc_label"
+            card_view:layout_constraintEnd_toStartOf="@+id/persistent_damage_duration_textView"
+            card_view:layout_constraintStart_toEndOf="@id/persistent_damage_value_textView"
+            card_view:layout_constraintTop_toBottomOf="@id/persistent_damage_dc_editText" />
+
+        <EditText
+            android:id="@+id/persistent_damage_duration_editText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:hint="@string/persistent_duration_hint"
+            android:inputType="number"
+            android:maxLength="5"
+            card_view:layout_constraintEnd_toEndOf="@id/persistent_damage_duration_textView"
+            card_view:layout_constraintStart_toStartOf="@id/persistent_damage_duration_textView"
+            card_view:layout_constraintTop_toBottomOf="@+id/persistent_damage_type_editText" />
+
+        <TextView
+            android:id="@+id/persistent_damage_duration_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="24dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/persistent_duration_label"
+            card_view:layout_constraintEnd_toEndOf="parent"
+            card_view:layout_constraintTop_toBottomOf="@id/persistent_damage_dc_editText" />
+
+        <EditText
+            android:id="@+id/persistent_damage_description_editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:hint="@string/persistent_description_hint"
+            android:inputType="textCapSentences"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white_hint"
+            card_view:layout_constraintStart_toStartOf="parent"
+            card_view:layout_constraintTop_toBottomOf="@id/persistent_damage_value_textView" />
+
+        <Button
+            android:id="@+id/remove_persistent_damage_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="@string/debuff_card_remove_button"
+            card_view:layout_constraintEnd_toEndOf="parent"
+            card_view:layout_constraintTop_toBottomOf="@id/persistent_damage_description_editText" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

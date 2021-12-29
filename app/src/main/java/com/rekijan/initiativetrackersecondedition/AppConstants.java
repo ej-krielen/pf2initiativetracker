@@ -21,5 +21,6 @@ public class AppConstants {
     public static final String GSON_TAG = "GSON_TAG";
     public static final String SHARED_PREF_TAG = "SHARED_PREF_TAG";
     public static final String ROUND_COUNTER = "ROUND_COUNTER";
+    public static final String SHARED_PREF_HIDE_DESC = "SHARED_PREF_HIDE_DESC";
 
 }

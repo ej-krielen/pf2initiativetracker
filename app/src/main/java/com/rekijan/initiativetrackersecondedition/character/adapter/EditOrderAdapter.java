@@ -111,7 +111,7 @@ public class EditOrderAdapter extends RecyclerView.Adapter<EditOrderAdapter.Char
 
     @Override
     public CharacterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.edit_order_card, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_edit_order, parent, false);
         return new CharacterViewHolder(v);
     }
 

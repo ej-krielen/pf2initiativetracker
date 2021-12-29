@@ -4,15 +4,19 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.EditText;
 
 import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.character.model.CharacterModel;
 import com.rekijan.initiativetrackersecondedition.character.model.DebuffModel;
 import com.rekijan.initiativetrackersecondedition.character.model.ReactionModel;
 
+import java.math.BigInteger;
+
 /**
  * <p>Listener for EditText</p>
  * See {@link CharacterModel} and {@link com.rekijan.initiativetrackersecondedition.character.adapter.CharacterAdapter} as well as {@link DebuffModel} and {@link com.rekijan.initiativetrackersecondedition.character.adapter.DebuffAdapter}
+ *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 26-10-2015
  */
@@ -38,10 +42,12 @@ public class GenericTextWatcher implements TextWatcher {
     }
 
     @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    }
 
     @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) { }
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+    }
 
     @Override
     public void afterTextChanged(Editable s) {
@@ -81,20 +87,40 @@ public class GenericTextWatcher implements TextWatcher {
             character.setCharacterName(text);
         } else if (viewId == R.id.notes_editText) {
             character.setCharacterNotes(text);
-        } else if (viewId == R.id.debuff_name_editText) {
+        } else if (viewId == R.id.debuff_name_editText || viewId == R.id.persistent_damage_name_editText) {
             debuff.setName(text);
-        } else if (viewId == R.id.debuff_duration_editText) {
+        } else if (viewId == R.id.debuff_duration_editText || viewId == R.id.persistent_damage_duration_editText) {
             debuff.setDuration(inputIntText(text));
-        } else if (viewId == R.id.debuff_description_editText) {
+        } else if (viewId == R.id.debuff_description_editText || viewId == R.id.persistent_damage_description_editText) {
             debuff.setDescription(text);
+        } else if (viewId == R.id.persistent_damage_type_editText) {
+            if (!TextUtils.isEmpty(text)) {
+                debuff.setDamageType(text);
+            } else {
+                ((EditText) view).setText(debuff.getDamageType());
+            }
+        } else if (viewId == R.id.persistent_damage_value_editText) {
+            debuff.setDamageValue(text);
+        } else if (viewId == R.id.persistent_damage_dc_editText) {
+            debuff.setDifficultyClass(inputIntText(text));
         } else if (viewId == R.id.reaction_name_editText) {
             reaction.setName(text);
         } else if (viewId == R.id.reaction_description_editText) {
             reaction.setDescription(text);
+        } else if (viewId == R.id.persistent_damage_apply_overridden_editText) {
+            if (TextUtils.isEmpty(text)) debuff.setOverrideValue(-1);
+            else debuff.setOverrideValue(inputIntText(text));
         }
     }
 
     private int inputIntText(String text) {
-        return TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text);
+
+        BigInteger maxInt = BigInteger.valueOf(Integer.MAX_VALUE);
+        BigInteger value = new BigInteger(TextUtils.isEmpty(text) ? "0" : text);
+
+        if (value.compareTo(maxInt) > 0) {
+            value = maxInt;
+        }
+        return value.intValue();
     }
 }

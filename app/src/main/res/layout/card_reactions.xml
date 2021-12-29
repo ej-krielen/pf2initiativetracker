@@ -12,7 +12,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorBackgroundLight">
+        android:paddingBottom="4dp"
+        android:background="@color/cardBackgroundLight">
 
         <EditText
             android:id="@+id/reaction_name_editText"

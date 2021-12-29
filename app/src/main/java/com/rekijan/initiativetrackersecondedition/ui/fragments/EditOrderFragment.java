@@ -42,7 +42,7 @@ public class EditOrderFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
         menu.clear();
-        inflater.inflate(R.menu.menu_edit_order,menu);
+        inflater.inflate(R.menu.menu_minimum,menu);
     }
 
     @Override

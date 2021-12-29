@@ -82,6 +82,7 @@
                 android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="number"
+                android:maxLength="5"
                 android:selectAllOnFocus="true"
                 app:layout_constraintEnd_toStartOf="@+id/guideline_50"
                 app:layout_constraintTop_toBottomOf="@+id/is_pc_switch" />
@@ -105,6 +106,7 @@
                 android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="number"
+                android:maxLength="5"
                 android:selectAllOnFocus="true"
                 app:layout_constraintStart_toStartOf="@+id/guideline_75"
                 app:layout_constraintTop_toBottomOf="@+id/is_pc_switch" />
@@ -128,9 +130,10 @@
                 android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="number"
+                android:maxLength="5"
                 android:selectAllOnFocus="true"
                 app:layout_constraintEnd_toStartOf="@+id/guideline_50"
-                app:layout_constraintTop_toBottomOf="@+id/initiative_bonus_editText"/>
+                app:layout_constraintTop_toBottomOf="@+id/initiative_bonus_editText" />
 
             <TextView
                 android:id="@+id/fast_healing_label_textView"
@@ -151,6 +154,7 @@
                 android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="number"
+                android:maxLength="5"
                 android:selectAllOnFocus="true"
                 app:layout_constraintStart_toStartOf="@+id/guideline_75"
                 app:layout_constraintTop_toTopOf="@+id/fast_healing_editText" />
@@ -174,9 +178,10 @@
                 android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="number"
+                android:maxLength="2"
                 android:selectAllOnFocus="true"
                 app:layout_constraintEnd_toStartOf="@+id/guideline_50"
-                app:layout_constraintTop_toBottomOf="@+id/fast_healing_editText"/>
+                app:layout_constraintTop_toBottomOf="@+id/fast_healing_editText" />
 
             <TextView
                 android:id="@+id/dying_label_textView"
@@ -197,6 +202,7 @@
                 android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="number"
+                android:maxLength="2"
                 android:selectAllOnFocus="true"
                 app:layout_constraintStart_toStartOf="@+id/guideline_75"
                 app:layout_constraintTop_toTopOf="@+id/dying_editText" />
@@ -225,10 +231,11 @@
                 android:id="@+id/wounded_editText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="number"
+                android:maxLength="2"
                 android:selectAllOnFocus="true"
                 app:layout_constraintEnd_toStartOf="@+id/guideline_50"
                 app:layout_constraintTop_toBottomOf="@+id/dying_editText" />
@@ -246,10 +253,11 @@
                 android:id="@+id/doomed_editText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="number"
+                android:maxLength="2"
                 android:selectAllOnFocus="true"
                 app:layout_constraintStart_toStartOf="@+id/guideline_75"
                 app:layout_constraintTop_toBottomOf="@+id/dying_editText" />
@@ -267,10 +275,11 @@
                 android:id="@+id/recovery_dc_editText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="number"
+                android:maxLength="5"
                 android:selectAllOnFocus="true"
                 app:layout_constraintEnd_toStartOf="@+id/guideline_50"
                 app:layout_constraintTop_toBottomOf="@+id/wounded_editText" />
@@ -288,10 +297,11 @@
                 android:id="@+id/hero_points_editText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="number"
+                android:maxLength="5"
                 android:selectAllOnFocus="true"
                 app:layout_constraintStart_toStartOf="@+id/guideline_75"
                 app:layout_constraintTop_toBottomOf="@+id/wounded_editText" />
@@ -315,8 +325,8 @@
                 android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="textMultiLine"
-                app:layout_constraintStart_toStartOf="@+id/guideline_33"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/guideline_33"
                 app:layout_constraintTop_toBottomOf="@+id/hero_points_editText" />
 
             <EditText
@@ -328,8 +338,8 @@
                 android:hint="@string/char_detail_attack_routine_hint"
                 android:imeOptions="actionDone"
                 android:inputType="textMultiLine"
-                app:layout_constraintStart_toStartOf="@+id/guideline_33"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/guideline_33"
                 app:layout_constraintTop_toBottomOf="@+id/skills_editText" />
 
             <TextView
@@ -351,8 +361,8 @@
                 android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="textMultiLine"
-                app:layout_constraintStart_toStartOf="@+id/guideline_33"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/guideline_33"
                 app:layout_constraintTop_toBottomOf="@+id/attack_routine_editText" />
 
             <TextView
@@ -375,8 +385,8 @@
                 android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="textMultiLine"
-                app:layout_constraintStart_toStartOf="@+id/guideline_33"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/guideline_33"
                 app:layout_constraintTop_toBottomOf="@+id/ac_editText" />
 
             <TextView
@@ -406,11 +416,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
                 android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
                 android:background="@color/colorBackgroundLight"
                 android:hint="@string/char_detail_notes"
-                android:lines="5"
+                android:lines="4"
+                android:maxLines="4"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/notes_label_textView" />
@@ -431,13 +442,12 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/debuff_recyclerView"
+                android:background="@color/colorPrimaryLight"
+                android:layout_marginTop="8dp"
+                android:paddingTop="8dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
+
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

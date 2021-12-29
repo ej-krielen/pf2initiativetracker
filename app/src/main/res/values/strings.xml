@@ -44,13 +44,18 @@
     <!--Debuff Cards-->
     <string name="debuff_card_name">(De)buff name</string>
     <string name="debuff_card_duration">10</string>
-    <string name="debuff_card_duration_label">Duration</string>
+    <string name="debuff_card_duration_label">Duration\n(rounds)</string>
     <string name="debuff_card_description">(De)buff description</string>
     <string name="debuff_card_remove_button">Remove</string>
 
     <!--Reaction detail fragment-->
     <string name="reaction_details_name_title">Non-standard reactions for :\u0020 %1$s</string>
 
+    <!--Condition cards-->
+    <string name="debuff_wizard_hide_desc">Hide descriptions</string>
+    <string name="debuff_wizard_reminder">Don\'t forget to fill in at least a duration or value. If the value decreases each turn submit it as a duration instead.</string>
+    <string name="condition_card_duration_label">Duration\n(rounds)</string>
+    <string name="condition_card_value_label">Value</string>
 
     <!--Reaction Cards-->
     <string name="reaction_card_name">Reaction name</string>
@@ -98,7 +103,38 @@
     <string name="debuff_bottom_left">bottom left</string>
     <string name="debuff_middle_bottom">middle bottom</string>
     <string name="debuff_bottom_right">bottom right</string>
+    <string name="debuff_added_empty">Added empty (de)buff</string>
+    <string name="debuff_added_existing">Condition %1$s added</string>
+    <string name="debuff_added_persistent_damage">Added persistent damage</string>
+    <string name="debuff_added_poison">Added %1$s poison</string>
 
+    <!-- Condition buttons-->
+    <string name="add_empty">Add empty</string>
+    <string name="add_poison">Add poison</string>
+    <string name="add_persistent">Persistent\ndamage</string>
+
+    <!-- Persistent Damage-->
+    <string name="persistent_dialog_title">Create a persistent damage debuff</string>
+    <string name="add_persistent_dialog">Add</string>
+    <string name="persistent_name">Persistent %1$s damage (%2$s)</string>
+    <string name="persistent_name_hint">Name</string>
+    <string name="persistent_type_hint">Type (of damage)</string>
+    <string name="persistent_damage_hint">5</string>
+    <string name="persistent_damage_label">Damage</string>
+    <string name="persistent_dc_hint">15</string>
+    <string name="persistent_dc_label">DC</string>
+    <string name="persistent_duration_hint">0</string>
+    <string name="persistent_duration_label">Duration</string>
+    <string name="persistent_description_hint">Description</string>
+    <string name="persistent_error_label">Damage type can\'t be empty</string>
+    <string name="persistent_damage_override">Override value</string>
+    <string name="persistent_damage_must_override">Could not find value. Override manually</string>
+    <string name="persistent_damage_apply">Apply</string>
+    <string name="persistent_damage_apply_all">Apply all</string>
+    <string name="persistent_damage_dialog_close">Close, and activate applied ones</string>
+    <string name="persistent_damage_dialog_title">Handle %1$s\'s persistent damage</string>
+    <string name="apply_persistent_values">Type: %1$s, damage: %2$s, DC: %3$d, duration: %4$d.</string>
+    <string name="dialog_persistent_info">Hit apply to take the damage this turn. Note same type damage don\'t stack. Resistances, immunities, and weaknesses apply so you might want to override the values.\nRemove them in character detail screen.</string>
 
     <!--Dialog-->
     <string name="dialog_ok">OK</string>

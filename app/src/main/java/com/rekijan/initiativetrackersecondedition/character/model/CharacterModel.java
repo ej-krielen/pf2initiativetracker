@@ -164,6 +164,25 @@ public class CharacterModel implements Parcelable {
 
     }
 
+    public boolean doesCharacterHavePersistentDamage()
+    {
+        for (DebuffModel d: debuffList) {
+            if (d.isPersistentDamage()) return true;
+        }
+        return false;
+    }
+
+    public ArrayList<DebuffModel> getPersistentDamageModels()
+    {
+        ArrayList<DebuffModel> returnList = new ArrayList<>();
+        for (DebuffModel d: debuffList) {
+            if (d.isPersistentDamage()) {
+                returnList.add(d);
+            }
+        }
+        return returnList;
+    }
+
     public long getId() {
         return id;
     }

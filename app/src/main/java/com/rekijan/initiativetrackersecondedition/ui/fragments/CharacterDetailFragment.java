@@ -1,7 +1,11 @@
 package com.rekijan.initiativetrackersecondedition.ui.fragments;
 
+import static com.rekijan.initiativetrackersecondedition.AppConstants.POSITION;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -21,10 +25,9 @@ import com.rekijan.initiativetrackersecondedition.character.model.CharacterModel
 import com.rekijan.initiativetrackersecondedition.character.model.DebuffModel;
 import com.rekijan.initiativetrackersecondedition.listeners.GenericTextWatcher;
 import com.rekijan.initiativetrackersecondedition.listeners.HpTextWatcher;
+import com.rekijan.initiativetrackersecondedition.ui.activities.MainActivity;
 
 import java.util.ArrayList;
-
-import static com.rekijan.initiativetrackersecondedition.AppConstants.POSITION;
 
 /**
  * A fragment containing details of a single CharacterModel
@@ -49,6 +52,12 @@ public class CharacterDetailFragment extends Fragment {
         if (getArguments() != null) {
             position = getArguments().getInt(POSITION);
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+        menu.clear();
+        inflater.inflate(R.menu.menu_minimum,menu);
     }
 
     @Override
@@ -279,10 +288,7 @@ public class CharacterDetailFragment extends Fragment {
         addDebuffButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DebuffModel newDebuff = new DebuffModel();
-                adapter.add(newDebuff);
-                characterModel.getDebuffList().add(newDebuff);
-                adapter.notifyDataSetChanged();
+                ((MainActivity)getContext()).replaceDebuffWizardFragment(position);
             }
         });
 

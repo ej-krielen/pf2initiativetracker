@@ -42,10 +42,14 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
     // Field for the list of CharacterModels
     private ArrayList<CharacterModel> characters = new ArrayList<>();
     // Passing along the activity is needed to build and populate dialogs
-    private final Context context;
+    private Context context;
 
     // C'tor
     public CharacterAdapter(Context context) {
+        this.context = context;
+    }
+
+    public void updateActivityReference(Context context) {
         this.context = context;
     }
 
@@ -169,13 +173,20 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
 
         //Fill the old list with the new temporary one
         characters = newList;
+
         //Update the top character whose turn it is now
-        CharacterModel characterModel = characters.get(0);
-        characterModel.updateDebuffs(context);
-        HitPointAndDyingChangeHelper.getInstance().automaticHealingCheck(characterModel, context);
-        characterModel.updateReactions();
-        if (characterModel.isDying()) {
-            HitPointAndDyingChangeHelper.getInstance().promptRecoveryCheckDialog(characterModel, context);
+        CharacterModel firstTurnCharacter = characters.get(0);
+        firstTurnCharacter.updateDebuffs(context);
+        HitPointAndDyingChangeHelper.getInstance().automaticHealingCheck(firstTurnCharacter, context);
+        firstTurnCharacter.updateReactions();
+        if (firstTurnCharacter.isDying()) {
+            HitPointAndDyingChangeHelper.getInstance().promptRecoveryCheckDialog(firstTurnCharacter, context);
+        }
+
+        //Check for persistent damage on character whose turn just ended
+        CharacterModel lastTurnCharacter = characters.get(characters.size()-1);
+        if (lastTurnCharacter.doesCharacterHavePersistentDamage()) {
+            HitPointAndDyingChangeHelper.getInstance().promptPersistentDamageDialog(lastTurnCharacter, context);
         }
         this.notifyDataSetChanged();
         return characters.get(0).isFirstRound();
@@ -184,6 +195,8 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
     public void removeAll() {
         characters.clear();
     }
+
+
 
     /* ViewHolder region */
     public static class CharacterViewHolder extends RecyclerView.ViewHolder {
@@ -229,7 +242,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
 
     @Override
     public CharacterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.character_card, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_character, parent, false);
         return new CharacterViewHolder(v);
     }
 

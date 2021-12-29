@@ -4,6 +4,8 @@ import static com.rekijan.initiativetrackersecondedition.AppConstants.POSITION;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -44,6 +46,12 @@ public class ReactionsDetailFragment extends Fragment {
         if (getArguments() != null) {
             position = getArguments().getInt(POSITION);
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+        menu.clear();
+        inflater.inflate(R.menu.menu_minimum,menu);
     }
 
     @Override

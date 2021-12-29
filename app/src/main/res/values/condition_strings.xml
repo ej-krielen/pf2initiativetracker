@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="blinded_name">Blinded</string>
+    <string name="blinded_desc">You can\'t see. All normal terrain is difficult terrain to you. You can\'t detect anything using vision. You automatically critically fail Perception checks that require you to be able to see, and if vision is your only precise sense, you take a –4 status penalty to Perception checks. You are immune to visual effects. Blinded overrides dazzled.</string>
+
+    <string name="clumsy_name">Clumsy</string>
+    <string name="clumsy_desc">You take a status penalty equal to the condition value to Dexterity-based checks and DCs, including AC, Reflex saves, ranged attack rolls, and skill checks using Acrobatics, Stealth, and Thievery.</string>
+
+    <string name="confused_name">Confused</string>
+    <string name="confused_desc">You are flat-footed (You take a –2 circumstance penalty to AC), don\'t treat anyone as your ally, and can\'t Delay, Ready, or use reactions. Use all your actions to Strike or cast offensive cantrips. The GM determines targets randomly. If you have no other option, target yourself, automatically hitting. If it\'s impossible for you to attack or cast spells, you babble incoherently, wasting your actions. Each time you take damage from an attack or spell, attempt a DC 11 flat check to end the condition.</string>
+
+    <string name="controlled_name">Controlled</string>
+    <string name="controlled_desc">Your controller dictates how you act.</string>
+
+    <string name="dazzled_name">Dazzled</string>
+    <string name="dazzled_desc">All creatures and objects are concealed from you. (Must succeed at a DC 5 flat check when targeting with an attack, spell, or other effect. Area effects aren\'t subject to this flat check.)</string>
+
+    <string name="deafened_name">Deafened</string>
+    <string name="deafened_desc">Automatically critically fail Perception checks that require hearing. Take a –2 status penalty to Perception checks for initiative and checks that involve sound but also rely on other senses. If you perform an action that has the auditory trait, you must succeed at a DC 5 flat check or the action is lost. You are immune to auditory effects.</string>
+
+    <string name="drained_name">Drained</string>
+    <string name="drained_desc">Take a status penalty equal to your drained value on Constitution-based checks, such as Fortitude saves. Lose Hit Points equal to your level times the drained value, and your maximum Hit Points are reduced by the same amount. When you regain Hit Points by resting for 8 hours, your drained value is reduced by 1, but you don\'t immediately recover the lost Hit Points.</string>
+
+    <string name="encumbered_name">Encumbered</string>
+    <string name="encumbered_desc">You\'re clumsy 1 (You take a -1 status penalty to Dexterity-based checks and DCs, including AC, Reflex saves, ranged attack rolls, and skill checks using Acrobatics, Stealth, and Thievery.) and take a –10-foot penalty to all your Speeds.</string>
+
+    <string name="enfeebled_name">Enfeebled</string>
+    <string name="enfeebled_desc">Take a status penalty equal to your enfeebled value to Strength-based rolls and DCs, including Strength-based melee attack rolls, Strength-based damage rolls, and Athletics checks.</string>
+
+    <string name="fascinated_name">Fascinated</string>
+    <string name="fascinated_desc">Take a –2 status penalty to Perception and skill checks, and you can\'t use actions with the concentrate trait unless they are related to the subject of your fascination. This condition ends if a creature takes hostile actions toward you or any of your allies.</string>
+
+    <string name="fatigued_name">Fatigued</string>
+    <string name="fatigued_desc">Take a –1 status penalty to AC and saving throws. During exploration, you can\'t choose an exploration activity. Recover from fatigue after a full night\'s rest.</string>
+
+    <string name="flat_footed_name">Flat Footed</string>
+    <string name="flat_footed_desc">Take a –2 circumstance penalty to AC.</string>
+
+    <string name="fleeing_name">Fleeing</string>
+    <string name="fleeing_desc">On your turn, spend each action trying to escape the source of the condition as expediently as possible. You can\'t Delay or Ready.</string>
+
+    <string name="frightened_name">Frightened</string>
+    <string name="frightened_desc">Take a status penalty equal to the value to all checks and DCs. At the end of each of your turns, the value decreases by 1.</string>
+
+    <string name="grabbed_name">Grabbed</string>
+    <string name="grabbed_desc">You\'re immobilized (You can\'t take any action with the move trait) and flat-footed (–2 circumstance penalty to AC). If you attempt a manipulate action, you must succeed at a DC 5 flat check or it is lost.</string>
+
+    <string name="immobilized_name">Immobilized</string>
+    <string name="immobilized_desc">You can\'t take any action with the move trait. If you\'re immobilized by something holding you in place and an external force would move you, the force must succeed at a check against the DC of the effect holding you in place you or the relevant defense (usually Fortitude DC) of the creature holding you in place.</string>
+
+    <string name="paralyzed_name">Paralyzed</string>
+    <string name="paralyzed_desc">You\'re flat-footed (–2 circumstance penalty to AC) and can\'t take actions except Recall Knowledge and others that require only your mind. You can\'t Seek.</string>
+
+    <string name="petrified_name">Petrified</string>
+    <string name="petrified_desc">You can\'t act, nor can you sense anything. You\'re an object with double your normal Bulk (typically 12 if Medium or 6 if Small), AC 9, Hardness 8, and the same current HP you had when alive.</string>
+
+    <string name="prone_name">Prone</string>
+    <string name="prone_desc">You\'re flat-footed (–2 circumstance penalty to AC) with a –2 circumstance penalty to attack rolls. The only move actions you can take are Crawl and Stand. Standing ends the prone condition. You can Take Cover while prone, gaining greater cover against ranged attacks (but remain flat-footed).</string>
+
+    <string name="quickened_name">Quickened</string>
+    <string name="quickened_desc">You gain 1 additional action at the start of your turn each round. Many effects that make you quickened specify the types of additional actions you can use. Because quickened has its effect at the start of your turn, you don\'t gain actions immediately if you become quickened during your turn.</string>
+
+    <string name="restrained_name">Restrained</string>
+    <string name="restrained_desc">You\'re tied up and can barely move, or a creature has you pinned. You are immobilized and flat-footed, and you can\'t use any actions with the attack or manipulate traits except to attempt to Escape or Force Open your bonds. Restrained overrides grabbed.</string>
+
+    <string name="sickened_name">Sickened</string>
+    <string name="sickened_desc">Take a status penalty equal to the value on all checks and DCs. You can\'t willingly ingest anything. You can spend an action retching to attempt a Fortitude save against the DC of the sickening effect. On a success, reduce the value by 1 (2 on a critical success).</string>
+
+    <string name="slowed_name">Slowed</string>
+    <string name="slowed_desc">When you regain your actions at the start of your turn, reduce the number of actions by your slowed value. You don\'t lose actions immediately if slowed during your turn.</string>
+
+    <string name="stunned_name">Stunned</string>
+    <string name="stunned_desc">You can\'t act. A stunned value indicates how many total actions you lose. Each time you regain actions, reduce the number by your stunned value, then reduce your stunned value by the number of actions lost. If stunned has a duration, lose all your actions for the listed duration. Stunned overrides slowed. Actions lost to stunned count toward those lost to slowed.</string>
+
+    <string name="stupefied_name">Stupefied</string>
+    <string name="stupefied_desc">Take a status penalty equal to the value to checks and DCs based on Intelligence, Wisdom, or Charisma, including Will saves, spell attack rolls and DCs, and appropriate skill checks. If you Cast a Spell, it\'s disrupted unless you succeed at a flat check (DC = 5 + value).</string>
+
+    <string name="unconscious_name">Unconscious</string>
+    <string name="unconscious_desc">You can\'t act. You take a –4 status penalty to AC, Perception, and Reflex saves, and you have the blinded and flat-footed (–2 circumstance penalty to AC). When you gain this condition, you fall prone and drop items you are wielding or holding unless the effect states otherwise or the GM determines you\'re in a position in which you wouldn\'t.</string>
+
+</resources>
