@@ -29,7 +29,7 @@ import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.character.adapter.CharacterAdapter;
 import com.rekijan.initiativetrackersecondedition.character.model.CharacterModel;
 import com.rekijan.initiativetrackersecondedition.helper.DialogHelper;
-import com.rekijan.initiativetrackersecondedition.helper.HitPointAndDyingChangeHelper;
+import com.rekijan.initiativetrackersecondedition.helper.HitPointDialogHelper;
 import com.rekijan.initiativetrackersecondedition.ui.activities.MainActivity;
 
 /**
@@ -203,7 +203,7 @@ public class MainActivityFragment extends Fragment {
             deleteCharacterInfo();
             return true;
         } else if (itemId == R.id.action_settings_set_pcs_max_hp) {
-            HitPointAndDyingChangeHelper.getInstance().setPCsToMaxHP(app);
+            HitPointDialogHelper.getInstance().setPCsToMaxHP(app);
             return true;
         } else if (itemId == R.id.action_settings_start_turn_info) {
             DialogHelper.getInstance().simpleDialog(getActivity(), getString(R.string.dialog_turn_start_info_title), getString(R.string.dialog_turn_start_info));
@@ -213,6 +213,9 @@ public class MainActivityFragment extends Fragment {
             return true;
         } else if (itemId == R.id.action_settings_about) {
             DialogHelper.getInstance().aboutInfo(getActivity());
+            return true;
+        } else if (itemId == R.id.action_settings_privacy) {
+            DialogHelper.getInstance().privacyPolicyInfo(getActivity());
             return true;
         } else {
             return super.onOptionsItemSelected(item);

@@ -25,6 +25,7 @@
 
     <style name="ButtonAppTheme" parent="Widget.AppCompat.Button.Colored">
         <item name="android:background">@color/colorAccent</item>
+        <item name="android:padding">8dp</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -57,10 +58,10 @@
     </style>
 
     <style name="dyingImageStyle" parent="@android:style/TextAppearance.Widget.TextView">
-        <item name="android:layout_marginStart">33dp</item>
-        <item name="android:layout_marginLeft">33dp</item>
         <item name="android:paddingTop">4dp</item>
         <item name="android:paddingBottom">32dp</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginLeft">16dp</item>
     </style>
 
 </resources>

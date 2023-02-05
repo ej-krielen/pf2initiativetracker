@@ -19,6 +19,7 @@
     <string name="action_start_turn_info">Start Turn info</string>
     <string name="action_end_turn_info">End Turn info</string>
     <string name="action_about">About</string>
+    <string name="action_privacy">Privacy Policy</string>
     <string name="action_tip">Tip the dev</string>
 
     <!-- Toast -->
@@ -129,9 +130,8 @@
     <string name="persistent_error_label">Damage type can\'t be empty</string>
     <string name="persistent_damage_override">Override value</string>
     <string name="persistent_damage_must_override">Could not find value. Override manually</string>
-    <string name="persistent_damage_apply">Apply</string>
-    <string name="persistent_damage_apply_all">Apply all</string>
-    <string name="persistent_damage_dialog_close">Close, and activate applied ones</string>
+    <string name="persistent_damage_take_damage">Take Damage</string>
+    <string name="persistent_damage_flat_check_success">Flat Check\nsucceeded</string>
     <string name="persistent_damage_dialog_title">Handle %1$s\'s persistent damage</string>
     <string name="apply_persistent_values">Type: %1$s, damage: %2$s, DC: %3$d, duration: %4$d.</string>
     <string name="dialog_persistent_info">Hit apply to take the damage this turn. Note same type damage don\'t stack. Resistances, immunities, and weaknesses apply so you might want to override the values.\nRemove them in character detail screen.</string>
@@ -139,6 +139,7 @@
     <!--Dialog-->
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_close">Close</string>
     <string name="dialog_yes">Yes</string>
     <string name="dialog_no">No</string>
     <string name="dialog_delete">Are you sure you want to delete\u0020</string>
@@ -168,6 +169,12 @@ The last step of starting your turn is always the same.\n\n\n
     <string name="dialog_reset_round_counter">Confirming will reset the round counter to 1.</string>
     <string name="dialog_reset_round_double_init">\n\nWARNING\n\nSome characters have the same initiative, you might want to edit the order and resolve this.\nPlease note this will not change who is first in the round for tracking turns (You will need to change numbers and sort again to do that).</string>
     <string name="dialog_reset_round_counter_cancel">No, keep current number</string>
+    <string name="removed_debuff">Debuff has been removed</string>
+
+    <!--Privacy Policy dialog    -->
+    <string name="dialog_privacy_info">This app does not collect or share any of your data. See our website for more info.</string>
+    <string name="dialog_privacy_info_title">Privacy Policy</string>
+    <string name="dialog_privacy_ok">Go to website</string>
 
     <!-- Dialog debuff expired -->
     <string name="dialog_debuff_expired_title">Debuff expired</string>

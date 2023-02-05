@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.character.adapter.CharacterAdapter;
 import com.rekijan.initiativetrackersecondedition.character.model.CharacterModel;
-import com.rekijan.initiativetrackersecondedition.helper.HitPointAndDyingChangeHelper;
+import com.rekijan.initiativetrackersecondedition.helper.HitPointDialogHelper;
 
 /**
  * <p>Listener specifically for HP</p>
@@ -107,7 +107,7 @@ public class HpTextWatcher implements View.OnClickListener {
                 character.setHp(newValue);
                 characterAdapter.notifyDataSetChanged();
                 dialog.dismiss();
-                HitPointAndDyingChangeHelper.getInstance().handleCharacterHpChange(character, newValue, context);
+                HitPointDialogHelper.getInstance().handleCharacterHpChange(character, newValue, context);
             }
         });
 
@@ -119,7 +119,7 @@ public class HpTextWatcher implements View.OnClickListener {
                 character.setHp(inputValue);
                 characterAdapter.notifyDataSetChanged();
                 dialog.dismiss();
-                HitPointAndDyingChangeHelper.getInstance().handleCharacterHpChange(character, inputValue, context);
+                HitPointDialogHelper.getInstance().handleCharacterHpChange(character, inputValue, context);
             }
         });
 
@@ -132,7 +132,7 @@ public class HpTextWatcher implements View.OnClickListener {
                 character.setHp(newValue);
                 characterAdapter.notifyDataSetChanged();
                 dialog.dismiss();
-                HitPointAndDyingChangeHelper.getInstance().handleCharacterHpChange(character, newValue, context);
+                HitPointDialogHelper.getInstance().handleCharacterHpChange(character, newValue, context);
             }
         });
         //Show the main dialog

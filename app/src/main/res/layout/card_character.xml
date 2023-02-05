@@ -214,7 +214,7 @@
             <TextView
                 android:id="@+id/dying_one_textView"
                 style="@style/dyingHealthyTextStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="40dp"
                 android:layout_height="wrap_content"
                 android:text="1"
                 card_view:layout_constraintStart_toStartOf="parent"
@@ -223,7 +223,7 @@
             <TextView
                 android:id="@+id/dying_two_textView"
                 style="@style/dyingHealthyTextStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="40dp"
                 android:layout_height="wrap_content"
                 android:text="2"
                 card_view:layout_constraintStart_toEndOf="@+id/dying_one_textView"
@@ -232,7 +232,7 @@
             <TextView
                 android:id="@+id/dying_three_textView"
                 style="@style/dyingHealthyTextStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="40dp"
                 android:layout_height="wrap_content"
                 android:text="3"
                 card_view:layout_constraintStart_toEndOf="@+id/dying_two_textView"
@@ -241,7 +241,7 @@
             <TextView
                 android:id="@+id/dying_four_textView"
                 style="@style/dyingHealthyTextStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="40dp"
                 android:layout_height="wrap_content"
                 android:text="4"
                 card_view:layout_constraintStart_toEndOf="@+id/dying_three_textView"
@@ -250,7 +250,7 @@
             <TextView
                 android:id="@+id/dying_five_textView"
                 style="@style/dyingHealthyTextStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="40dp"
                 android:layout_height="wrap_content"
                 android:text="5"
                 card_view:layout_constraintStart_toEndOf="@+id/dying_four_textView"
@@ -259,7 +259,7 @@
             <TextView
                 android:id="@+id/dying_six_textView"
                 style="@style/dyingHealthyTextStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="40dp"
                 android:layout_height="wrap_content"
                 android:text="6"
                 card_view:layout_constraintStart_toEndOf="@+id/dying_five_textView"
@@ -281,10 +281,8 @@
             <ImageView
                 android:id="@+id/dying_one_imageView"
                 style="@style/dyingImageStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="40dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginLeft="24dp"
                 android:src="@drawable/ic_dying_healthy"
                 card_view:layout_constraintStart_toStartOf="parent"
                 card_view:layout_constraintTop_toTopOf="parent" />
@@ -292,7 +290,7 @@
             <ImageView
                 android:id="@+id/dying_two_imageView"
                 style="@style/dyingImageStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="40dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_dying_healthy"
                 card_view:layout_constraintStart_toEndOf="@+id/dying_one_imageView"
@@ -301,7 +299,7 @@
             <ImageView
                 android:id="@+id/dying_three_imageView"
                 style="@style/dyingImageStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="40dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_dying_healthy"
                 card_view:layout_constraintStart_toEndOf="@+id/dying_two_imageView"
@@ -310,7 +308,7 @@
             <ImageView
                 android:id="@+id/dying_four_imageView"
                 style="@style/dyingImageStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="40dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_dying_healthy"
                 card_view:layout_constraintStart_toEndOf="@+id/dying_three_imageView"
@@ -319,7 +317,7 @@
             <ImageView
                 android:id="@+id/dying_five_imageView"
                 style="@style/dyingImageStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="40dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_dying_healthy"
                 card_view:layout_constraintStart_toEndOf="@+id/dying_four_imageView"
@@ -328,7 +326,7 @@
             <ImageView
                 android:id="@+id/dying_six_imageView"
                 style="@style/dyingImageStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="40dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_dying_healthy"
                 card_view:layout_constraintStart_toEndOf="@+id/dying_five_imageView"

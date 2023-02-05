@@ -63,6 +63,31 @@ public class DialogHelper {
     }
 
     /**
+     * Show dialog explaining more info is available on the website
+     */
+    public void privacyPolicyInfo(final Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
+        builder.setMessage(context.getString(R.string.dialog_privacy_info))
+                .setTitle(context.getString(R.string.dialog_privacy_info_title));
+        builder.setPositiveButton(context.getString(R.string.dialog_about_ok), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                Intent siteIntent =
+                        new Intent("android.intent.action.VIEW",
+                                Uri.parse("http://www.https://rekijan.nl/privacypolicy.php"));
+                context.startActivity(siteIntent);
+            }
+        });
+        builder.setNegativeButton(context.getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    /**
      * Show dialog explaining more info about death and dying rules
      */
     public void deathDyingRulesDialog(final Context context) {

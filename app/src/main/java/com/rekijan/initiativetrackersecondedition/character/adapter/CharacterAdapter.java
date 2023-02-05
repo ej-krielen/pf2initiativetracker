@@ -20,8 +20,10 @@ import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.character.model.CharacterModel;
 import com.rekijan.initiativetrackersecondedition.character.model.DebuffModel;
 import com.rekijan.initiativetrackersecondedition.character.model.ReactionModel;
+import com.rekijan.initiativetrackersecondedition.helper.DebuffDialogHelper;
 import com.rekijan.initiativetrackersecondedition.helper.DialogHelper;
-import com.rekijan.initiativetrackersecondedition.helper.HitPointAndDyingChangeHelper;
+import com.rekijan.initiativetrackersecondedition.helper.DyingDialogHelper;
+import com.rekijan.initiativetrackersecondedition.helper.HitPointDialogHelper;
 import com.rekijan.initiativetrackersecondedition.listeners.GenericTextWatcher;
 import com.rekijan.initiativetrackersecondedition.listeners.HpTextWatcher;
 import com.rekijan.initiativetrackersecondedition.ui.activities.MainActivity;
@@ -177,17 +179,26 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         //Update the top character whose turn it is now
         CharacterModel firstTurnCharacter = characters.get(0);
         firstTurnCharacter.updateDebuffs(context);
-        HitPointAndDyingChangeHelper.getInstance().automaticHealingCheck(firstTurnCharacter, context);
+        HitPointDialogHelper.getInstance().automaticHealingCheck(firstTurnCharacter, context);
         firstTurnCharacter.updateReactions();
-        if (firstTurnCharacter.isDying()) {
-            HitPointAndDyingChangeHelper.getInstance().promptRecoveryCheckDialog(firstTurnCharacter, context);
+        if (firstTurnCharacter.isDying() && !firstTurnCharacter.isAlreadyDead())
+        {
+            DyingDialogHelper.getInstance().promptRecoveryCheckDialog(firstTurnCharacter, context);
         }
 
-        //Check for persistent damage on character whose turn just ended
-        CharacterModel lastTurnCharacter = characters.get(characters.size()-1);
-        if (lastTurnCharacter.doesCharacterHavePersistentDamage()) {
-            HitPointAndDyingChangeHelper.getInstance().promptPersistentDamageDialog(lastTurnCharacter, context);
+        if (!firstTurnCharacter.isAlreadyDead())
+        {
+            //Check for persistent damage on character whose turn just ended
+            CharacterModel lastTurnCharacter = characters.get(characters.size()-1);
+            if (lastTurnCharacter.doesCharacterHavePersistentDamage())
+            {
+                for (DebuffModel debuff: lastTurnCharacter.getPersistentDamageModels())
+                {
+                    DebuffDialogHelper.getInstance().promptPersistentDamageDialog(lastTurnCharacter, debuff, context);
+                }
+            }
         }
+
         this.notifyDataSetChanged();
         return characters.get(0).isFirstRound();
     }

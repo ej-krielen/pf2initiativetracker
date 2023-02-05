@@ -164,6 +164,11 @@ public class CharacterModel implements Parcelable {
 
     }
 
+    public boolean isAlreadyDead()
+    {
+        return getDyingValue() >= getMaxDyingValue()-getDoomedValue();
+    }
+
     public boolean doesCharacterHavePersistentDamage()
     {
         for (DebuffModel d: debuffList) {

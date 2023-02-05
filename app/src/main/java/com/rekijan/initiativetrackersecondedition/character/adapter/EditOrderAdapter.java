@@ -136,8 +136,10 @@ public class EditOrderAdapter extends RecyclerView.Adapter<EditOrderAdapter.Char
         holder.editOrderUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Collections.rotate(app.getCharacterAdapter().getList(), -1);
-                Collections.rotate(characters, -1);
+                int swapPosition = holder.getAdapterPosition()-1;
+                if (swapPosition < 0) swapPosition = app.getCharacterAdapter().getList().size()-1;
+                Collections.swap(app.getCharacterAdapter().getList(), holder.getAdapterPosition(), swapPosition);
+                Collections.swap(characters, holder.getAdapterPosition(), swapPosition);
                 notifyDataSetChanged();
             }
         });
@@ -145,8 +147,10 @@ public class EditOrderAdapter extends RecyclerView.Adapter<EditOrderAdapter.Char
         holder.editOrderDownButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Collections.rotate(app.getCharacterAdapter().getList(), 1);
-                Collections.rotate(characters, 1);
+                int swapPosition = holder.getAdapterPosition()+1;
+                if (swapPosition == app.getCharacterAdapter().getList().size()) swapPosition = 0;
+                Collections.swap(app.getCharacterAdapter().getList(), holder.getAdapterPosition(), swapPosition);
+                Collections.swap(characters, holder.getAdapterPosition(), swapPosition);
                 notifyDataSetChanged();
             }
         });

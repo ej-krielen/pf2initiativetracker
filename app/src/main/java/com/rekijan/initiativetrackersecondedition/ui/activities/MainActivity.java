@@ -33,6 +33,7 @@ import com.android.billingclient.api.SkuDetailsParams;
 import com.android.billingclient.api.SkuDetailsResponseListener;
 import com.rekijan.initiativetrackersecondedition.AppExtension;
 import com.rekijan.initiativetrackersecondedition.R;
+import com.rekijan.initiativetrackersecondedition.helper.DialogHelper;
 import com.rekijan.initiativetrackersecondedition.ui.fragments.CharacterDetailFragment;
 import com.rekijan.initiativetrackersecondedition.ui.fragments.DebuffWizardFragment;
 import com.rekijan.initiativetrackersecondedition.ui.fragments.EditOrderFragment;
@@ -179,6 +180,12 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
         } else if (itemId == R.id.action_settings_add_character) {
             if (!isTablet && fragmentExists) onSupportNavigateUp();
             return false;
+        } else if (itemId == R.id.action_settings_about) {
+            DialogHelper.getInstance().aboutInfo(MainActivity.this);
+            return false;
+        } else if (itemId == R.id.action_settings_privacy) {
+            DialogHelper.getInstance().privacyPolicyInfo(MainActivity.this);
+            return false;
         } else if (itemId == R.id.action_settings_tip) {
             queryPurchases();
             openTipDialog();
@@ -286,8 +293,8 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
         Button fiveButton = alertDialogView.findViewById(R.id.five_btn);
         Button tenButton = alertDialogView.findViewById(R.id.ten_btn);
 
-        if (!TextUtils.isEmpty(fiveSkuDetails.getPrice())) fullFivePriceTextView.setText(fiveSkuDetails.getPrice());
-        if (!TextUtils.isEmpty(tenSkuDetails.getPrice())) fullTenPriceTextView.setText(tenSkuDetails.getPrice());
+        if (fiveSkuDetails != null && !TextUtils.isEmpty(fiveSkuDetails.getPrice())) fullFivePriceTextView.setText(fiveSkuDetails.getPrice());
+        if (tenSkuDetails != null && !TextUtils.isEmpty(tenSkuDetails.getPrice())) fullTenPriceTextView.setText(tenSkuDetails.getPrice());
 
         final Activity ref = this;
         //Bind view to the dialog builder and create it

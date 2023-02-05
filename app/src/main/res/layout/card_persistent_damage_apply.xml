@@ -87,7 +87,7 @@
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginBottom="8dp"
-            android:text="@string/persistent_damage_apply"
+            android:text="@string/persistent_damage_take_damage"
             card_view:layout_constraintTop_toBottomOf="@id/persistent_damage_apply_description_textView"
             card_view:layout_constraintBottom_toBottomOf="parent"
             card_view:layout_constraintEnd_toEndOf="parent" />
