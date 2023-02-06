@@ -16,6 +16,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.rekijan.initiativetrackersecondedition.AppExtension;
 import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.character.model.CharacterModel;
 import com.rekijan.initiativetrackersecondedition.character.model.DebuffModel;
@@ -259,6 +260,8 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
 
     @Override
     public void onBindViewHolder(final CharacterViewHolder holder, int position) {
+        AppExtension app = (AppExtension) context.getApplicationContext();
+
         //Remove watcher if they exist to avoid double watchers
         GenericTextWatcher oldInitiativeWatcher = (GenericTextWatcher) holder.characterInitiativeEditText.getTag();
         if (oldInitiativeWatcher != null) {
@@ -376,7 +379,21 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
             }
         });
 
-        if (character.isDying()) {
+        boolean hideReaction = app.getHideReactions();
+        System.out.println("===================== hide reaction " + hideReaction);
+
+        holder.reactionSwitch.setChecked(character.isReactionAvailable());
+
+        if (hideReaction)
+        {
+            holder.reactionLabel.setVisibility(View.GONE);
+            holder.reactionSwitch.setVisibility(View.GONE);
+            holder.reactionsButton.setVisibility(View.GONE);
+            holder.reactionsAvailableTextView.setVisibility(View.GONE);
+            holder.collapseReactionButton.setVisibility(View.GONE);
+            holder.openReactionButton.setVisibility(View.GONE);
+        }
+        else if (character.isDying()) {
             holder.collapseReactionButton.setVisibility(View.GONE);
             holder.reactionSwitch.setVisibility(View.GONE);
             holder.reactionLabel.setVisibility(View.GONE);
@@ -398,8 +415,6 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
             holder.reactionsButton.setVisibility(View.VISIBLE);
             holder.collapseReactionButton.setVisibility(View.VISIBLE);
         }
-
-        holder.reactionSwitch.setChecked(character.isReactionAvailable());
 
         int nofAvailableReactions = 0;
         if (character.getReactionList() != null) {

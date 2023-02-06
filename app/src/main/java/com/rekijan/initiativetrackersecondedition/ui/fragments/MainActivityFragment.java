@@ -181,6 +181,8 @@ public class MainActivityFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Do something that differs the Activity's menu here
         super.onCreateOptionsMenu(menu, inflater);
+        AppExtension app = (AppExtension) getActivity().getApplicationContext();
+        menu.findItem(R.id.action_settings_hide_reactions).setChecked(app.getHideReactions());
     }
 
     @Override
@@ -204,6 +206,19 @@ public class MainActivityFragment extends Fragment {
             return true;
         } else if (itemId == R.id.action_settings_set_pcs_max_hp) {
             HitPointDialogHelper.getInstance().setPCsToMaxHP(app);
+            return true;
+        } else if (itemId == R.id.action_settings_hide_reactions) {
+            if (item.isChecked())
+            {
+                item.setChecked(false);
+                app.setHideReactions(false);
+            }
+            else
+            {
+                item.setChecked(true);
+                app.setHideReactions(true);
+
+            }
             return true;
         } else if (itemId == R.id.action_settings_start_turn_info) {
             DialogHelper.getInstance().simpleDialog(getActivity(), getString(R.string.dialog_turn_start_info_title), getString(R.string.dialog_turn_start_info));

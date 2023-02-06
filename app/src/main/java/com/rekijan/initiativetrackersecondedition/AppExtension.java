@@ -3,6 +3,7 @@ package com.rekijan.initiativetrackersecondedition;
 import static com.rekijan.initiativetrackersecondedition.AppConstants.GSON_TAG;
 import static com.rekijan.initiativetrackersecondedition.AppConstants.ROUND_COUNTER;
 import static com.rekijan.initiativetrackersecondedition.AppConstants.SHARED_PREF_HIDE_DESC;
+import static com.rekijan.initiativetrackersecondedition.AppConstants.SHARED_PREF_HIDE_REACTIONS;
 import static com.rekijan.initiativetrackersecondedition.AppConstants.SHARED_PREF_TAG;
 
 import android.app.Application;
@@ -164,5 +165,20 @@ public class AppExtension extends Application {
     {
         SharedPreferences preferences = getApplicationContext().getSharedPreferences(SHARED_PREF_HIDE_DESC, android.content.Context.MODE_PRIVATE);
         return preferences.getBoolean(SHARED_PREF_HIDE_DESC, false);
+    }
+
+    public void setHideReactions(boolean hide)
+    {
+        SharedPreferences preferences = getApplicationContext().getSharedPreferences(SHARED_PREF_HIDE_REACTIONS, android.content.Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(SHARED_PREF_HIDE_REACTIONS, hide);
+        editor.apply();
+        mCharacterAdapter.notifyDataSetChanged();
+    }
+
+    public boolean getHideReactions()
+    {
+        SharedPreferences preferences = getApplicationContext().getSharedPreferences(SHARED_PREF_HIDE_REACTIONS, android.content.Context.MODE_PRIVATE);
+        return preferences.getBoolean(SHARED_PREF_HIDE_REACTIONS, false);
     }
 }

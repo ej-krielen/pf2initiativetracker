@@ -73,7 +73,7 @@ public class DialogHelper {
             public void onClick(DialogInterface dialog, int id) {
                 Intent siteIntent =
                         new Intent("android.intent.action.VIEW",
-                                Uri.parse("http://www.https://rekijan.nl/privacypolicy.php"));
+                                Uri.parse("https://rekijan.nl/privacypolicy.php"));
                 context.startActivity(siteIntent);
             }
         });
