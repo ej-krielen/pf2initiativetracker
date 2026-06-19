@@ -1,12 +1,14 @@
 package com.rekijan.initiativetrackersecondedition;
 
+import static com.rekijan.initiativetrackersecondedition.AppConstants.SPLASH_TIME_OUT;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.rekijan.initiativetrackersecondedition.ui.activities.MainActivity;
-import static com.rekijan.initiativetrackersecondedition.AppConstants.*;
 
 public class SplashScreen extends AppCompatActivity {
 

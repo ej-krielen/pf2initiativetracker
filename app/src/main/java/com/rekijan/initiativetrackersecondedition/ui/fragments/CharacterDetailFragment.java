@@ -56,8 +56,11 @@ public class CharacterDetailFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-        menu.clear();
-        inflater.inflate(R.menu.menu_minimum,menu);
+        if (!getResources().getBoolean(R.bool.isTablet))
+        {
+            menu.clear();
+            inflater.inflate(R.menu.menu_minimum,menu);
+        }
     }
 
     @Override

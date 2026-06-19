@@ -35,12 +35,14 @@
     <string name="char_card_buffs">Buffs or</string>
     <string name="char_card_debuffs">(De)buffs:</string>
     <string name="char_card_show_more">Show\nMore</string>
-    <string name="char_card_other_reactions">Other\nReactions</string>
+    <string name="char_card_other_reactions">Edit\nReactions</string>
     <string name="char_card_hero_points">Hero Points</string>
     <string name="char_card_reaction">Reaction</string>
     <string name="char_card_reactions_available_label">%1$d other reactions available</string>
     <string name="char_card_reaction_available_label">1 other reaction available</string>
     <string name="char_card_dying_label">Dying: %1$d out of %2$d (wounded %3$d, doomed %4$d). Recovery Check: DC%5$d.</string>
+    <string name="char_card_hide_reactions">Hide reactions</string>
+    <string name="char_card_show_reactions">Show reactions</string>
 
     <!--Debuff Cards-->
     <string name="debuff_card_name">(De)buff name</string>

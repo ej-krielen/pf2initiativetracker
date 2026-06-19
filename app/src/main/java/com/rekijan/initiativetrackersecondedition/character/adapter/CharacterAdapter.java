@@ -226,8 +226,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         TextView reactionLabel;
         TextView dyingLabel;
         ImageView dyingRulesImageView;
-        ConstraintLayout dyingTextLayout;
-        ConstraintLayout dyingImageLayout;
+        ConstraintLayout dyingLayout;
 
         CharacterViewHolder(View itemView) {
             super(itemView);
@@ -245,8 +244,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
             reactionLabel = itemView.findViewById(R.id.reaction_label_textView);
             dyingLabel = itemView.findViewById(R.id.char_card_dying_label);
             dyingRulesImageView = itemView.findViewById(R.id.show_dying_rules_imageView);
-            dyingTextLayout = itemView.findViewById(R.id.dying_text_layout);
-            dyingImageLayout = itemView.findViewById(R.id.dying_image_layout);
+            dyingLayout = itemView.findViewById(R.id.dying_layout);
         }
     }
     /* End of Viewholder region */
@@ -380,7 +378,6 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         });
 
         boolean hideReaction = app.getHideReactions();
-        System.out.println("===================== hide reaction " + hideReaction);
 
         holder.reactionSwitch.setChecked(character.isReactionAvailable());
 
@@ -441,8 +438,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
                     character.getWoundedValue(), character.getDoomedValue(), (character.getRecoveryDC()+currentDyingValue));
             holder.dyingLabel.setText(labelString);
 
-            holder.dyingTextLayout.setVisibility(View.VISIBLE);
-            holder.dyingImageLayout.setVisibility(View.VISIBLE);
+            holder.dyingLayout.setVisibility(View.VISIBLE);
 
             holder.dyingRulesImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -451,35 +447,42 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
                 }
             });
 
-            for (int i = 0; i < holder.dyingTextLayout.getChildCount(); i++) {
+            for (int i = 0; i < holder.dyingLayout.getChildCount(); i++) {
+                View child = holder.dyingLayout.getChildAt(i);
+                if (!(child instanceof TextView)) continue;
+
+                int index = i / 2; // Each dying value has a TextView and an ImageView
+
                 //Only show up the the max dying value
-                if (i >= character.getMaxDyingValue()) {
-                    holder.dyingTextLayout.getChildAt(i).setVisibility(View.GONE);
-                    holder.dyingImageLayout.getChildAt(i).setVisibility(View.GONE);
+                if (index >= character.getMaxDyingValue()) {
+                    child.setVisibility(View.GONE);
+                    holder.dyingLayout.getChildAt(i+1).setVisibility(View.GONE);
+                } else {
+                    child.setVisibility(View.VISIBLE);
+                    holder.dyingLayout.getChildAt(i+1).setVisibility(View.VISIBLE);
                 }
 
                 // Mark dying value
-                if (i < (character.getDyingValue())) {
-                    holder.dyingTextLayout.getChildAt(i).setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.dying_dying_rounded_corners, context.getTheme()));
-                    ((ImageView)holder.dyingImageLayout.getChildAt(i)).setImageResource(R.drawable.ic_dying_dying);
+                if (index < (character.getDyingValue())) {
+                    child.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.dying_dying_rounded_corners, context.getTheme()));
+                    ((ImageView)holder.dyingLayout.getChildAt(i+1)).setImageResource(R.drawable.ic_dying_dying);
                 } else {
-                    holder.dyingTextLayout.getChildAt(i).setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.dying_healthy_rounded_corners, context.getTheme()));
-                    ((ImageView)holder.dyingImageLayout.getChildAt(i)).setImageResource(R.drawable.ic_dying_healthy);
+                    child.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.dying_healthy_rounded_corners, context.getTheme()));
+                    ((ImageView)holder.dyingLayout.getChildAt(i+1)).setImageResource(R.drawable.ic_dying_healthy);
                 }
 
                 //Mark doomed value
-                if (character.getMaxDyingValue() - i <= character.getDoomedValue()) {
-                    holder.dyingTextLayout.getChildAt(i).setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.dying_doomed_rounded_corners, context.getTheme()));
-                    ((ImageView)holder.dyingImageLayout.getChildAt(i)).setImageResource(R.drawable.ic_dying_doomed);
-                    ((TextView)holder.dyingTextLayout.getChildAt(i)).setText("X");
+                if (character.getMaxDyingValue() - index <= character.getDoomedValue()) {
+                    child.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.dying_doomed_rounded_corners, context.getTheme()));
+                    ((ImageView)holder.dyingLayout.getChildAt(i+1)).setImageResource(R.drawable.ic_dying_doomed);
+                    ((TextView)child).setText("X");
                 }
             }
 
         } else {
             holder.dyingLabel.setVisibility(View.GONE);
             holder.dyingRulesImageView.setVisibility(View.GONE);
-            holder.dyingTextLayout.setVisibility(View.GONE);
-            holder.dyingImageLayout.setVisibility(View.GONE);
+            holder.dyingLayout.setVisibility(View.GONE);
         }
 
         // End of Dying section

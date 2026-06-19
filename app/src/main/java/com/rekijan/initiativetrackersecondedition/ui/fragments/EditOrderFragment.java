@@ -10,7 +10,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,57 +20,77 @@ import com.rekijan.initiativetrackersecondedition.AppExtension;
 import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.character.adapter.EditOrderAdapter;
 
-public class EditOrderFragment extends Fragment {
+public class EditOrderFragment extends Fragment implements EditOrderAdapter.OnStartDragListener {
+
+    private ItemTouchHelper itemTouchHelper;
 
     public EditOrderFragment() {
         // Required empty public constructor
     }
 
     public static EditOrderFragment newInstance() {
-        EditOrderFragment fragment = new EditOrderFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
+        return new EditOrderFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        if (getArguments() != null) {
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater){
+        if (!getResources().getBoolean(R.bool.isTablet)) {
+            menu.clear();
+            inflater.inflate(R.menu.menu_minimum, menu);
         }
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-        menu.clear();
-        inflater.inflate(R.menu.menu_minimum,menu);
-    }
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_edit_order, container, false);
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View rootView =  inflater.inflate(R.layout.fragment_edit_order, container, false);
-
-        //Setup RecyclerView by binding the adapter to it.
         RecyclerView editOrderRecyclerView = rootView.findViewById(R.id.edit_order_recyclerView);
         editOrderRecyclerView.setHasFixedSize(true);
-        LinearLayoutManager llm = new LinearLayoutManager(getActivity());
-        editOrderRecyclerView.setLayoutManager(llm);
+        editOrderRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        final AppExtension app = (AppExtension) getActivity().getApplicationContext();
-        final EditOrderAdapter adapter = new EditOrderAdapter(requireActivity());
+        final AppExtension app = (AppExtension) requireActivity().getApplicationContext();
+        final EditOrderAdapter adapter = new EditOrderAdapter(requireActivity(), this);
         adapter.addAll(app.getCharacterAdapter().getList());
         editOrderRecyclerView.setAdapter(adapter);
 
-        //Setup long click listener to set character as first in the round
-        editOrderRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(), editOrderRecyclerView, new ClickListener() {
+        itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
             @Override
-            public void onClick(View view, int position) { }
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                adapter.onItemMove(viewHolder.getBindingAdapterPosition(), target.getBindingAdapterPosition());
+                return true;
+            }
 
             @Override
-            public void onLongClick(View view, final int position) {
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) { }
+
+            @Override
+            public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                super.clearView(recyclerView, viewHolder);
+                app.getCharacterAdapter().getList().clear();
+                app.getCharacterAdapter().getList().addAll(adapter.getList());
+                app.getCharacterAdapter().notifyDataSetChanged();
+            }
+
+            @Override
+            public boolean isLongPressDragEnabled() {
+                return false;
+            }
+        });
+        itemTouchHelper.attachToRecyclerView(editOrderRecyclerView);
+
+        editOrderRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(), editOrderRecyclerView, new ClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
                 app.getCharacterAdapter().setFirstInRound(position);
                 adapter.notifyDataSetChanged();
             }
@@ -77,28 +99,29 @@ public class EditOrderFragment extends Fragment {
         return rootView;
     }
 
-    /* BEGIN REGION Needed to setup long click listener on the RecyclerView */
+    @Override
+    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
+        itemTouchHelper.startDrag(viewHolder);
+    }
+
     public interface ClickListener {
         void onClick(View view, int position);
-
         void onLongClick(View view, int position);
     }
 
     public static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
-
         private final GestureDetector gestureDetector;
-        private final EditOrderFragment.ClickListener clickListener;
+        private final ClickListener clickListener;
 
-        public RecyclerTouchListener(Context context, final RecyclerView recyclerView, final EditOrderFragment.ClickListener clickListener) {
+        public RecyclerTouchListener(Context context, final RecyclerView recyclerView, final ClickListener clickListener) {
             this.clickListener = clickListener;
             gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
                 @Override
-                public boolean onSingleTapUp(MotionEvent e) {
+                public boolean onSingleTapUp(@NonNull MotionEvent e) {
                     return true;
                 }
-
                 @Override
-                public void onLongPress(MotionEvent e) {
+                public void onLongPress(@NonNull MotionEvent e) {
                     View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
                     if (child != null && clickListener != null) {
                         clickListener.onLongClick(child, recyclerView.getChildAdapterPosition(child));
@@ -108,7 +131,7 @@ public class EditOrderFragment extends Fragment {
         }
 
         @Override
-        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+        public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
             View child = rv.findChildViewUnder(e.getX(), e.getY());
             if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
                 clickListener.onClick(child, rv.getChildAdapterPosition(child));
@@ -117,13 +140,9 @@ public class EditOrderFragment extends Fragment {
         }
 
         @Override
-        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-        }
+        public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) { }
 
         @Override
-        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-        }
+        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) { }
     }
-
-    /* END REGION setup long click listener */
 }

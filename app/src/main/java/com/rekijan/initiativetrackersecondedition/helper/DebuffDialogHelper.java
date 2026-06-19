@@ -75,7 +75,7 @@ public class DebuffDialogHelper {
         damageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int inputValue = TextUtils.isDigitsOnly(valueEditText.getText().toString()) ? Integer.parseInt(debuff.getDamageValue()) : 0;
+                int inputValue = TextUtils.isDigitsOnly(valueEditText.getText().toString()) ? Integer.parseInt(valueEditText.getText().toString()) : 0;
                 int newValue = character.getHp() - inputValue;
                 character.setHp(newValue);
                 HitPointDialogHelper.getInstance().handleCharacterHpChange(character, character.getHp(), context);

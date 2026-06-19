@@ -2,16 +2,16 @@ package com.rekijan.initiativetrackersecondedition.character.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.rekijan.initiativetrackersecondedition.AppExtension;
 import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.character.model.CharacterModel;
 
@@ -20,80 +20,51 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Custom RecyclerView.Adapter for the CharacterModel class, but minimal to just edit the order
- *
- * @author Erik-Jan Krielen rekijan.apps@gmail.com
- * @since 17-9-2015 Creation of this file
+ * Custom RecyclerView.Adapter for the CharacterModel class, updated for drag and drop
  */
 public class EditOrderAdapter extends RecyclerView.Adapter<EditOrderAdapter.CharacterViewHolder> {
 
-    // Field for the list of CharacterModels
-    private ArrayList<CharacterModel> characters = new ArrayList<>();
-    // Passing along the activity is needed to build and populate dialogs
+    private final ArrayList<CharacterModel> characters = new ArrayList<>();
     private final Context context;
+    private final OnStartDragListener dragListener;
 
-    // C'tor
-    public EditOrderAdapter(Context context) {
-        this.context = context;
+    public interface OnStartDragListener {
+        void onStartDrag(RecyclerView.ViewHolder viewHolder);
     }
 
-    public void add(CharacterModel character) {
-        characters.add(character);
+    public EditOrderAdapter(Context context, OnStartDragListener dragListener) {
+        this.context = context;
+        this.dragListener = dragListener;
     }
 
     public void addAll(List<CharacterModel> characters) {
+        this.characters.clear();
         this.characters.addAll(characters);
-    }
-
-    /**
-     * Remove a character based on position, flag another with isFirstRound if the one being removed is currently flagged thus
-     * @param position
-     */
-    public void remove(int position) {
-        if (characters.size() > position)
-            if (characters.get(position).isFirstRound()) {
-                {
-                    if (position-1 < 0) {
-                        characters.get(characters.size()-1).setIsFirstRound(true);
-                    } else {
-                        characters.get(position-1).setIsFirstRound(true);
-                    }
-                }
-                characters.remove(position);
-            } else {
-                characters.remove(position);
-            }
-        this.notifyDataSetChanged();
-    }
-
-    /**
-     * Remove based on the character given
-     * @param character
-     */
-    public void remove(CharacterModel character) {
-        for (int i = 0; i < characters.size(); i++) {
-            if (characters.get(i) == character) {
-                remove(i);
-            }
-        }
+        notifyDataSetChanged();
     }
 
     public ArrayList<CharacterModel> getList() {
         return characters;
     }
 
-    public void removeAll() {
-        characters.clear();
+    public void onItemMove(int fromPosition, int toPosition) {
+        if (fromPosition < toPosition) {
+            for (int i = fromPosition; i < toPosition; i++) {
+                Collections.swap(characters, i, i + 1);
+            }
+        } else {
+            for (int i = fromPosition; i > toPosition; i--) {
+                Collections.swap(characters, i, i - 1);
+            }
+        }
+        notifyItemMoved(fromPosition, toPosition);
     }
 
-
-    /* ViewHolder region */
     public static class CharacterViewHolder extends RecyclerView.ViewHolder {
         CardView editOrderCardView;
         TextView editOrderInitiativeTextView;
         TextView editOrderNameTextView;
-        Button editOrderUpButton;
-        Button editOrderDownButton;
+        ImageView dragHandle;
         ImageView firstInRoundImage;
 
         CharacterViewHolder(View itemView) {
@@ -101,61 +72,35 @@ public class EditOrderAdapter extends RecyclerView.Adapter<EditOrderAdapter.Char
             editOrderCardView = itemView.findViewById(R.id.edit_order_cardView);
             editOrderInitiativeTextView = itemView.findViewById(R.id.edit_order_initiative_textView);
             editOrderNameTextView = itemView.findViewById(R.id.edit_order_name_textView);
-            editOrderUpButton = itemView.findViewById(R.id.up_edit_order_button);
-            editOrderDownButton = itemView.findViewById(R.id.down_edit_order_button);
+            dragHandle = itemView.findViewById(R.id.drag_handle_imageView);
             firstInRoundImage = itemView.findViewById(R.id.first_in_round_imageView);
         }
     }
-    /* End of Viewholder region */
 
-
+    @NonNull
     @Override
-    public CharacterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public CharacterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_edit_order, parent, false);
         return new CharacterViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(final CharacterViewHolder holder, final int position) {
-
-        final AppExtension app = (AppExtension) context.getApplicationContext();
-        // Get the corresponding CharacterModel
+    public void onBindViewHolder(@NonNull final CharacterViewHolder holder, int position) {
         final CharacterModel character = characters.get(position);
 
-        // Set background color depending on whether the character is a PC or NPC
         int color = character.isPC() ? context.getResources().getColor(R.color.pcColor) : context.getResources().getColor(R.color.npcColor);
-        ((CardView) holder.itemView).setCardBackgroundColor(color);
+        holder.editOrderCardView.setCardBackgroundColor(color);
 
-        // Set values TextViews and EditTexts
         holder.editOrderInitiativeTextView.setText(String.valueOf(character.getInitiative()));
-
-        if (character.getCharacterName() != null) {
-            holder.editOrderNameTextView.setText(character.getCharacterName());
-        }
-
-        holder.editOrderUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int swapPosition = holder.getAdapterPosition()-1;
-                if (swapPosition < 0) swapPosition = app.getCharacterAdapter().getList().size()-1;
-                Collections.swap(app.getCharacterAdapter().getList(), holder.getAdapterPosition(), swapPosition);
-                Collections.swap(characters, holder.getAdapterPosition(), swapPosition);
-                notifyDataSetChanged();
-            }
-        });
-
-        holder.editOrderDownButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int swapPosition = holder.getAdapterPosition()+1;
-                if (swapPosition == app.getCharacterAdapter().getList().size()) swapPosition = 0;
-                Collections.swap(app.getCharacterAdapter().getList(), holder.getAdapterPosition(), swapPosition);
-                Collections.swap(characters, holder.getAdapterPosition(), swapPosition);
-                notifyDataSetChanged();
-            }
-        });
-
+        holder.editOrderNameTextView.setText(character.getCharacterName());
         holder.firstInRoundImage.setVisibility(character.isFirstRound() ? View.VISIBLE : View.INVISIBLE);
+
+        holder.dragHandle.setOnTouchListener((v, event) -> {
+            if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                dragListener.onStartDrag(holder);
+            }
+            return false;
+        });
     }
 
     @Override
