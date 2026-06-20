@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.rekijan.initiativetrackersecondedition.AppExtension;
 import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.character.model.CharacterModel;
 import com.rekijan.initiativetrackersecondedition.character.model.DebuffModel;
@@ -69,27 +70,34 @@ public class DebuffDialogHelper {
             descriptionTextView.setText(debuff.getDescription());
         }
 
-        String damageValue = TextUtils.isDigitsOnly(debuff.getDamageValue()) ? debuff.getDamageValue(): "0";
-        valueEditText.setText(damageValue);
+        if (TextUtils.isDigitsOnly(debuff.getDamageValue())) {
+            valueEditText.setText(debuff.getDamageValue());
+        } else {
+            valueEditText.setText("");
+            valueEditText.setHint(debuff.getDamageValue());
+        }
 
-        damageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int inputValue = TextUtils.isDigitsOnly(valueEditText.getText().toString()) ? Integer.parseInt(valueEditText.getText().toString()) : 0;
-                int newValue = character.getHp() - inputValue;
-                character.setHp(newValue);
-                HitPointDialogHelper.getInstance().handleCharacterHpChange(character, character.getHp(), context);
-                damageButton.setVisibility(View.GONE);
+        damageButton.setOnClickListener(view -> {
+            String input = valueEditText.getText().toString();
+            if (TextUtils.isEmpty(input) || !TextUtils.isDigitsOnly(input)) {
+                valueEditText.setError(context.getString(R.string.persistent_damage_must_override));
+                Toast.makeText(context, context.getString(R.string.persistent_damage_must_override), Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            int inputValue = Integer.parseInt(input);
+            int newValue = character.getHp() - inputValue;
+            character.setHp(newValue);
+            HitPointDialogHelper.getInstance().handleCharacterHpChange(character, character.getHp(), context);
+            damageButton.setVisibility(View.GONE);
         });
 
-        flatCheckButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                character.getDebuffList().remove(debuff);
-                Toast.makeText(context, context.getString(R.string.removed_debuff), Toast.LENGTH_LONG).show();
-                flatCheckButton.setVisibility(View.GONE);
-            }
+        flatCheckButton.setOnClickListener(view -> {
+            character.getDebuffList().remove(debuff);
+            Toast.makeText(context, context.getString(R.string.removed_debuff), Toast.LENGTH_LONG).show();
+            flatCheckButton.setVisibility(View.GONE);
+            AppExtension app = (AppExtension) context.getApplicationContext();
+            app.getCharacterAdapter().notifyDataSetChanged();
         });
 
 

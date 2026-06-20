@@ -6,13 +6,15 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -36,10 +38,11 @@ public class CharacterDetailFragment extends Fragment {
 
     private int position;
 
-    public CharacterDetailFragment() {}
+    public CharacterDetailFragment() {
+    }
 
     public static CharacterDetailFragment newInstance(int position) {
-        CharacterDetailFragment fragment =  new CharacterDetailFragment();
+        CharacterDetailFragment fragment = new CharacterDetailFragment();
         Bundle args = new Bundle();
         args.putInt(POSITION, position);
         fragment.setArguments(args);
@@ -55,20 +58,19 @@ public class CharacterDetailFragment extends Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-        if (!getResources().getBoolean(R.bool.isTablet))
-        {
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        if (!getResources().getBoolean(R.bool.isTablet)) {
             menu.clear();
-            inflater.inflate(R.menu.menu_minimum,menu);
+            inflater.inflate(R.menu.menu_minimum, menu);
         }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_character_detail, container, false);
-        AppExtension app = (AppExtension) getActivity().getApplicationContext();
+        AppExtension app = (AppExtension) requireActivity().getApplicationContext();
 
         //Get the corresponding CharacterModel
         final CharacterModel characterModel = app.getCharacterAdapter().getList().get(position);
@@ -83,49 +85,49 @@ public class CharacterDetailFragment extends Fragment {
         SwitchCompat isDyingSwitch = rootView.findViewById(R.id.is_dying_switch);
         isDyingSwitch.setChecked(characterModel.isDying());
 
-        EditText initiativeBonusEditText = rootView.findViewById(R.id.initiative_bonus_editText);
+        final EditText initiativeBonusEditText = rootView.findViewById(R.id.initiative_bonus_editText);
         initiativeBonusEditText.setText(String.valueOf(characterModel.getInitiativeBonus()));
 
-        EditText maxHpEditText = rootView.findViewById(R.id.max_hp_editText);
+        final EditText maxHpEditText = rootView.findViewById(R.id.max_hp_editText);
         maxHpEditText.setText(String.valueOf(characterModel.getMaxHp()));
 
-        EditText fastHealingEditText = rootView.findViewById(R.id.fast_healing_editText);
+        final EditText fastHealingEditText = rootView.findViewById(R.id.fast_healing_editText);
         fastHealingEditText.setText(String.valueOf(characterModel.getFastHealing()));
 
-        EditText regenerationEditText = rootView.findViewById(R.id.regeneration_editText);
+        final EditText regenerationEditText = rootView.findViewById(R.id.regeneration_editText);
         regenerationEditText.setText(String.valueOf(characterModel.getRegeneration()));
 
-        EditText dyingEditText = rootView.findViewById(R.id.dying_editText);
+        final EditText dyingEditText = rootView.findViewById(R.id.dying_editText);
         dyingEditText.setText(String.valueOf(characterModel.getDyingValue()));
 
-        EditText maxDyingEditText = rootView.findViewById(R.id.max_dying_editText);
+        final EditText maxDyingEditText = rootView.findViewById(R.id.max_dying_editText);
         maxDyingEditText.setText(String.valueOf(characterModel.getMaxDyingValue()));
 
-        EditText woundedEditText = rootView.findViewById(R.id.wounded_editText);
+        final EditText woundedEditText = rootView.findViewById(R.id.wounded_editText);
         woundedEditText.setText(String.valueOf(characterModel.getWoundedValue()));
 
-        EditText doomedEditText = rootView.findViewById(R.id.doomed_editText);
+        final EditText doomedEditText = rootView.findViewById(R.id.doomed_editText);
         doomedEditText.setText(String.valueOf(characterModel.getDoomedValue()));
 
-        EditText recoveryDcEditText = rootView.findViewById(R.id.recovery_dc_editText);
+        final EditText recoveryDcEditText = rootView.findViewById(R.id.recovery_dc_editText);
         recoveryDcEditText.setText(String.valueOf(characterModel.getRecoveryDC()));
 
-        EditText heroPointsEditText = rootView.findViewById(R.id.hero_points_editText);
+        final EditText heroPointsEditText = rootView.findViewById(R.id.hero_points_editText);
         heroPointsEditText.setText(String.valueOf(characterModel.getHeroPoints()));
 
-        EditText skillsEditText = rootView.findViewById(R.id.skills_editText);
+        final EditText skillsEditText = rootView.findViewById(R.id.skills_editText);
         skillsEditText.setText(characterModel.getSkills());
 
-        EditText attackRoutineEditText = rootView.findViewById(R.id.attack_routine_editText);
+        final EditText attackRoutineEditText = rootView.findViewById(R.id.attack_routine_editText);
         attackRoutineEditText.setText(characterModel.getAttackRoutine());
 
-        EditText acEditText = rootView.findViewById(R.id.ac_editText);
+        final EditText acEditText = rootView.findViewById(R.id.ac_editText);
         acEditText.setText(characterModel.getAc());
 
-        EditText savesEditText = rootView.findViewById(R.id.saves_editText);
+        final EditText savesEditText = rootView.findViewById(R.id.saves_editText);
         savesEditText.setText(characterModel.getSaves());
 
-        EditText notesEditText = rootView.findViewById(R.id.notes_editText);
+        final EditText notesEditText = rootView.findViewById(R.id.notes_editText);
         notesEditText.setText(characterModel.getCharacterNotes());
 
         //Remove watcher if they exist to avoid double watchers
@@ -278,36 +280,30 @@ public class CharacterDetailFragment extends Fragment {
 
         //Buttons
         Button clearAllDebuffButton = rootView.findViewById(R.id.clear_all_debuffs_button);
-        clearAllDebuffButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                adapter.removeAll();
-                characterModel.getDebuffList().clear();
-                adapter.notifyDataSetChanged();
-            }
+        clearAllDebuffButton.setOnClickListener(view -> {
+            adapter.removeAll();
+            characterModel.getDebuffList().clear();
+            adapter.notifyDataSetChanged();
         });
 
         Button addDebuffButton = rootView.findViewById(R.id.add_debuff_button);
-        addDebuffButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((MainActivity)getContext()).replaceDebuffWizardFragment(position);
-            }
+        addDebuffButton.setOnClickListener(view -> ((MainActivity) requireActivity()).replaceDebuffWizardFragment(position));
+
+        pcSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            characterModel.setIsPC(isChecked);
+            app.getCharacterAdapter().notifyDataSetChanged();
         });
 
-        pcSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                characterModel.setIsPC(isChecked);
-            }
-        });
-
-        isDyingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                characterModel.setIsDying(isChecked);
-            }
+        isDyingSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            characterModel.setIsDying(isChecked);
+            app.getCharacterAdapter().notifyDataSetChanged();
         });
 
         return rootView;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        return super.onOptionsItemSelected(item);
     }
 }

@@ -122,7 +122,7 @@
     <string name="persistent_name">Persistent %1$s damage (%2$s)</string>
     <string name="persistent_name_hint">Name</string>
     <string name="persistent_type_hint">Type (of damage)</string>
-    <string name="persistent_damage_hint">5</string>
+    <string name="persistent_damage_hint">5 or 1d6</string>
     <string name="persistent_damage_label">Damage</string>
     <string name="persistent_dc_hint">15</string>
     <string name="persistent_dc_label">DC</string>

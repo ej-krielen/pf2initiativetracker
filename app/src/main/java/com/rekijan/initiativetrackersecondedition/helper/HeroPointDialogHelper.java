@@ -2,7 +2,6 @@ package com.rekijan.initiativetrackersecondedition.helper;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.widget.Toast;
 
 import com.rekijan.initiativetrackersecondedition.AppExtension;
@@ -40,18 +39,8 @@ public class HeroPointDialogHelper {
             AlertDialog.Builder useHeroPointDialog = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
             useHeroPointDialog.setTitle(context.getString(R.string.dialog_dying_hero_point_title))
                     .setMessage(context.getString(R.string.dialog_dying_hero_point));
-            useHeroPointDialog.setPositiveButton(context.getString(R.string.dialog_dying_hero_point_positive), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    useHeroPoint(character, context);
-                }
-            });
-            useHeroPointDialog.setNegativeButton(context.getString(R.string.dialog_dying_hero_point_negative), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    DyingDialogHelper.getInstance().checkIfCharacterDied(character, context);
-                }
-            });
+            useHeroPointDialog.setPositiveButton(context.getString(R.string.dialog_dying_hero_point_positive), (dialogInterface, i) -> useHeroPoint(character, context));
+            useHeroPointDialog.setNegativeButton(context.getString(R.string.dialog_dying_hero_point_negative), (dialogInterface, i) -> DyingDialogHelper.getInstance().checkIfCharacterDied(character, context));
 
             AlertDialog removalDialog = useHeroPointDialog.create();
             removalDialog.show();

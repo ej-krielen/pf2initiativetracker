@@ -11,6 +11,7 @@ import android.widget.Filterable;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -59,23 +60,26 @@ public class DebuffWizardAdapter extends RecyclerView.Adapter<DebuffWizardAdapte
 
     /**
      * Remove a debuff based on position
-     * @param position
+     * @param position Position of the debuff to remove
      */
     public void remove(int position) {
         if (debuffs.size() > position) {
             debuffs.remove(position);
+            notifyItemRemoved(position);
         }
-        notifyDataSetChanged();
     }
 
     /**
      * Remove based on the debuff given
-     * @param debuff
+     * @param debuff The debuff model to remove
      */
     public void remove(DebuffModel debuff) {
-        for (int i = 0; i < debuffs.size(); i++) {
+        int i = 0;
+        while (i < debuffs.size()) {
             if (debuffs.get(i) == debuff) {
                 remove(i);
+            } else {
+                i++;
             }
         }
     }
@@ -100,8 +104,8 @@ public class DebuffWizardAdapter extends RecyclerView.Adapter<DebuffWizardAdapte
 
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
-                ArrayList<DebuffModel> filteredResults = null;
-                if (constraint.length() == 0) {
+                ArrayList<DebuffModel> filteredResults;
+                if (TextUtils.isEmpty(constraint)) {
                     filteredResults = originalDebuffs;
                 } else {
                     filteredResults = getFilteredResults(constraint.toString().toLowerCase());
@@ -147,14 +151,15 @@ public class DebuffWizardAdapter extends RecyclerView.Adapter<DebuffWizardAdapte
     }
     /* End of Viewholder region */
 
+    @NonNull
     @Override
-    public DebuffViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public DebuffViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_condition, parent, false);
         return new DebuffViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(final DebuffViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final DebuffViewHolder holder, int position) {
 
         //Get corresponding debuff
         final DebuffModel debuff = debuffs.get(position);
@@ -172,17 +177,14 @@ public class DebuffWizardAdapter extends RecyclerView.Adapter<DebuffWizardAdapte
             holder.conditionDescriptionTextView.setVisibility(View.VISIBLE);
         }
 
-        holder.addConditionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Remove from adapter and CharacterModel
+        holder.addConditionButton.setOnClickListener(view -> {
+            //Remove from adapter and CharacterModel
 
-                int value = getValue(holder.conditionValueEditText.getText().toString());
-                String name = value > 0 ? debuff.getName() + " " + value : debuff.getName();
-                character.getDebuffList().add(new DebuffModel(name, debuff.getDescription(), getValue(holder.conditionDurationEditText.getText().toString())));
-                Toast.makeText(app, String.format(app.getResources().getString(R.string.debuff_added_existing), name), Toast.LENGTH_LONG).show();
-                callingFragment.getParentFragmentManager().popBackStack();
-            }
+            int value = getValue(holder.conditionValueEditText.getText().toString());
+            String name = value > 0 ? debuff.getName() + " " + value : debuff.getName();
+            character.getDebuffList().add(new DebuffModel(name, debuff.getDescription(), getValue(holder.conditionDurationEditText.getText().toString())));
+            Toast.makeText(app, String.format(app.getResources().getString(R.string.debuff_added_existing), name), Toast.LENGTH_LONG).show();
+            callingFragment.getParentFragmentManager().popBackStack();
         });
     }
 

@@ -2,7 +2,6 @@ package com.rekijan.initiativetrackersecondedition.helper;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.widget.Toast;
 
 import com.rekijan.initiativetrackersecondedition.AppExtension;
@@ -71,15 +70,8 @@ public class HitPointDialogHelper {
             AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
             builder.setMessage(context.getString(R.string.auto_healing_dialog_fast_healing_message))
                     .setTitle(context.getString(R.string.auto_healing_dialog_fast_healing_title));
-            builder.setPositiveButton(context.getString(R.string.dialog_yes), new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    addAutomaticHealing(characterModel, characterModel.getFastHealing(), context);
-                }
-            });
-            builder.setNegativeButton(context.getString(R.string.dialog_no), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {}
-            });
+            builder.setPositiveButton(context.getString(R.string.dialog_yes), (dialog, id) -> addAutomaticHealing(characterModel, characterModel.getFastHealing(), context));
+            builder.setNegativeButton(context.getString(R.string.dialog_no), (dialogInterface, i) -> {});
             AlertDialog dialog = builder.create();
             dialog.show();
         }
@@ -87,15 +79,8 @@ public class HitPointDialogHelper {
             AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
             builder.setMessage(context.getString(R.string.auto_healing_dialog_regeneration_message))
                     .setTitle(context.getString(R.string.auto_healing_dialog_regeneration_title));
-            builder.setPositiveButton(context.getString(R.string.dialog_yes), new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    addAutomaticHealing(characterModel, characterModel.getRegeneration(), context);
-                }
-            });
-            builder.setNegativeButton(context.getString(R.string.dialog_no), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {}
-            });
+            builder.setPositiveButton(context.getString(R.string.dialog_yes), (dialog, id) -> addAutomaticHealing(characterModel, characterModel.getRegeneration(), context));
+            builder.setNegativeButton(context.getString(R.string.dialog_no), (dialogInterface, i) -> {});
             AlertDialog dialog = builder.create();
             dialog.show();
         }
@@ -125,17 +110,12 @@ public class HitPointDialogHelper {
         AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
         builder.setMessage(context.getString(R.string.auto_healing_dialog_max_exceeded_message))
                 .setTitle(context.getString(R.string.auto_healing_dialog_max_exceeded_title));
-        builder.setPositiveButton(context.getString(R.string.dialog_yes), new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                final AppExtension mApp = (AppExtension) context.getApplicationContext();
-                characterModel.setHp(characterModel.getMaxHp());
-                mApp.getCharacterAdapter().notifyDataSetChanged();
-            }
+        builder.setPositiveButton(context.getString(R.string.dialog_yes), (dialog, id) -> {
+            final AppExtension mApp = (AppExtension) context.getApplicationContext();
+            characterModel.setHp(characterModel.getMaxHp());
+            mApp.getCharacterAdapter().notifyDataSetChanged();
         });
-        builder.setNegativeButton(context.getString(R.string.dialog_no), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {}
-        });
+        builder.setNegativeButton(context.getString(R.string.dialog_no), (dialogInterface, i) -> {});
         AlertDialog dialog = builder.create();
         dialog.show();
     }
@@ -158,20 +138,12 @@ public class HitPointDialogHelper {
             AlertDialog.Builder removalBuilder = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
             removalBuilder.setTitle(context.getString(R.string.dialog_delete_low_title))
                     .setMessage(context.getString(R.string.dialog_delete_low));
-            removalBuilder.setPositiveButton(context.getString(R.string.dialog_delete_low_positive), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    app.getCharacterAdapter().remove(character);
-                    app.getCharacterAdapter().notifyDataSetChanged();
+            removalBuilder.setPositiveButton(context.getString(R.string.dialog_delete_low_positive), (dialogInterface, i) -> {
+                app.getCharacterAdapter().remove(character);
+                app.getCharacterAdapter().notifyDataSetChanged();
 
-                }
             });
-            removalBuilder.setNegativeButton(context.getString(R.string.dialog_delete_low_negative), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    DyingDialogHelper.getInstance().setCharacterToDyingDialog(character, context);
-                }
-            });
+            removalBuilder.setNegativeButton(context.getString(R.string.dialog_delete_low_negative), (dialogInterface, i) -> DyingDialogHelper.getInstance().setCharacterToDyingDialog(character, context));
 
             AlertDialog removalDialog = removalBuilder.create();
             removalDialog.show();
@@ -184,17 +156,9 @@ public class HitPointDialogHelper {
             AlertDialog.Builder pcDyingBuilder = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
             pcDyingBuilder.setTitle(context.getString(R.string.dialog_dying_pc_title))
                     .setMessage(context.getString(R.string.dialog_dying_pc));
-            pcDyingBuilder.setPositiveButton(context.getString(R.string.dialog_dying_pc_positive), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    DyingDialogHelper.getInstance().setCharacterToDyingDialog(character, context);
-                }
-            });
-            pcDyingBuilder.setNegativeButton(context.getString(R.string.dialog_pc_dying_negative), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
+            pcDyingBuilder.setPositiveButton(context.getString(R.string.dialog_dying_pc_positive), (dialogInterface, i) -> DyingDialogHelper.getInstance().setCharacterToDyingDialog(character, context));
+            pcDyingBuilder.setNegativeButton(context.getString(R.string.dialog_pc_dying_negative), (dialogInterface, i) -> {
 
-                }
             });
 
             AlertDialog removalDialog = pcDyingBuilder.create();
@@ -213,5 +177,6 @@ public class HitPointDialogHelper {
             DyingDialogHelper.getInstance().increaseDyingDialog(character, context);
             character.setHp(0);
         }
+        app.getCharacterAdapter().notifyDataSetChanged();
     }
 }

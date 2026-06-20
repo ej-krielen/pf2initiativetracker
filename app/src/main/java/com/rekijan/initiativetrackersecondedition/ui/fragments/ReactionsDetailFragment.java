@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -49,7 +51,7 @@ public class ReactionsDetailFragment extends Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater){
         if (!getResources().getBoolean(R.bool.isTablet))
         {
             menu.clear();
@@ -58,11 +60,11 @@ public class ReactionsDetailFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_reactions_detail, container, false);
-        AppExtension app = (AppExtension) getActivity().getApplicationContext();
+        AppExtension app = (AppExtension) requireActivity().getApplicationContext();
 
         //Get the corresponding CharacterModel
         final CharacterModel characterModel = app.getCharacterAdapter().getList().get(position);
@@ -85,24 +87,18 @@ public class ReactionsDetailFragment extends Fragment {
 
         //Buttons
         Button clearAllReactionsButton = rootView.findViewById(R.id.clear_all_reactions_button);
-        clearAllReactionsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                adapter.removeAll();
-                characterModel.getReactionList().clear();
-                adapter.notifyDataSetChanged();
-            }
+        clearAllReactionsButton.setOnClickListener(view -> {
+            adapter.removeAll();
+            characterModel.getReactionList().clear();
+            adapter.notifyDataSetChanged();
         });
 
         Button addReactionButton = rootView.findViewById(R.id.add_reaction_button);
-        addReactionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ReactionModel newReaction = new ReactionModel();
-                adapter.add(newReaction);
-                characterModel.getReactionList().add(newReaction);
-                adapter.notifyDataSetChanged();
-            }
+        addReactionButton.setOnClickListener(view -> {
+            ReactionModel newReaction = new ReactionModel();
+            adapter.add(newReaction);
+            characterModel.getReactionList().add(newReaction);
+            adapter.notifyDataSetChanged();
         });
 
         return rootView;

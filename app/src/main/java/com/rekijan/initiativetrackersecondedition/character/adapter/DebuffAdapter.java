@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -120,8 +121,9 @@ public class DebuffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
     /* End of Viewholder region */
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_DEBUFF)
         {
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_debuff, parent, false);
@@ -133,7 +135,7 @@ public class DebuffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
         if (holder instanceof DebuffViewHolder)
         {
@@ -153,7 +155,7 @@ public class DebuffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             }
 
             //Get corresponding debuff
-            final DebuffModel debuff = debuffs.get(position);
+            final DebuffModel debuff = debuffs.get(holder.getBindingAdapterPosition());
 
             //Set TextView and EditText values
             debuffHolder.debuffNameEditText.setText(debuff.getName());
@@ -173,12 +175,12 @@ public class DebuffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             debuffHolder.debuffDescriptionEditText.setTag(newDebuffDescriptionWatcher);
             debuffHolder.debuffDescriptionEditText.addTextChangedListener(newDebuffDescriptionWatcher);
 
-            debuffHolder.removeDebuffButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //Remove from adapter and CharacterModel
-                    character.getDebuffList().remove(holder.getAdapterPosition());
-                    remove(holder.getAdapterPosition());
+            debuffHolder.removeDebuffButton.setOnClickListener(view -> {
+                //Remove from adapter and CharacterModel
+                int currentPosition = holder.getBindingAdapterPosition();
+                if (currentPosition != RecyclerView.NO_POSITION) {
+                    character.getDebuffList().remove(currentPosition);
+                    remove(currentPosition);
                 }
             });
         }
@@ -213,7 +215,7 @@ public class DebuffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             }
 
             //Get corresponding debuff
-            final DebuffModel debuff = debuffs.get(position);
+            final DebuffModel debuff = debuffs.get(holder.getBindingAdapterPosition());
 
             //Set TextView and EditText values
             persistentDamageHolder.persistentDamageNameEditText.setText(debuff.getName());
@@ -248,17 +250,15 @@ public class DebuffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             persistentDamageHolder.persistentDamageDescriptionEditText.setTag(newPersistentDamageDescriptionWatcher);
             persistentDamageHolder.persistentDamageDescriptionEditText.addTextChangedListener(newPersistentDamageDescriptionWatcher);
 
-            persistentDamageHolder.removePersistentDamageButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //Remove from adapter and CharacterModel
-                    character.getDebuffList().remove(holder.getAdapterPosition());
-                    remove(holder.getAdapterPosition());
+            persistentDamageHolder.removePersistentDamageButton.setOnClickListener(view -> {
+                //Remove from adapter and CharacterModel
+                int currentPosition = holder.getBindingAdapterPosition();
+                if (currentPosition != RecyclerView.NO_POSITION) {
+                    character.getDebuffList().remove(currentPosition);
+                    remove(currentPosition);
                 }
             });
         }
-
-
     }
 
     @Override

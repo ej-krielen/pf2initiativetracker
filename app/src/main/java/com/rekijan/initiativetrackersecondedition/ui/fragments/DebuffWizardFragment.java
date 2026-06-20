@@ -19,7 +19,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -60,7 +62,7 @@ public class DebuffWizardFragment extends Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater){
         if (!getResources().getBoolean(R.bool.isTablet))
         {
             menu.clear();
@@ -69,11 +71,11 @@ public class DebuffWizardFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_debuff_wizard, container, false);
-        AppExtension app = (AppExtension) getActivity().getApplicationContext();
+        AppExtension app = (AppExtension) requireActivity().getApplicationContext();
 
         //Get the corresponding CharacterModel
         final CharacterModel characterModel = app.getCharacterAdapter().getList().get(position);
@@ -90,8 +92,8 @@ public class DebuffWizardFragment extends Fragment {
         debuffWizardRecyclerView.setAdapter(adapter);
 
         SearchView searchView = rootView.findViewById(R.id.debuff_wizard_searchView);
-        EditText searchEditText = (EditText) searchView.findViewById(androidx.appcompat.R.id.search_src_text);
-        searchEditText.setTextColor(getResources().getColor(R.color.white));
+        EditText searchEditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
+        searchEditText.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -106,45 +108,31 @@ public class DebuffWizardFragment extends Fragment {
         });
 
         CheckBox hideDescriptionCheckBox = rootView.findViewById(R.id.debuff_wizard_description_checkBox);
-        hideDescriptionCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                app.setHideDescriptions(checked);
-                adapter.notifyDataSetChanged();
-            }
+        hideDescriptionCheckBox.setOnCheckedChangeListener((compoundButton, checked) -> {
+            app.setHideDescriptions(checked);
+            adapter.notifyDataSetChanged();
         });
         hideDescriptionCheckBox.setChecked(app.getHideDescription());
 
         //Buttons
         Button addEmptyDebuffButton = rootView.findViewById(R.id.debuff_wizard_add_empty_button);
-        addEmptyDebuffButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DebuffModel debuffModel = new DebuffModel();
-                adapter.add(debuffModel);
-                characterModel.getDebuffList().add(debuffModel);
-                Toast.makeText(app, getString(R.string.debuff_added_empty), Toast.LENGTH_LONG).show();
-                getParentFragmentManager().popBackStack();
-            }
+        addEmptyDebuffButton.setOnClickListener(view -> {
+            DebuffModel debuffModel = new DebuffModel();
+            adapter.add(debuffModel);
+            characterModel.getDebuffList().add(debuffModel);
+            Toast.makeText(app, getString(R.string.debuff_added_empty), Toast.LENGTH_LONG).show();
+            getParentFragmentManager().popBackStack();
         });
 
         Button addPoisonButton = rootView.findViewById(R.id.debuff_wizard_add_poison_button);
-        addPoisonButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO poison wizard
-                Toast.makeText(app, "This feature is not yet implemented", Toast.LENGTH_LONG).show();
-            }
+        addPoisonButton.setOnClickListener(view -> {
+            //TODO poison wizard
+            Toast.makeText(app, "This feature is not yet implemented", Toast.LENGTH_LONG).show();
         });
 
         Context context = requireActivity();
         Button addPersistentDamageButton = rootView.findViewById(R.id.debuff_wizard_add_persistent_damage_button);
-        addPersistentDamageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                persistentDamageWizardDialog(context, adapter, characterModel, app);
-            }
-        });
+        addPersistentDamageButton.setOnClickListener(view -> persistentDamageWizardDialog(context, adapter, characterModel, app));
 
         return rootView;
     }
@@ -169,45 +157,39 @@ public class DebuffWizardFragment extends Fragment {
         warningTextView.setVisibility(View.GONE);
 
         //Set button to close and cancel
-        builder.setNegativeButton(context.getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-            }
+        builder.setNegativeButton(context.getString(R.string.dialog_cancel), (dialogInterface, i) -> {
         });
 
         //Bind view to the dialog builder and create it
         builder.setView(alertDialogView);
         final AlertDialog dialog = builder.create();
 
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String damageType = damageTypeEditText.getText().toString();
-                if (TextUtils.isEmpty(damageType)) {
-                    warningTextView.setVisibility(View.VISIBLE);
-                    return;
-                }
-                String damage = damageValueEditText.getText().toString();
-                if (TextUtils.isEmpty(damage))
-                    damage = context.getString(R.string.persistent_damage_hint);
-                int duration = inputIntText(durationEditText.getText().toString());
-                int difficultyClass;
-                if (TextUtils.isEmpty(difficultyClassEditText.getText().toString())) {
-                    difficultyClass = inputIntText(context.getString(R.string.persistent_dc_hint));
-                } else {
-                    difficultyClass = inputIntText(difficultyClassEditText.getText().toString());
-                }
-                String description = descriptionEditText.getText().toString();
-
-                String name = String.format(context.getResources().getString(R.string.persistent_name), damageType, damage);
-
-                DebuffModel debuffModel = new DebuffModel(name, damageType, duration, damage, difficultyClass, description);
-                adapter.add(debuffModel);
-                characterModel.getDebuffList().add(debuffModel);
-                dialog.dismiss();
-                Toast.makeText(app, app.getResources().getString(R.string.debuff_added_persistent_damage), Toast.LENGTH_LONG).show();
-                getParentFragmentManager().popBackStack();
+        addButton.setOnClickListener(view -> {
+            String damageType = damageTypeEditText.getText().toString();
+            if (TextUtils.isEmpty(damageType)) {
+                warningTextView.setVisibility(View.VISIBLE);
+                return;
             }
+            String damage = damageValueEditText.getText().toString();
+            if (TextUtils.isEmpty(damage))
+                damage = context.getString(R.string.persistent_damage_hint);
+            int duration = inputIntText(durationEditText.getText().toString());
+            int difficultyClass;
+            if (TextUtils.isEmpty(difficultyClassEditText.getText().toString())) {
+                difficultyClass = inputIntText(context.getString(R.string.persistent_dc_hint));
+            } else {
+                difficultyClass = inputIntText(difficultyClassEditText.getText().toString());
+            }
+            String description = descriptionEditText.getText().toString();
+
+            String name = String.format(context.getResources().getString(R.string.persistent_name), damageType, damage);
+
+            DebuffModel debuffModel = new DebuffModel(name, damageType, duration, damage, difficultyClass, description);
+            adapter.add(debuffModel);
+            characterModel.getDebuffList().add(debuffModel);
+            dialog.dismiss();
+            Toast.makeText(app, app.getResources().getString(R.string.debuff_added_persistent_damage), Toast.LENGTH_LONG).show();
+            getParentFragmentManager().popBackStack();
         });
 
         //Show the main dialog

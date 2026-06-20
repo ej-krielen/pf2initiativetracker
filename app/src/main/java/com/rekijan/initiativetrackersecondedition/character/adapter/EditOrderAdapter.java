@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.rekijan.initiativetrackersecondedition.R;
@@ -88,7 +89,7 @@ public class EditOrderAdapter extends RecyclerView.Adapter<EditOrderAdapter.Char
     public void onBindViewHolder(@NonNull final CharacterViewHolder holder, int position) {
         final CharacterModel character = characters.get(position);
 
-        int color = character.isPC() ? context.getResources().getColor(R.color.pcColor) : context.getResources().getColor(R.color.npcColor);
+        int color = character.isPC() ? ContextCompat.getColor(context, R.color.pcColor) : ContextCompat.getColor(context, R.color.npcColor);
         holder.editOrderCardView.setCardBackgroundColor(color);
 
         holder.editOrderInitiativeTextView.setText(String.valueOf(character.getInitiative()));
@@ -98,6 +99,9 @@ public class EditOrderAdapter extends RecyclerView.Adapter<EditOrderAdapter.Char
         holder.dragHandle.setOnTouchListener((v, event) -> {
             if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
                 dragListener.onStartDrag(holder);
+            }
+            if (event.getActionMasked() == MotionEvent.ACTION_UP) {
+                v.performClick();
             }
             return false;
         });

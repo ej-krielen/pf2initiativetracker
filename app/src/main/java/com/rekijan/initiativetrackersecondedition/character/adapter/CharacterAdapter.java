@@ -5,14 +5,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,7 +32,6 @@ import com.rekijan.initiativetrackersecondedition.ui.activities.MainActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -107,15 +107,12 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
      * @return a boolean if double initiatives were found to alert to user of this fact.
      */
     public boolean sortInitiative() {
-        Collections.sort(characters, new Comparator<CharacterModel>() {
-            @SuppressWarnings("UseCompareMethod")
-            public int compare(CharacterModel o1, CharacterModel o2) {
-                int firstCompare = o2.getInitiative() - o1.getInitiative();
-                if (firstCompare != 0) {
-                    return firstCompare;
-                } else {
-                    return Boolean.valueOf(o1.isPC()).compareTo(o2.isPC());
-                }
+        Collections.sort(characters, (o1, o2) -> {
+            int firstCompare = o2.getInitiative() - o1.getInitiative();
+            if (firstCompare != 0) {
+                return firstCompare;
+            } else {
+                return Boolean.compare(o1.isPC(), o2.isPC());
             }
         });
 
@@ -250,14 +247,15 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
     /* End of Viewholder region */
 
 
+    @NonNull
     @Override
-    public CharacterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public CharacterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_character, parent, false);
         return new CharacterViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(final CharacterViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final CharacterViewHolder holder, int position) {
         AppExtension app = (AppExtension) context.getApplicationContext();
 
         //Remove watcher if they exist to avoid double watchers
@@ -278,9 +276,9 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         final CharacterModel character = characters.get(position);
 
         // Set background color depending on whether the character is a PC or NPC
-        int color = character.isPC() ? context.getResources().getColor(R.color.pcColor) : context.getResources().getColor(R.color.npcColor);
+        int color = character.isPC() ? ContextCompat.getColor(context, R.color.pcColor) : ContextCompat.getColor(context, R.color.npcColor);
         if (character.isDying()) {
-            color = context.getResources().getColor(R.color.characterDying);
+            color = ContextCompat.getColor(context, R.color.characterDying);
         }
         ((CardView) holder.itemView).setCardBackgroundColor(color);
 
@@ -307,7 +305,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         holder.characterHpEditText.setOnClickListener(newHPWatcher);
 
         ArrayList<DebuffModel> debuffs = character.getDebuffList();
-        if (debuffs.size() > 0) {
+        if (!debuffs.isEmpty()) {
             holder.debuffOverviewTextView.setVisibility(View.VISIBLE);
             StringBuilder debuffString = new StringBuilder();
             debuffString.append(context.getResources().getString(R.string.char_card_debuffs));
@@ -324,58 +322,43 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
             holder.debuffOverviewTextView.setVisibility(View.GONE); //Don't show TextView if list is empty
         }
 
-        holder.showCharacterDetailButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((MainActivity)context).replaceCharacterDetailFragment(holder.getAdapterPosition());
+        holder.showCharacterDetailButton.setOnClickListener(view -> {
+            int currentPosition = holder.getBindingAdapterPosition();
+            if (currentPosition != RecyclerView.NO_POSITION) {
+                ((MainActivity)context).replaceCharacterDetailFragment(currentPosition);
             }
         });
 
         //Start of reaction section
 
-        holder.reactionsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((MainActivity)context).replaceReactionDetailFragment(holder.getAdapterPosition());
+        holder.reactionsButton.setOnClickListener(view -> {
+            int currentPosition = holder.getBindingAdapterPosition();
+            if (currentPosition != RecyclerView.NO_POSITION) {
+                ((MainActivity)context).replaceReactionDetailFragment(currentPosition);
             }
         });
 
-        holder.collapseReactionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                holder.collapseReactionButton.setVisibility(View.INVISIBLE);
-                holder.reactionSwitch.setVisibility(View.GONE);
-                holder.reactionLabel.setVisibility(View.GONE);
-                holder.reactionsAvailableTextView.setVisibility(View.GONE);
-                holder.reactionsButton.setVisibility(View.GONE);
-                holder.openReactionButton.setVisibility(View.VISIBLE);
-                character.setReactionCollapsed(true);
-            }
+        holder.collapseReactionButton.setOnClickListener(v -> {
+            holder.collapseReactionButton.setVisibility(View.INVISIBLE);
+            holder.reactionSwitch.setVisibility(View.GONE);
+            holder.reactionLabel.setVisibility(View.GONE);
+            holder.reactionsAvailableTextView.setVisibility(View.GONE);
+            holder.reactionsButton.setVisibility(View.GONE);
+            holder.openReactionButton.setVisibility(View.VISIBLE);
+            character.setReactionCollapsed(true);
         });
 
-        holder.openReactionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                holder.openReactionButton.setVisibility(View.INVISIBLE);
-                holder.reactionSwitch.setVisibility(View.VISIBLE);
-                holder.reactionLabel.setVisibility(View.VISIBLE);
-                holder.reactionsAvailableTextView.setVisibility(View.VISIBLE);
-                holder.reactionsButton.setVisibility(View.VISIBLE);
-                holder.collapseReactionButton.setVisibility(View.VISIBLE);
-                character.setReactionCollapsed(false);
-            }
+        holder.openReactionButton.setOnClickListener(v -> {
+            holder.openReactionButton.setVisibility(View.INVISIBLE);
+            holder.reactionSwitch.setVisibility(View.VISIBLE);
+            holder.reactionLabel.setVisibility(View.VISIBLE);
+            holder.reactionsAvailableTextView.setVisibility(View.VISIBLE);
+            holder.reactionsButton.setVisibility(View.VISIBLE);
+            holder.collapseReactionButton.setVisibility(View.VISIBLE);
+            character.setReactionCollapsed(false);
         });
 
-        holder.reactionSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    character.setReactionAvailable(true);
-                } else {
-                    character.setReactionAvailable(false);
-                }
-            }
-        });
+        holder.reactionSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> character.setReactionAvailable(isChecked));
 
         boolean hideReaction = app.getHideReactions();
 
@@ -440,42 +423,37 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
 
             holder.dyingLayout.setVisibility(View.VISIBLE);
 
-            holder.dyingRulesImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    DialogHelper.getInstance().deathDyingRulesDialog(context);
-                }
-            });
+            holder.dyingRulesImageView.setOnClickListener(v -> DialogHelper.getInstance().deathDyingRulesDialog(context));
 
             for (int i = 0; i < holder.dyingLayout.getChildCount(); i++) {
                 View child = holder.dyingLayout.getChildAt(i);
-                if (!(child instanceof TextView)) continue;
+                if (!(child instanceof TextView textView)) continue;
 
                 int index = i / 2; // Each dying value has a TextView and an ImageView
 
                 //Only show up the the max dying value
                 if (index >= character.getMaxDyingValue()) {
-                    child.setVisibility(View.GONE);
+                    textView.setVisibility(View.GONE);
                     holder.dyingLayout.getChildAt(i+1).setVisibility(View.GONE);
                 } else {
-                    child.setVisibility(View.VISIBLE);
+                    textView.setVisibility(View.VISIBLE);
                     holder.dyingLayout.getChildAt(i+1).setVisibility(View.VISIBLE);
                 }
 
                 // Mark dying value
                 if (index < (character.getDyingValue())) {
-                    child.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.dying_dying_rounded_corners, context.getTheme()));
+                    textView.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.dying_dying_rounded_corners, context.getTheme()));
                     ((ImageView)holder.dyingLayout.getChildAt(i+1)).setImageResource(R.drawable.ic_dying_dying);
                 } else {
-                    child.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.dying_healthy_rounded_corners, context.getTheme()));
+                    textView.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.dying_healthy_rounded_corners, context.getTheme()));
                     ((ImageView)holder.dyingLayout.getChildAt(i+1)).setImageResource(R.drawable.ic_dying_healthy);
                 }
 
                 //Mark doomed value
                 if (character.getMaxDyingValue() - index <= character.getDoomedValue()) {
-                    child.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.dying_doomed_rounded_corners, context.getTheme()));
+                    textView.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.dying_doomed_rounded_corners, context.getTheme()));
                     ((ImageView)holder.dyingLayout.getChildAt(i+1)).setImageResource(R.drawable.ic_dying_doomed);
-                    ((TextView)child).setText("X");
+                    textView.setText("X");
                 }
             }
 

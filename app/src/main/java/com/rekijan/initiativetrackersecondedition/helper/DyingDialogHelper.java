@@ -2,7 +2,6 @@ package com.rekijan.initiativetrackersecondedition.helper;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -39,18 +38,8 @@ public class DyingDialogHelper {
         AlertDialog.Builder dyingCritDialog = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
         dyingCritDialog.setTitle(context.getString(R.string.dialog_dying_crit_title))
                 .setMessage(context.getString(R.string.dialog_dying_crit));
-        dyingCritDialog.setPositiveButton(context.getString(R.string.dialog_dying_crit_positive), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                setCharacterToDying(character, 2, context);
-            }
-        });
-        dyingCritDialog.setNegativeButton(context.getString(R.string.dialog_dying_crit_negative), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                setCharacterToDying(character, 1, context);
-            }
-        });
+        dyingCritDialog.setPositiveButton(context.getString(R.string.dialog_dying_crit_positive), (dialogInterface, i) -> setCharacterToDying(character, 2, context));
+        dyingCritDialog.setNegativeButton(context.getString(R.string.dialog_dying_crit_negative), (dialogInterface, i) -> setCharacterToDying(character, 1, context));
 
         AlertDialog removalDialog = dyingCritDialog.create();
         removalDialog.show();
@@ -90,18 +79,8 @@ public class DyingDialogHelper {
         AlertDialog.Builder dyingCritDialog = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
         dyingCritDialog.setTitle(context.getString(R.string.dialog_dying_crit_title))
                 .setMessage(context.getString(R.string.dialog_dying_damaged_again));
-        dyingCritDialog.setPositiveButton(context.getString(R.string.dialog_dying_damaged_again_positive), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                increaseCharacterDyingValue(character, 2, context);
-            }
-        });
-        dyingCritDialog.setNegativeButton(context.getString(R.string.dialog_dying_damaged_again_negative), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                increaseCharacterDyingValue(character, 1, context);
-            }
-        });
+        dyingCritDialog.setPositiveButton(context.getString(R.string.dialog_dying_damaged_again_positive), (dialogInterface, i) -> increaseCharacterDyingValue(character, 2, context));
+        dyingCritDialog.setNegativeButton(context.getString(R.string.dialog_dying_damaged_again_negative), (dialogInterface, i) -> increaseCharacterDyingValue(character, 1, context));
 
         AlertDialog removalDialog = dyingCritDialog.create();
         removalDialog.show();
@@ -114,6 +93,8 @@ public class DyingDialogHelper {
      */
     public void increaseCharacterDyingValue(CharacterModel character, int dyingValueIncrease, Context context) {
         character.setDyingValue(character.getDyingValue()+dyingValueIncrease);
+        AppExtension app = (AppExtension) context.getApplicationContext();
+        app.getCharacterAdapter().notifyDataSetChanged();
         HeroPointDialogHelper.getInstance().promptHeroPointUseDialog(character, context);
     }
 
@@ -150,18 +131,12 @@ public class DyingDialogHelper {
             AlertDialog.Builder removalBuilder = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
             removalBuilder.setTitle(context.getString(R.string.dialog_delete_low_title))
                     .setMessage(context.getString(R.string.dialog_delete_low));
-            removalBuilder.setPositiveButton(context.getString(R.string.dialog_delete_low_positive), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    app.getCharacterAdapter().remove(character);
-                    app.getCharacterAdapter().notifyDataSetChanged();
+            removalBuilder.setPositiveButton(context.getString(R.string.dialog_delete_low_positive), (dialogInterface, i) -> {
+                app.getCharacterAdapter().remove(character);
+                app.getCharacterAdapter().notifyDataSetChanged();
 
-                }
             });
-            removalBuilder.setNegativeButton(context.getString(R.string.dialog_delete_low_negative), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                }
+            removalBuilder.setNegativeButton(context.getString(R.string.dialog_delete_low_negative), (dialogInterface, i) -> {
             });
 
             AlertDialog removalDialog = removalBuilder.create();
@@ -180,11 +155,7 @@ public class DyingDialogHelper {
         final View alertDialogView = inflater.inflate(R.layout.dialog_recovery, null);
         builder.setTitle(context.getString(R.string.dialog_recovery_title));
         //Set button to close and cancel
-        builder.setNegativeButton(context.getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-            }
-        });
+        builder.setNegativeButton(context.getString(R.string.dialog_cancel), (dialogInterface, i) -> {});
 
         //Get views
         TextView recoveryDcTextView = alertDialogView.findViewById(R.id.recovery_dialog_dc_label);
@@ -197,39 +168,27 @@ public class DyingDialogHelper {
         builder.setView(alertDialogView);
         final AlertDialog dialog = builder.create();
 
-        // Set views
+        //Set views
         recoveryDcTextView.setText(context.getString(R.string.dialog_recovery_dc, character.getRecoveryDC()+character.getDyingValue()+character.getWoundedValue()));
 
-        recoveryCritSuccessButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                decreaseCharacterDyingValue(character, 2, context);
-                dialog.dismiss();
-            }
+        recoveryCritSuccessButton.setOnClickListener(v -> {
+            decreaseCharacterDyingValue(character, 2, context);
+            dialog.dismiss();
         });
 
-        recoverySuccessButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                decreaseCharacterDyingValue(character, 1, context);
-                dialog.dismiss();
-            }
+        recoverySuccessButton.setOnClickListener(v -> {
+            decreaseCharacterDyingValue(character, 1, context);
+            dialog.dismiss();
         });
 
-        recoveryFailureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                increaseCharacterDyingValue(character, 1, context);
-                dialog.dismiss();
-            }
+        recoveryFailureButton.setOnClickListener(v -> {
+            increaseCharacterDyingValue(character, 1, context);
+            dialog.dismiss();
         });
 
-        recoveryCritFailureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                increaseCharacterDyingValue(character, 2, context);
-                dialog.dismiss();
-            }
+        recoveryCritFailureButton.setOnClickListener(v -> {
+            increaseCharacterDyingValue(character, 2, context);
+            dialog.dismiss();
         });
 
         //Show the main dialog

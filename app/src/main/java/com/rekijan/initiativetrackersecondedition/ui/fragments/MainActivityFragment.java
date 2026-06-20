@@ -5,7 +5,6 @@ import static com.rekijan.initiativetrackersecondedition.AppConstants.SHARED_PRE
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -20,6 +19,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -50,53 +51,36 @@ public class MainActivityFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         //Round counter
         counterTextView = rootView.findViewById(R.id.round_counter_textView);
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREF_TAG, Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences(SHARED_PREF_TAG, Context.MODE_PRIVATE);
         counterTextView.setText(String.valueOf(sharedPreferences.getInt(ROUND_COUNTER, 1)));
 
         Button plusButton = rootView.findViewById(R.id.up_edit_order_button);
-        plusButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int oldNumber = Integer.parseInt(counterTextView.getText().toString());
-                mRoundCounter = oldNumber+1;
-                counterTextView.setText(String.valueOf(mRoundCounter));
-            }
+        plusButton.setOnClickListener(view -> {
+            int oldNumber = Integer.parseInt(counterTextView.getText().toString());
+            mRoundCounter = oldNumber+1;
+            counterTextView.setText(String.valueOf(mRoundCounter));
         });
 
         Button minusButton = rootView.findViewById(R.id.minus_round_button);
-        minusButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int oldNumber = Integer.parseInt(counterTextView.getText().toString());
-                mRoundCounter = oldNumber-1;
-                if (mRoundCounter < 0) mRoundCounter = 0;
-                counterTextView.setText(String.valueOf(mRoundCounter));
-            }
+        minusButton.setOnClickListener(view -> {
+            int oldNumber = Integer.parseInt(counterTextView.getText().toString());
+            mRoundCounter = oldNumber-1;
+            if (mRoundCounter < 0) mRoundCounter = 0;
+            counterTextView.setText(String.valueOf(mRoundCounter));
         });
 
         Button resetButton = rootView.findViewById(R.id.reset_round_button);
-        resetButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                counterTextView.setText(String.valueOf(1));
-            }
-        });
+        resetButton.setOnClickListener(view -> counterTextView.setText(String.valueOf(1)));
 
         Button editOrderButton = rootView.findViewById(R.id.edit_order_button);
-        editOrderButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((MainActivity)requireActivity()).replaceEditOrderFragment();
-
-            }
-        });
+        editOrderButton.setOnClickListener(v -> ((MainActivity)requireActivity()).replaceEditOrderFragment());
 
         //Setup RecyclerView by binding the adapter to it.
         RecyclerView charactersRecyclerView = rootView.findViewById(R.id.characters_recyclerView);
@@ -104,7 +88,7 @@ public class MainActivityFragment extends Fragment {
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         charactersRecyclerView.setLayoutManager(llm);
 
-        AppExtension app = (AppExtension) getActivity().getApplicationContext();
+        AppExtension app = (AppExtension) requireActivity().getApplicationContext();
         final CharacterAdapter adapter = app.getCharacterAdapter();
         charactersRecyclerView.setAdapter(adapter);
 
@@ -118,17 +102,11 @@ public class MainActivityFragment extends Fragment {
                 //Create a dialog to ask for confirmation before deleting
                 String characterName = adapter.getList().get(position).getCharacterName();
                 characterName = TextUtils.isEmpty(characterName) ? getString(R.string.empty_character_name) : characterName;
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
+                AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity(), R.style.AlertDialogStyle);
                 builder.setMessage(getString(R.string.dialog_delete) + characterName + "?")
                         .setTitle(getString(R.string.dialog_delete_title));
-                builder.setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        adapter.remove(position);
-                    }
-                });
-                builder.setNegativeButton(getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                    }
+                builder.setPositiveButton(getString(R.string.dialog_ok), (dialog, id) -> adapter.remove(position));
+                builder.setNegativeButton(getString(R.string.dialog_cancel), (dialog, id) -> {
                 });
                 AlertDialog dialog = builder.create();
                 dialog.show();
@@ -139,14 +117,14 @@ public class MainActivityFragment extends Fragment {
 
     @Override
     public void onPause() {
-        AppExtension app = (AppExtension) getActivity().getApplicationContext();
+        AppExtension app = (AppExtension) requireActivity().getApplicationContext();
         app.saveData(mRoundCounter);
         super.onPause();
     }
 
     private void addCharacter() {
-        AppExtension app = (AppExtension) getActivity().getApplicationContext();
-        app.getCharacterAdapter().add(new CharacterModel(getContext()));
+        AppExtension app = (AppExtension) requireActivity().getApplicationContext();
+        app.getCharacterAdapter().add(new CharacterModel(requireContext()));
         app.getCharacterAdapter().notifyDataSetChanged();
     }
 
@@ -154,45 +132,43 @@ public class MainActivityFragment extends Fragment {
      * Show dialog to explain how to remove a character
      */
     public void deleteCharacterInfo() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity(), R.style.AlertDialogStyle);
         builder.setMessage(getString(R.string.dialog_delete_info))
                 .setTitle(getString(R.string.dialog_delete_info_title));
-        builder.setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-            }
+        builder.setPositiveButton(getString(R.string.dialog_ok), (dialog, id) -> {
         });
         AlertDialog dialog = builder.create();
         dialog.show();
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        AppExtension app = (AppExtension) getActivity().getApplicationContext();
+    public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
+        AppExtension app = (AppExtension) requireActivity().getApplicationContext();
         savedInstanceState.putParcelableArrayList("characters", app.getCharacterAdapter().getList());
         super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
-    public void onViewStateRestored(Bundle savedInstanceState) {
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         // Do something that differs the Activity's menu here
         super.onCreateOptionsMenu(menu, inflater);
-        AppExtension app = (AppExtension) getActivity().getApplicationContext();
+        AppExtension app = (AppExtension) requireActivity().getApplicationContext();
         menu.findItem(R.id.action_settings_hide_reactions).setChecked(app.getHideReactions());
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        AppExtension app = (AppExtension) getActivity().getApplicationContext();
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        AppExtension app = (AppExtension) requireActivity().getApplicationContext();
 
         int itemId = item.getItemId();
 
         if (itemId == R.id.action_settings_next_turn) {
-            boolean isNextRound = app.getCharacterAdapter().nextTurn(getActivity());
+            boolean isNextRound = app.getCharacterAdapter().nextTurn(requireActivity());
             if (isNextRound) nextRound();
             return true;
         } else if (itemId == R.id.action_settings_sort) {
@@ -221,16 +197,16 @@ public class MainActivityFragment extends Fragment {
             }
             return true;
         } else if (itemId == R.id.action_settings_start_turn_info) {
-            DialogHelper.getInstance().simpleDialog(getActivity(), getString(R.string.dialog_turn_start_info_title), getString(R.string.dialog_turn_start_info));
+            DialogHelper.getInstance().simpleDialog(requireActivity(), getString(R.string.dialog_turn_start_info_title), getString(R.string.dialog_turn_start_info));
             return true;
         } else if (itemId == R.id.action_settings_end_turn_info) {
-            DialogHelper.getInstance().simpleDialog(getActivity(), getString(R.string.dialog_turn_end_info_title), getString(R.string.dialog_turn_end_info));
+            DialogHelper.getInstance().simpleDialog(requireActivity(), getString(R.string.dialog_turn_end_info_title), getString(R.string.dialog_turn_end_info));
             return true;
         } else if (itemId == R.id.action_settings_about) {
-            DialogHelper.getInstance().aboutInfo(getActivity());
+            DialogHelper.getInstance().aboutInfo(requireActivity());
             return true;
         } else if (itemId == R.id.action_settings_privacy) {
-            DialogHelper.getInstance().privacyPolicyInfo(getActivity());
+            DialogHelper.getInstance().privacyPolicyInfo(requireActivity());
             return true;
         } else {
             return super.onOptionsItemSelected(item);
@@ -248,19 +224,12 @@ public class MainActivityFragment extends Fragment {
     }
 
     private void askRoundResetConfirmation(boolean warnForDoubleInitiative) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity(), R.style.AlertDialogStyle);
         String message = warnForDoubleInitiative ? getString(R.string.dialog_reset_round_counter) +  getString(R.string.dialog_reset_round_double_init) : getString(R.string.dialog_reset_round_counter);
         builder.setMessage(message)
                 .setTitle(getString(R.string.dialog_reset_round_counter_title));
-        builder.setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                counterTextView.setText(String.valueOf(1));
-            }
-        });
-        builder.setNegativeButton(getString(R.string.dialog_reset_round_counter_cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {}
-        });
+        builder.setPositiveButton(getString(R.string.dialog_ok), (dialog, id) -> counterTextView.setText(String.valueOf(1)));
+        builder.setNegativeButton(getString(R.string.dialog_reset_round_counter_cancel), (dialogInterface, i) -> {});
 
         AlertDialog dialog = builder.create();
         dialog.show();
