@@ -74,7 +74,8 @@
     <string name="char_detail_fast_healing">Fast Healing</string>
     <string name="char_detail_regeneration">Regeneration</string>
     <string name="char_detail_dying">Dying value</string>
-    <string name="char_detail_max_dying">Max</string>
+    <string name="char_detail_max_dying">Max dying value</string>
+    <string name="max_dying_value_invalid">Max dying value cannot exceed %1$d</string>
     <string name="char_detail_wounded">Wounded value</string>
     <string name="char_detail_doomed">Doomed value</string>
     <string name="char_detail_recovery_dc">Starting\nRecovery DC</string>

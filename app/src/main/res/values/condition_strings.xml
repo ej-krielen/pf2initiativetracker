@@ -1,6 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string-array name="condition_names">
+        <item>@string/blinded_name</item>
+        <item>@string/clumsy_name</item>
+        <item>@string/confused_name</item>
+        <item>@string/controlled_name</item>
+        <item>@string/dazzled_name</item>
+        <item>@string/deafened_name</item>
+        <item>@string/drained_name</item>
+        <item>@string/encumbered_name</item>
+        <item>@string/enfeebled_name</item>
+        <item>@string/fascinated_name</item>
+        <item>@string/fatigued_name</item>
+        <item>@string/flat_footed_name</item>
+        <item>@string/fleeing_name</item>
+        <item>@string/frightened_name</item>
+        <item>@string/grabbed_name</item>
+        <item>@string/immobilized_name</item>
+        <item>@string/paralyzed_name</item>
+        <item>@string/petrified_name</item>
+        <item>@string/prone_name</item>
+        <item>@string/quickened_name</item>
+        <item>@string/restrained_name</item>
+        <item>@string/sickened_name</item>
+        <item>@string/slowed_name</item>
+        <item>@string/stunned_name</item>
+        <item>@string/stupefied_name</item>
+        <item>@string/unconscious_name</item>
+    </string-array>
+
+    <string-array name="condition_descriptions">
+        <item>@string/blinded_desc</item>
+        <item>@string/clumsy_desc</item>
+        <item>@string/confused_desc</item>
+        <item>@string/controlled_desc</item>
+        <item>@string/dazzled_desc</item>
+        <item>@string/deafened_desc</item>
+        <item>@string/drained_desc</item>
+        <item>@string/encumbered_desc</item>
+        <item>@string/enfeebled_desc</item>
+        <item>@string/fascinated_desc</item>
+        <item>@string/fatigued_desc</item>
+        <item>@string/flat_footed_desc</item>
+        <item>@string/fleeing_desc</item>
+        <item>@string/frightened_desc</item>
+        <item>@string/grabbed_desc</item>
+        <item>@string/immobilized_desc</item>
+        <item>@string/paralyzed_desc</item>
+        <item>@string/petrified_desc</item>
+        <item>@string/prone_desc</item>
+        <item>@string/quickened_desc</item>
+        <item>@string/restrained_desc</item>
+        <item>@string/sickened_desc</item>
+        <item>@string/slowed_desc</item>
+        <item>@string/stunned_desc</item>
+        <item>@string/stupefied_desc</item>
+        <item>@string/unconscious_desc</item>
+    </string-array>
+
     <string name="blinded_name">Blinded</string>
     <string name="blinded_desc">You can\'t see. All normal terrain is difficult terrain to you. You can\'t detect anything using vision. You automatically critically fail Perception checks that require you to be able to see, and if vision is your only precise sense, you take a –4 status penalty to Perception checks. You are immune to visual effects. Blinded overrides dazzled.</string>
 

@@ -1,0 +1,28 @@
+package com.rekijan.initiativetrackersecondedition.core;
+
+/**
+ * Global constant fields used throughout the application.
+ * Centralizes values for UI timeouts, character defaults, and preference keys.
+ *
+ * @author Erik-Jan Krielen rekijan.apps@gmail.com
+ * @since 11-10-2015
+ */
+public class AppConstants {
+
+    public static final int SPLASH_TIME_OUT = 1000;
+
+    // Character default values
+    public static final int INITIATIVE = 0;
+    public static final int HP = 6;
+    public static final int MAX_DYING_VALUE = 6;
+    public static final int AC_AND_SAVES = 10;
+
+    public static final String POSITION = "POSITION";
+
+    // SharedPreferences Keys
+    public static final String GSON_TAG = "GSON_TAG";
+    public static final String SHARED_PREF_TAG = "SHARED_PREF_TAG";
+    public static final String ROUND_COUNTER = "ROUND_COUNTER";
+    public static final String SHARED_PREF_HIDE_DESC = "SHARED_PREF_HIDE_DESC";
+    public static final String SHARED_PREF_HIDE_REACTIONS = "SHARED_PREF_HIDE_REACTIONS";
+}
