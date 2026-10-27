@@ -28,6 +28,8 @@ import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.QueryProductDetailsParams;
 import com.android.billingclient.api.QueryPurchasesParams;
 import com.rekijan.initiativetrackersecondedition.R;
+import com.rekijan.initiativetrackersecondedition.app.CombatTrackerApp;
+import com.rekijan.initiativetrackersecondedition.core.data.EncounterStore;
 import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
 
 import java.util.ArrayList;
@@ -37,29 +39,50 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Handles Google Play Billing (v9) for the app: the two tips ("Tip the dev"). Tips are
- * consumable: acknowledged, then consumed so they can be bought again. Same structure as the
- * BillingManager in Secret Roller and Mook Roller, so Remove Ads can be added the same way.
+ * Handles Google Play Billing (v9) for the app: the two tips ("Tip the dev") and Remove Ads.
+ * Same structure as the BillingManager in Initiative Tracker, Secret Roller and Mook Roller.
+ * <p>
+ * Tips are consumable: acknowledged, then consumed so they can be bought again. A tip does not
+ * remove the ads. Remove Ads is a one-time product: acknowledged, never consumed, and restored
+ * from Google Play on every start.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026
  */
 public class BillingManager implements PurchasesUpdatedListener {
 
+    // The 1.x tip products, keep the ids
     private static final String ITEM_SKU_FIVE = "fiveeurodonation";
     private static final String ITEM_SKU_TEN = "teneurodonation";
+    // Same id as Initiative Tracker
+    private static final String ITEM_SKU_REMOVE_ADS = "remove_ads";
     private static final String LOG_TAG = "BillingManager";
 
     private final Application app;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private final Map<String, ProductDetails> productDetailsMap = new HashMap<>();
     private BillingClient billingClient;
+    private RemoveAdsListener removeAdsListener;
+
+    /**
+     * Notified when the Remove Ads purchase is confirmed (fresh purchase, or found on restore)
+     * and when the prices have loaded, so the menu can update. Always called on the main thread.
+     */
+    public interface RemoveAdsListener {
+        void onAdsRemoved();
+
+        void onPriceLoaded();
+    }
 
     public BillingManager(Application app) {
         this.app = app;
     }
 
-    /** Connects to Google Play, then loads the products and finishes earlier purchases. */
+    public void setRemoveAdsListener(RemoveAdsListener listener) {
+        this.removeAdsListener = listener;
+    }
+
+    /** Connects to Google Play, then loads the products and restores earlier purchases. */
     public void start() {
         billingClient = BillingClient.newBuilder(app)
                 .setListener(this)
@@ -100,7 +123,9 @@ public class BillingManager implements PurchasesUpdatedListener {
                 handlePurchase(p);
             }
         } else if (code == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED) {
-            // An earlier tip was never consumed: finish it so it can be bought again
+            // Remove Ads bought earlier (or on another device) but not known here yet, or an
+            // earlier tip that was never consumed: restore or finish it
+            Log.d(LOG_TAG, "Item already owned, restoring purchases.");
             queryPurchases();
         } else if (code != BillingClient.BillingResponseCode.USER_CANCELED) {
             Log.e(LOG_TAG, "onPurchasesUpdated() failed with result: " + code);
@@ -134,9 +159,33 @@ public class BillingManager implements PurchasesUpdatedListener {
         dialog.show();
     }
 
+    /** Starts the Remove Ads purchase, or says why it can't (already bought, Play not ready). */
+    public void purchaseRemoveAds(Activity activity) {
+        if (store().isAdsRemoved()) {
+            Toast.makeText(activity, R.string.billing_ads_already_removed, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        ProductDetails details = productDetailsMap.get(ITEM_SKU_REMOVE_ADS);
+        if (details == null) {
+            Toast.makeText(activity, R.string.billing_not_ready, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        launchBillingFlow(activity, details);
+    }
+
+    /** @return The Google Play price of Remove Ads, or null if it has not loaded (yet). */
+    @Nullable
+    public String getRemoveAdsPrice() {
+        return formattedPrice(productDetailsMap.get(ITEM_SKU_REMOVE_ADS));
+    }
+
+    private EncounterStore store() {
+        return ((CombatTrackerApp) app).getStore();
+    }
+
     private void queryProductDetails() {
         List<QueryProductDetailsParams.Product> productList = new ArrayList<>();
-        for (String sku : new String[]{ITEM_SKU_FIVE, ITEM_SKU_TEN}) {
+        for (String sku : new String[]{ITEM_SKU_FIVE, ITEM_SKU_TEN, ITEM_SKU_REMOVE_ADS}) {
             productList.add(QueryProductDetailsParams.Product.newBuilder()
                     .setProductId(sku)
                     .setProductType(BillingClient.ProductType.INAPP)
@@ -157,6 +206,7 @@ public class BillingManager implements PurchasesUpdatedListener {
                 mainHandler.post(() -> {
                     productDetailsMap.clear();
                     productDetailsMap.putAll(loaded);
+                    if (removeAdsListener != null) removeAdsListener.onPriceLoaded();
                 });
             } else {
                 Log.e(LOG_TAG, "queryProductDetailsAsync() failed: " + billingResult.getDebugMessage());
@@ -181,19 +231,50 @@ public class BillingManager implements PurchasesUpdatedListener {
     private void handlePurchase(Purchase purchase) {
         if (purchase.getPurchaseState() != PurchaseState.PURCHASED) return;
         List<String> products = purchase.getProducts();
-        if (!products.contains(ITEM_SKU_FIVE) && !products.contains(ITEM_SKU_TEN)) return;
+        boolean isRemoveAds = products.contains(ITEM_SKU_REMOVE_ADS);
+        boolean isTip = products.contains(ITEM_SKU_FIVE) || products.contains(ITEM_SKU_TEN);
+        if (!isRemoveAds && !isTip) return;
 
         if (purchase.isAcknowledged()) {
-            consumePurchase(purchase.getPurchaseToken());
+            if (isRemoveAds) {
+                onRemoveAdsConfirmed(false);
+            } else {
+                consumePurchase(purchase.getPurchaseToken());
+            }
             return;
         }
         AcknowledgePurchaseParams params = AcknowledgePurchaseParams.newBuilder()
                 .setPurchaseToken(purchase.getPurchaseToken())
                 .build();
         billingClient.acknowledgePurchase(params, result -> {
-            if (result.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+            if (result.getResponseCode() != BillingClient.BillingResponseCode.OK) {
+                Log.e(LOG_TAG, "acknowledgePurchase() failed: " + result.getDebugMessage());
+                return;
+            }
+            if (isRemoveAds) {
+                onRemoveAdsConfirmed(true);
+            } else {
                 consumePurchase(purchase.getPurchaseToken());
                 mainHandler.post(() -> Toast.makeText(app, R.string.billing_tip_thanks, Toast.LENGTH_LONG).show());
+            }
+        });
+    }
+
+    /**
+     * Saves the Remove Ads flag and tells the listener, once. Safe to call repeatedly (fresh
+     * purchase and the startup restore) and from any thread.
+     *
+     * @param fresh True right after buying, to thank the user.
+     */
+    private void onRemoveAdsConfirmed(boolean fresh) {
+        mainHandler.post(() -> {
+            boolean wasAlreadyKnown = store().isAdsRemoved();
+            store().setAdsRemoved(true);
+            if (fresh) {
+                Toast.makeText(app, R.string.billing_ads_removed, Toast.LENGTH_LONG).show();
+            }
+            if (!wasAlreadyKnown && removeAdsListener != null) {
+                removeAdsListener.onAdsRemoved();
             }
         });
     }

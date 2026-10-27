@@ -53,20 +53,32 @@
         android:title="@string/action_end_turn_info"
         app:showAsAction="never" />
 
-    <!-- Always there -->
+    <!-- Always there, same order as Initiative Tracker. Remove Ads and Privacy Settings are shown
+         or hidden in MainActivity.onPrepareOptionsMenu. -->
+    <item
+        android:id="@+id/action_settings_remove_ads"
+        android:orderInCategory="9"
+        android:title="@string/action_remove_ads"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_settings_tip"
+        android:orderInCategory="10"
+        android:title="@string/action_tip"
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_settings_about"
-        android:orderInCategory="9"
+        android:orderInCategory="11"
         android:title="@string/action_about"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_settings_privacy"
-        android:orderInCategory="10"
+        android:orderInCategory="12"
         android:title="@string/action_privacy"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_settings_tip"
-        android:orderInCategory="11"
-        android:title="@string/action_tip"
+        android:id="@+id/action_settings_privacy_settings"
+        android:orderInCategory="13"
+        android:title="@string/action_privacy_settings"
+        android:visible="false"
         app:showAsAction="never" />
 </menu>

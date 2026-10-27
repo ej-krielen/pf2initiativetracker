@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 
 import com.rekijan.initiativetrackersecondedition.R;
+import com.rekijan.initiativetrackersecondedition.core.util.DialogQueue;
 import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
 import com.rekijan.initiativetrackersecondedition.core.util.NumberInput;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
@@ -74,9 +75,19 @@ public final class PersistentDamageDialogs {
     /**
      * End of turn: the character takes the damage (typed in when it is a dice expression), then
      * a successful flat check removes it.
+     *
+     * @param onDone Runs once this dialog is closed and the questions that follow from the damage
+     *               (knocked out, hero points) are answered.
      */
     public static void askEndOfTurn(Context context, Encounter encounter, CharacterModel character,
-                                    DebuffModel debuff) {
+                                    DebuffModel debuff, Runnable onDone) {
+        Runnable done = DialogQueue.once(onDone);
+        // Open parts: this dialog, plus the hp questions while they are being asked
+        int[] open = {1};
+        Runnable closeOne = () -> {
+            open[0]--;
+            if (open[0] == 0) done.run();
+        };
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_persistent_damage_activate, null);
         TextView nameTextView = view.findViewById(R.id.persistent_damage_apply_name_textView);
         TextView valuesTextView = view.findViewById(R.id.persistent_damage_apply_values_textView);
@@ -104,6 +115,7 @@ public final class PersistentDamageDialogs {
                 .setTitle(context.getString(R.string.persistent_damage_dialog_title, character.getCharacterName()))
                 .setView(view)
                 .setNegativeButton(R.string.dialog_close, null)
+                .setOnDismissListener(d -> closeOne.run())
                 .create();
 
         damageButton.setOnClickListener(v -> {
@@ -114,8 +126,9 @@ public final class PersistentDamageDialogs {
             }
             int damage = NumberInput.parseInt(input, 0, 0, CharacterModel.MAX_HP);
             damageButton.setVisibility(View.GONE);
+            open[0]++;
             HealthDialogs.onHpChanged(context, encounter, character,
-                    HpChange.apply(character, character.getHp() - damage));
+                    HpChange.apply(character, character.getHp() - damage), closeOne);
         });
         flatCheckButton.setOnClickListener(v -> {
             character.getDebuffList().remove(debuff);

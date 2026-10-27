@@ -49,6 +49,25 @@ public class Encounter {
             this.recoveryCheck = recoveryCheck;
             this.newRound = newRound;
         }
+
+        /**
+         * @return What the user has to resolve, in order: first everything of the turn that
+         * ended (persistent damage, then expired (de)buffs), then the start of the new turn
+         * (fast healing, regeneration, recovery check).
+         */
+        public List<TurnStep> steps() {
+            List<TurnStep> steps = new ArrayList<>();
+            for (DebuffModel d : persistentDamage) {
+                steps.add(new TurnStep(TurnStep.Kind.PERSISTENT_DAMAGE, ended, d));
+            }
+            for (DebuffModel d : expiredDebuffs) {
+                steps.add(new TurnStep(TurnStep.Kind.EXPIRED_DEBUFF, ended, d));
+            }
+            if (active.getFastHealing() > 0) steps.add(new TurnStep(TurnStep.Kind.FAST_HEALING, active, null));
+            if (active.getRegeneration() > 0) steps.add(new TurnStep(TurnStep.Kind.REGENERATION, active, null));
+            if (recoveryCheck) steps.add(new TurnStep(TurnStep.Kind.RECOVERY_CHECK, active, null));
+            return steps;
+        }
     }
 
     /** What happened when the PCs were healed to max hp. */

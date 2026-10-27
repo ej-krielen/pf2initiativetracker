@@ -104,6 +104,40 @@ public class EncounterTest {
     }
 
     @Test
+    public void stepsOfTheEndedTurnComeBeforeThoseOfTheNewTurn() {
+        // The user's case: Seoni has persistent damage, Kyra after her is dying
+        CharacterModel seoni = character("Seoni", 20, true);
+        DebuffModel fire = DebuffModel.persistentDamage("fire damage (1d6)", "fire", "1d6", 15, 0, "");
+        DebuffModel acid = DebuffModel.persistentDamage("acid damage (2)", "acid", "2", 15, 0, "");
+        DebuffModel offGuard = new DebuffModel("Off-Guard", "", 1, 0);
+        seoni.getDebuffList().addAll(Arrays.asList(fire, offGuard, acid));
+        CharacterModel kyra = character("Kyra", 10, true);
+        kyra.setFastHealing(2);
+        kyra.setRegeneration(3);
+        kyra.knockOut(1);
+        Encounter e = encounterOf(seoni, kyra);
+
+        List<TurnStep> steps = e.nextTurn().steps();
+
+        List<TurnStep.Kind> kinds = new ArrayList<>();
+        for (TurnStep s : steps) kinds.add(s.kind);
+        assertEquals(Arrays.asList(TurnStep.Kind.PERSISTENT_DAMAGE, TurnStep.Kind.PERSISTENT_DAMAGE,
+                TurnStep.Kind.EXPIRED_DEBUFF, TurnStep.Kind.FAST_HEALING, TurnStep.Kind.REGENERATION,
+                TurnStep.Kind.RECOVERY_CHECK), kinds);
+        assertSame(fire, steps.get(0).debuff);
+        assertSame(acid, steps.get(1).debuff);
+        assertSame(offGuard, steps.get(2).debuff);
+        assertSame(seoni, steps.get(2).character);
+        assertSame(kyra, steps.get(5).character);
+    }
+
+    @Test
+    public void aQuietTurnHasNoSteps() {
+        Encounter e = encounterOf(character("A", 20, true), character("B", 10, false));
+        assertTrue(e.nextTurn().steps().isEmpty());
+    }
+
+    @Test
     public void startOfTurnResetsReactionsAndAsksDyingForARecoveryCheck() {
         CharacterModel a = character("A", 20, false);
         CharacterModel b = character("B", 10, true);

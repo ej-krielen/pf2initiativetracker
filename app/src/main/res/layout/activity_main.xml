@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Main screen: toolbar and the panes (content_main: the encounter, or the details / Edit Order in
-    its place; on a large screen the details sit next to the list). Edge-to-edge: MainActivity pads
+    Main screen: toolbar, the panes (content_main: the encounter, or the details / Edit Order in
+    its place; on a large screen the details sit next to the list) and the ad bar under both panes.
+    The ad bar takes its own space, so it never covers the turn bar. Edge-to-edge: MainActivity pads
     the root for the status bar, navigation bar and keyboard, so nothing here uses fitsSystemWindows.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -26,4 +27,12 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
+
+    <!-- Ad bar: stays GONE (zero height) until an ad has loaded, and for Remove Ads owners -->
+    <nl.rekijan.ads.RekijanBannerAdView
+        android:id="@+id/bottomAdBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/colorBackground"
+        android:visibility="gone" />
 </LinearLayout>

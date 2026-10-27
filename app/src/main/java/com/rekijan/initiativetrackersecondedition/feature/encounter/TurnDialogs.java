@@ -3,6 +3,7 @@ package com.rekijan.initiativetrackersecondedition.feature.encounter;
 import android.content.Context;
 
 import com.rekijan.initiativetrackersecondedition.R;
+import com.rekijan.initiativetrackersecondedition.core.util.DialogQueue;
 import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
 import com.rekijan.initiativetrackersecondedition.feature.character.DebuffModel;
@@ -10,10 +11,14 @@ import com.rekijan.initiativetrackersecondedition.feature.condition.PersistentDa
 import com.rekijan.initiativetrackersecondedition.feature.health.HealthDialogs;
 import com.rekijan.initiativetrackersecondedition.feature.health.HpChange;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * The questions the app asks when the turn moves on: persistent damage and expired (de)buffs at
- * the end of a turn; fast healing, regeneration and recovery checks at the start of the next. And
- * after sorting: reset the round counter?
+ * the end of a turn; fast healing, regeneration and recovery checks at the start of the next.
+ * They are asked one at a time, in the order of {@link Encounter.Turn#steps}. And after sorting:
+ * reset the round counter?
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026
@@ -23,27 +28,13 @@ public final class TurnDialogs {
     private TurnDialogs() {
     }
 
-    /** Asks the questions that belong to the end of one turn and the start of the next. */
+    /** Asks the questions of the turn that ended, then those of the turn that starts. */
     public static void onTurnChanged(Context context, Encounter encounter, Encounter.Turn turn) {
-        for (DebuffModel debuff : turn.persistentDamage) {
-            PersistentDamageDialogs.askEndOfTurn(context, encounter, turn.ended, debuff);
+        List<DialogQueue.Step> dialogs = new ArrayList<>();
+        for (TurnStep step : turn.steps()) {
+            dialogs.add(done -> show(context, encounter, step, done));
         }
-        for (DebuffModel debuff : turn.expiredDebuffs) {
-            askRemoveExpiredDebuff(context, encounter, turn.ended, debuff);
-        }
-
-        CharacterModel active = turn.active;
-        if (active.getFastHealing() > 0) {
-            askAutomaticHealing(context, encounter, active, active.getFastHealing(),
-                    R.string.auto_healing_dialog_fast_healing_title, R.string.auto_healing_dialog_fast_healing_message);
-        }
-        if (active.getRegeneration() > 0) {
-            askAutomaticHealing(context, encounter, active, active.getRegeneration(),
-                    R.string.auto_healing_dialog_regeneration_title, R.string.auto_healing_dialog_regeneration_message);
-        }
-        if (turn.recoveryCheck) {
-            HealthDialogs.askRecoveryCheck(context, encounter, active);
-        }
+        DialogQueue.run(dialogs);
     }
 
     /**
@@ -61,8 +52,38 @@ public final class TurnDialogs {
                 .show();
     }
 
-    private static void askRemoveExpiredDebuff(Context context, Encounter encounter,
-                                               CharacterModel character, DebuffModel debuff) {
+    private static void show(Context context, Encounter encounter, TurnStep step, Runnable done) {
+        CharacterModel character = step.character;
+        switch (step.kind) {
+            case PERSISTENT_DAMAGE:
+                PersistentDamageDialogs.askEndOfTurn(context, encounter, character, step.debuff, done);
+                break;
+            case EXPIRED_DEBUFF:
+                askRemoveExpiredDebuff(context, encounter, character, step.debuff, done);
+                break;
+            case FAST_HEALING:
+                askAutomaticHealing(context, encounter, character, character.getFastHealing(),
+                        R.string.auto_healing_dialog_fast_healing_title,
+                        R.string.auto_healing_dialog_fast_healing_message, done);
+                break;
+            case REGENERATION:
+                askAutomaticHealing(context, encounter, character, character.getRegeneration(),
+                        R.string.auto_healing_dialog_regeneration_title,
+                        R.string.auto_healing_dialog_regeneration_message, done);
+                break;
+            case RECOVERY_CHECK:
+                HealthDialogs.askRecoveryCheck(context, encounter, character, done);
+                break;
+        }
+    }
+
+    private static void askRemoveExpiredDebuff(Context context, Encounter encounter, CharacterModel character,
+                                               DebuffModel debuff, Runnable done) {
+        // Removed in the meantime, e.g. persistent damage ended by its flat check one step earlier
+        if (!character.getDebuffList().contains(debuff)) {
+            done.run();
+            return;
+        }
         Dialogs.builder(context)
                 .setTitle(R.string.dialog_debuff_expired_title)
                 .setMessage(context.getString(R.string.debuff_expired, debuff.getDisplayName()))
@@ -71,25 +92,29 @@ public final class TurnDialogs {
                     encounter.notifyChanged();
                 })
                 .setNegativeButton(R.string.dialog_debuff_keep, null)
+                .setOnDismissListener(d -> done.run())
                 .show();
     }
 
     private static void askAutomaticHealing(Context context, Encounter encounter, CharacterModel character,
-                                            int healing, int titleRes, int messageRes) {
+                                            int healing, int titleRes, int messageRes, Runnable done) {
         Dialogs.builder(context)
                 .setTitle(titleRes)
                 .setMessage(messageRes)
                 .setPositiveButton(R.string.dialog_yes, (d, w) -> {
                     character.heal(healing);
-                    if (character.isAboveMaxHp()) askCapAtMaxHp(context, encounter, character);
+                    boolean aboveMax = character.isAboveMaxHp();
                     HealthDialogs.onHpChanged(context, encounter, character,
-                            HpChange.apply(character, character.getHp()));
+                            HpChange.apply(character, character.getHp()),
+                            aboveMax ? () -> askCapAtMaxHp(context, encounter, character, done) : done);
                 })
-                .setNegativeButton(R.string.dialog_no, null)
+                .setNegativeButton(R.string.dialog_no, (d, w) -> done.run())
+                .setOnCancelListener(d -> done.run())
                 .show();
     }
 
-    private static void askCapAtMaxHp(Context context, Encounter encounter, CharacterModel character) {
+    private static void askCapAtMaxHp(Context context, Encounter encounter, CharacterModel character,
+                                      Runnable done) {
         Dialogs.builder(context)
                 .setTitle(R.string.auto_healing_dialog_max_exceeded_title)
                 .setMessage(R.string.auto_healing_dialog_max_exceeded_message)
@@ -98,6 +123,7 @@ public final class TurnDialogs {
                     encounter.notifyChanged();
                 })
                 .setNegativeButton(R.string.dialog_no, null)
+                .setOnDismissListener(d -> done.run())
                 .show();
     }
 }

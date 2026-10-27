@@ -16,6 +16,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // RekijanAds is published through JitPack
+        maven { url 'https://jitpack.io' }
     }
 }
 

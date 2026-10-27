@@ -18,6 +18,9 @@
     <string name="action_about">About</string>
     <string name="action_privacy">Privacy Policy</string>
     <string name="action_tip">Tip the dev</string>
+    <string name="action_remove_ads">Remove Ads</string>
+    <string name="action_remove_ads_price">Remove Ads (%1$s)</string>
+    <string name="action_privacy_settings">Privacy Settings</string>
     <string name="action_hide_reactions">Hide reactions</string>
 
     <!-- Toast -->
@@ -199,7 +202,7 @@ The last step of starting your turn is always the same.\n\n\n
     <string name="removed_debuff">Debuff has been removed</string>
 
     <!--Privacy Policy dialog    -->
-    <string name="dialog_privacy_info">This app does not collect or share any of your data. See our website for more info.</string>
+    <string name="dialog_privacy_info">Everything you enter stays on your device, including your characters and the round counter.\n\n<b>Ads</b>\nThe free version shows ads from Google AdMob. Google may use information such as your device\'s advertising ID to show and measure ads. If you are in the EEA or the UK, you choose whether ads may be personalised, and you can change that later under Privacy Settings.\n\n<b>Remove Ads</b>\nIf you buy Remove Ads, the app stops loading ads altogether.\n\n<b>Purchases</b>\nTips and Remove Ads are handled by Google Play. The app only learns that a purchase was made.\n\nThe full policy is on the website.</string>
     <string name="dialog_privacy_info_title">Privacy Policy</string>
     <string name="dialog_privacy_ok">Go to website</string>
 
@@ -288,4 +291,6 @@ The last step of starting your turn is always the same.\n\n\n
     <!-- Billing -->
     <string name="billing_not_ready">The store is not available right now, please try again later.</string>
     <string name="billing_tip_thanks">Thank you for your tip!</string>
+    <string name="billing_ads_removed">Ads removed. Thanks for supporting the app!</string>
+    <string name="billing_ads_already_removed">Ads are already removed.</string>
 </resources>

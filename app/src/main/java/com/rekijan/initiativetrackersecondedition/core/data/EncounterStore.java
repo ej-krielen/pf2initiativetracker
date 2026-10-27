@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Saves and loads the current fight and the display settings. Uses the same SharedPreferences
  * file ({@link #PREFS_NAME}) and keys as 1.x, so users keep their characters, round counter and
- * settings after updating.
+ * settings after updating. The Remove Ads flag lives in the same file.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026
@@ -22,6 +22,8 @@ public class EncounterStore {
     static final String KEY_ROUND = "ROUND_COUNTER";
     static final String KEY_HIDE_DESCRIPTIONS = "SHARED_PREF_HIDE_DESC";
     static final String KEY_HIDE_REACTIONS = "SHARED_PREF_HIDE_REACTIONS";
+    // New in 2.0, same key as Initiative Tracker, Mook Roller and Secret Roller
+    static final String KEY_ADS_REMOVED = "ads_removed";
 
     private final KeyValueStore values;
 
@@ -62,5 +64,14 @@ public class EncounterStore {
 
     public void setHideReactions(boolean hide) {
         values.edit().putBoolean(KEY_HIDE_REACTIONS, hide).apply();
+    }
+
+    /** @return True once Remove Ads was bought (set by BillingManager, restored on every start). */
+    public boolean isAdsRemoved() {
+        return values.getBoolean(KEY_ADS_REMOVED, false);
+    }
+
+    public void setAdsRemoved(boolean removed) {
+        values.edit().putBoolean(KEY_ADS_REMOVED, removed).apply();
     }
 }
