@@ -1,70 +1,60 @@
 plugins {
-    id 'com.android.application'
+    alias(libs.plugins.android.application)
 }
 
 android {
     namespace 'com.rekijan.initiativetrackersecondedition'
-    compileSdkVersion 37
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 1
+        }
+    }
 
     defaultConfig {
         applicationId "com.rekijan.initiativetrackersecondedition"
-        minSdkVersion 23
-        targetSdkVersion 37
-        versionCode 13
-        versionName "1.2.0"
-        multiDexEnabled true
+        minSdk 27
+        targetSdk 37
+        versionCode 14
+        versionName "2.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-        coreLibraryDesugaringEnabled true
+    signingConfigs {
+        if (project.hasProperty("REKIJAN_UPLOAD_STORE_FILE")) {
+            release {
+                storeFile file(project.property("REKIJAN_UPLOAD_STORE_FILE"))
+                storePassword project.findProperty("REKIJAN_UPLOAD_STORE_PASSWORD")
+                keyAlias project.property("REKIJAN_UPLOAD_KEY_ALIAS")
+                keyPassword project.findProperty("REKIJAN_UPLOAD_KEY_PASSWORD")
+            }
+        }
     }
-    lint {
-        baseline = file("lint-baseline.xml")
-    }
+
     buildTypes {
         release {
+            if (project.hasProperty("REKIJAN_UPLOAD_STORE_FILE")) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    flavorDimensions = ["version"]
-    productFlavors {
-        normal {
-            dimension "version"
-            applicationIdSuffix ""
-            versionNameSuffix ""
-        }
-        night {
-            dimension "version"
-            applicationIdSuffix ".night"
-            versionNameSuffix "-night"
-        }
-    }
-    sourceSets {
-        night {
-            res {
-                srcDirs 'src/night/res'
-            }
-        }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
-    implementation 'androidx.appcompat:appcompat:1.7.1'
-    implementation 'androidx.recyclerview:recyclerview:1.4.0'
-    implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.google.android.material:material:1.14.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-    implementation 'com.google.code.gson:gson:2.14.0'
-    implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'com.android.billingclient:billing:9.1.0'
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
-
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.3.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
+    implementation libs.appcompat
+    implementation libs.material
+    implementation libs.constraintlayout
+    implementation libs.recyclerview
+    implementation libs.cardview
+    implementation libs.gson
+    implementation libs.billing
+    testImplementation libs.junit
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
 }

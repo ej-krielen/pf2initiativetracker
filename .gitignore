@@ -5,3 +5,14 @@
 .DS_Store
 /build
 /captures
+*.iml
+/.idea/
+*.zip
+*.aab
+*.apk
+*.hprof
+/app/release/
+/app/keystore/
+*.jks
+*.keystore
+/projectFilesBackup/

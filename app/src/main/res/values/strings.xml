@@ -21,6 +21,7 @@
     <string name="action_about">About</string>
     <string name="action_privacy">Privacy Policy</string>
     <string name="action_tip">Tip the dev</string>
+    <string name="action_hide_reactions">Hide reactions</string>
 
     <!-- Toast -->
     <string name="toast_max_hp">The following PCs did not get updated because their max hp was not higher then their current hp.\n\u0020\n%1$s</string>
@@ -50,6 +51,8 @@
     <string name="debuff_card_duration_label">Duration\n(rounds)</string>
     <string name="debuff_card_description">(De)buff description</string>
     <string name="debuff_card_remove_button">Remove</string>
+    <string name="debuff_card_value_label">Value</string>
+    <string name="debuff_card_value_hint">1</string>
 
     <!--Reaction detail fragment-->
     <string name="reaction_details_name_title">Non-standard reactions for :\u0020 %1$s</string>
@@ -115,6 +118,7 @@
     <!-- Condition buttons-->
     <string name="add_empty">Add empty</string>
     <string name="add_poison">Add poison</string>
+    <string name="poison_not_implemented">This feature is not yet implemented</string>
     <string name="add_persistent">Persistent\ndamage</string>
 
     <!-- Persistent Damage-->
@@ -229,8 +233,8 @@ The last step of starting your turn is always the same.\n\n\n
     <string name="dialog_button_crit_failure">Critical Failure</string>
     <string name="dialog_recovery_info_crit_success">Reduce dying value by 2.</string>
     <string name="dialog_recovery_info_success">Reduce dying value by 1.</string>
-    <string name="dialog_recovery_info_failure">Reduce dying value by 1.</string>
-    <string name="dialog_recovery_info_crit_failure">Reduce dying value by 2.</string>
+    <string name="dialog_recovery_info_failure">Increase dying value by 1.</string>
+    <string name="dialog_recovery_info_crit_failure">Increase dying value by 2.</string>
 
     <!--Round counter-->
     <string name="plus_round_button_label">+</string>
@@ -259,4 +263,8 @@ The last step of starting your turn is always the same.\n\n\n
     <string name="auto_healing_dialog_max_exceeded_title">Max Hp Exceeded</string>
     <string name="auto_healing_dialog_max_exceeded_message">Looks like the automatic healing exceeded the max hp value for this creature, do you want to reset it to its max hp?</string>
 
+
+    <!-- Billing -->
+    <string name="billing_not_ready">The store is not available right now, please try again later.</string>
+    <string name="billing_tip_thanks">Thank you for your tip!</string>
 </resources>

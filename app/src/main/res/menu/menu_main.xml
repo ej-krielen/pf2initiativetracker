@@ -1,7 +1,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.rekijan.initiativetrackersecondedition.core.MainActivity">
+    tools:context=".app.MainActivity">
+    <!-- Next turn up to End Turn info only show while the encounter list is on screen. No
+         group: AppCompat moves a whole group to the overflow when one item does not fit -->
     <item
         android:id="@+id/action_settings_next_turn"
         android:orderInCategory="1"
@@ -11,57 +13,51 @@
         android:id="@+id/action_settings_sort"
         android:orderInCategory="2"
         android:title="@string/action_sort"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_settings_add_character"
         android:orderInCategory="3"
         android:title="@string/action_add_character"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_settings_delete_character"
         android:orderInCategory="4"
         android:title="@string/action_delete_character"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_settings_set_pcs_max_hp"
         android:orderInCategory="5"
         android:title="@string/action_set_pcs_max_hp"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_settings_hide_reactions"
-        android:title="Hide Reactions"
-        android:orderInCategory="6"
         android:checkable="true"
-        app:showAsAction="ifRoom"/>
+        android:orderInCategory="6"
+        android:title="@string/action_hide_reactions"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_settings_start_turn_info"
         android:orderInCategory="7"
         android:title="@string/action_start_turn_info"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_settings_end_turn_info"
         android:orderInCategory="8"
         android:title="@string/action_end_turn_info"
-        app:showAsAction="ifRoom"/>
-    <item
-        android:id="@+id/action_settings_about"
-        android:orderInCategory="9"
-        android:title="@string/action_about"
-        app:showAsAction="ifRoom"/>
-    <item
-        android:id="@+id/action_settings_privacy"
-        android:orderInCategory="10"
-        android:title="@string/action_privacy"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_settings_tip"
-        android:orderInCategory="11"
-        android:title="@string/action_tip"
-        app:showAsAction="ifRoom"/>
-    <!--<item
-        android:id="@+id/action_settings_select_party"
-        android:orderInCategory="200"
-        android:title="@string/action_party_select"
-        app:showAsAction="never" />-->
-
+    android:id="@+id/action_settings_about"
+    android:orderInCategory="9"
+    android:title="@string/action_about"
+    app:showAsAction="ifRoom" />
+    <item
+    android:id="@+id/action_settings_privacy"
+    android:orderInCategory="10"
+    android:title="@string/action_privacy"
+    app:showAsAction="ifRoom" />
+    <item
+    android:id="@+id/action_settings_tip"
+    android:orderInCategory="11"
+    android:title="@string/action_tip"
+    app:showAsAction="ifRoom" />
 </menu>

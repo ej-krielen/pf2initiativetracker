@@ -7,7 +7,7 @@
     android:baselineAligned="false"
     android:orientation="horizontal"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.rekijan.initiativetrackersecondedition.core.MainActivity"
+    tools:context=".app.MainActivity"
     tools:showIn="@layout/activity_main">
 
     <FrameLayout
