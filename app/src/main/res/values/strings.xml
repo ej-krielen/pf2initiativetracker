@@ -60,7 +60,7 @@
     <string name="profiles_delete_character_message">%1$s and its conditions are deleted from this phone. This can\'t be undone.</string>
 
     <!-- Parties -->
-    <!-- Name of the party made from the 1.x save, or the first party of a fresh install -->
+    <!-- Name of the party made from a single-fight save, or the first party of a fresh install -->
     <string name="party_first_name">My party</string>
     <string name="party_menu_rename">Rename</string>
     <string name="party_menu_duplicate">Duplicate</string>

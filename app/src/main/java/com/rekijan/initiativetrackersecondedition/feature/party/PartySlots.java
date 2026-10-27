@@ -3,7 +3,7 @@ package com.rekijan.initiativetrackersecondedition.feature.party;
 /**
  * How many parties a user may have: {@link #FREE} for everyone, plus {@link #PER_PACK} for each
  * party pack level. The packs are four one-time products (party_pack_1 to party_pack_4, see
- * BillingManager), like the Spacious Pouches in Secret Roller; only the highest one owned counts.
+ * BillingManager); only the highest one owned counts.
  * <p>
  * The limit only blocks making new parties. Parties over the limit (after a refund) stay usable,
  * so nobody loses data.

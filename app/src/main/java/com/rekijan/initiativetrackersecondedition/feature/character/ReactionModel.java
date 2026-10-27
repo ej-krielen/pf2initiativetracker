@@ -5,7 +5,7 @@ package com.rekijan.initiativetrackersecondedition.feature.character;
  * Opportunity). Like the standard reaction it becomes available again at the start of the
  * character's turn.
  * <p>
- * The field names are part of the JSON saved by 1.x, so they must stay the same.
+ * The field names are part of the saved JSON, so they must stay the same.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 28-5-2019

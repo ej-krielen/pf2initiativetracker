@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Styles that only PF2 Combat Tracker needs, built on the shared theme in themes.xml
-     (same theme as Initiative Tracker, Secret Roller and Mook Roller). -->
+<!-- App-specific widget styles, built on the theme in themes.xml. -->
 <resources>
 
     <!-- ===== Text ===== -->
@@ -48,7 +47,7 @@
     <!-- ===== Widgets ===== -->
 
     <!-- Outlined text field (character details, dialogs): 12dp corners like the buttons, gold
-         border and label when focused. Same as Mook Roller. -->
+         border and label when focused. -->
     <style name="Widget.Rekijan.TextInputLayout.Outlined" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="shapeAppearance">@style/ShapeAppearance.Rekijan.Small</item>
         <item name="boxStrokeColor">@color/text_input_stroke</item>

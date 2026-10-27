@@ -2,8 +2,8 @@ package com.rekijan.initiativetrackersecondedition.core.data;
 
 /**
  * The few SharedPreferences calls the save code needs, as a plain-Java interface. The app uses
- * {@link PrefsKeyValueStore}; the unit tests use an in-memory map, so saving, loading and the
- * 1.x migration are tested without Android.
+ * {@link PrefsKeyValueStore}; the unit tests use an in-memory map, so saving, loading and turning
+ * a single-fight save into a party are tested without Android.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026

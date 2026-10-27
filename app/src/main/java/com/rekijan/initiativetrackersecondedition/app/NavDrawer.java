@@ -9,8 +9,8 @@ import androidx.annotation.Nullable;
 import com.rekijan.initiativetrackersecondedition.R;
 
 /**
- * Fills the navigation drawer (layout nav_header) and passes taps to the {@link Listener}, like
- * Initiative Tracker's: the open profile with Switch profile; for the GM the encounter actions
+ * Fills the navigation drawer (layout nav_header) and passes taps to the {@link Listener}: the open
+ * profile with Switch profile; for the GM the encounter actions
  * (Add character, Delete characters, Edit order); then Remove Ads, Tip the dev, About, Privacy
  * Policy and Privacy Settings. A player and the profile list only get the app items. Call
  * {@link #refresh} after anything it shows has changed.

@@ -11,8 +11,8 @@ import java.io.InputStream;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 /**
- * A real save from 1.x for the tests: the SharedPreferences file that version 1.2.0 wrote on an
- * emulator (src/test/resources/shared_prefs_1_2_0.xml). Four characters, round 2: Valeros (first
+ * A real single-fight save for the tests: a SharedPreferences file written on an emulator
+ * (src/test/resources/shared_prefs_1_2_0.xml). Four characters, round 2: Valeros (first
  * in round, hero point), Seoni (Frightened 2 and persistent fire damage 1d6 DC 15), Kyra (dying 2,
  * wounded 1, the custom reaction Shield Block, used) and the Goblin Boss (not a PC).
  *
@@ -24,7 +24,7 @@ public final class OneXSave {
     private OneXSave() {
     }
 
-    /** Reads the 1.2.0 prefs file into a store, the way SharedPreferences would. */
+    /** Reads the prefs file into a store, the way SharedPreferences would. */
     public static MemoryKeyValueStore load() throws Exception {
         MemoryKeyValueStore store = new MemoryKeyValueStore();
         try (InputStream in = OneXSave.class.getResourceAsStream("/shared_prefs_1_2_0.xml")) {

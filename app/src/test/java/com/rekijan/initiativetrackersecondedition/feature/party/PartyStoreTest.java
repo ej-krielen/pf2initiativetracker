@@ -16,15 +16,15 @@ import org.junit.Test;
 import java.util.List;
 
 /**
- * Tests {@link PartyStore}, mainly the 1.x migration: a 1.x save must become the first party
- * with all its characters and its round counter, and nothing of the old save may be lost.
+ * Tests {@link PartyStore}, mainly the migration: a single-fight save must become the first
+ * party with all its characters and its round counter, and nothing of that save may be lost.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026
  */
 public class PartyStoreTest {
 
-    /** A short fight as 1.x saved it under GSON_TAG, with the old id fields. */
+    /** A short single-fight save under GSON_TAG, with the unused id fields. */
     private static final String SAVE_FROM_1_X = "["
             + "{\"id\":0,\"party_id\":0,\"initiative\":18,\"initiativeBonus\":4,\"hp\":21,\"maxHp\":27,"
             + "\"isFirstInRound\":false,\"isPC\":true,\"characterName\":\"Merisiel\","
@@ -77,7 +77,7 @@ public class PartyStoreTest {
         String id = store.loadActiveId();
         store.saveFight(id, "[]", 2);
 
-        // Next start: the party is not overwritten by the 1.x save again
+        // Next start: the party is not overwritten by the single-fight save again
         PartyStore again = new PartyStore(values, "My party");
         assertEquals(1, again.loadParties().size());
         assertEquals(id, again.loadActiveId());
@@ -105,8 +105,8 @@ public class PartyStoreTest {
     }
 
     /**
-     * The real 1.2.0 PF2 save becomes party 1 with every PF2e field intact, also after the party
-     * is saved again by 2.0 and loaded on the next start. The 1.x keys stay as they were.
+     * The real single-fight save becomes party 1 with every PF2e field intact, also after the
+     * party is saved again and loaded on the next start. The single-fight keys stay as they were.
      */
     @Test
     public void realPf2SaveFrom1xBecomesPartyOneIntact() throws Exception {
@@ -119,7 +119,7 @@ public class PartyStoreTest {
         assertEquals(2, book.loadRound(id));
         assertPf2FieldsIntact(book.loadCharacters(id));
 
-        // 2.0 saves the party (as on going to the background) and starts again
+        // Save the party (as on going to the background) and start again
         book.save(id, book.loadCharacters(id), book.loadRound(id));
         PartyBook again = new PartyBook(new PartyStore(values, "My party"), "unused");
         assertEquals(id, again.getActiveId());

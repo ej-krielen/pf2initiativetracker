@@ -16,9 +16,8 @@ import java.util.UUID;
 
 /**
  * The player characters on this device: each is one {@link CharacterModel} the player keeps up to
- * date (and, once Table sync is in, sends to a GM). There is no limit and they are free. Each has
- * a random UUID id, which Table sync can use as the character's stable id. The character's
- * name is also its name in the profile list.
+ * date. There is no limit and they are free. Each has a random UUID id, the character's stable
+ * id. The character's name is also its name in the profile list.
  * <p>
  * Saved in the app's SharedPreferences: the ids in order under {@link #KEY_IDS}, each character
  * as JSON under {@link #KEY_CHARACTER_PREFIX} + id. Plain Java, so it is unit tested.

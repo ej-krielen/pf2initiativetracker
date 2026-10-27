@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Launcher icon: a creme sprinter with speed lines (initiative, as in Initiative Tracker) and a gold PF2 under it, on the bordeaux background (Rekijan Apps brand). Also the Android 12+ splash icon. -->
+<!-- Launcher icon: a creme sprinter with speed lines (initiative) and a gold PF2 under it, on the bordeaux background (Rekijan Apps brand). Also the Android 12+ splash icon. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- The sprinter, a bit smaller and higher than in Initiative Tracker to make room for PF2 -->
+    <!-- The sprinter, scaled down and moved up to make room for PF2 -->
     <group
         android:pivotX="54"
         android:pivotY="53"

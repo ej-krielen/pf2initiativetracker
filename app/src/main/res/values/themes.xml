@@ -2,7 +2,6 @@
 <resources>
 
     <!-- ============================================================
-         Same structure and values as Initiative Tracker, Secret Roller and Mook Roller.
          Contents
            1. App theme
            2. Buttons
@@ -230,7 +229,7 @@
 
     <!-- ======================= 5b. NAVIGATION DRAWER ======================= -->
 
-    <!-- Drawer group title ("ENCOUNTER", "SUPPORT"), with a divider line above it. Same as Initiative Tracker. -->
+    <!-- Drawer group title ("ENCOUNTER", "SUPPORT"), with a divider line above it. -->
     <style name="Widget.Rekijan.NavCategory" parent="">
         <item name="android:background">@drawable/bg_nav_category</item>
         <item name="android:layout_marginTop">8dp</item>

@@ -12,8 +12,8 @@ import java.util.List;
  * healing per turn, free-text stat lines, (de)buffs, reactions, hero points and the Pathfinder 2e
  * dying track (dying, wounded, doomed). Plain Java (no Android), so the rules are unit tested.
  * <p>
- * The field names are part of the JSON that 1.x saved in SharedPreferences. They must stay the
- * same so users keep their characters after the update.
+ * The field names are part of the JSON saved in SharedPreferences. They must stay the same, or
+ * users lose their characters.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 11-10-2015
@@ -403,13 +403,13 @@ public class CharacterModel {
     }
 
     public List<DebuffModel> getDebuffList() {
-        // Saves from before (de)buffs existed have no list
+        // A save without a (de)buff list gets an empty one
         if (debuffList == null) debuffList = new ArrayList<>();
         return debuffList;
     }
 
     public List<ReactionModel> getReactionList() {
-        // Saves from before custom reactions existed have no list
+        // A save without a reaction list gets an empty one
         if (reactionsList == null) reactionsList = new ArrayList<>();
         return reactionsList;
     }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Android 12+ system splash: bordeaux field with the launcher icon, plus the
-         "by Rekijan Apps" line at the bottom, as in Secret Roller -->
+         "by Rekijan Apps" line at the bottom -->
     <style name="Theme.CombatTracker.Launch" parent="Theme.CombatTracker">
         <item name="android:windowSplashScreenBackground">@color/brand_bordeaux</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>

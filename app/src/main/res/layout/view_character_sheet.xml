@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- A character sheet with two tabs, like Initiative Tracker's: Stats (PC and dying switches, the
+<!-- A character sheet with two tabs: Stats (PC and dying switches, the
      numbers, the dying track numbers and hero points, the free-text stat lines and notes) and
      Conditions (conditions, buffs and persistent damage, with Clear all and Add). Used by the GM's
      character details and the player screen; CharacterSheet binds it. The player-only rows (name,

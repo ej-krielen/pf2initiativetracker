@@ -22,9 +22,9 @@ import java.util.List;
  * Holds the saved parties ({@link PartyBook}) and the fight of the active party for the whole
  * app, so it survives screen rotation. The active party is the {@link Encounter}: it is loaded on
  * first use (a party without saved characters starts with four PCs), saved when the app goes to
- * the background, and swapped in place when the user switches parties. On the first start of 2.0
- * the 1.x save becomes the first party (see PartyStore). The settings and the Remove Ads flag are
- * in {@link EncounterStore}.
+ * the background, and swapped in place when the user switches parties. A single-fight save is
+ * turned into the first party (see PartyStore). The settings and the Remove Ads flag are in
+ * {@link EncounterStore}.
  * <p>
  * Besides parties, the user can have player characters ({@link PlayerBook}), and
  * {@link ProfileState} remembers which of the two was opened last, so the app opens it again.

@@ -16,10 +16,9 @@ import com.rekijan.initiativetrackersecondedition.feature.character.CharacterMod
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterSheet;
 
 /**
- * A player's own character, like Initiative Tracker's player screen: the sheet with the Stats and
+ * A player's own character: the sheet with the Stats and
  * Conditions tabs ({@link CharacterSheet}), with name, initiative and hp. Every edit is saved on
- * the phone straight away. Add opens the condition wizard for this character. Table sync adds the
- * session card (Join) and Send to GM later.
+ * the phone straight away. Add opens the condition wizard for this character.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026

@@ -35,7 +35,7 @@ import com.rekijan.initiativetrackersecondedition.feature.player.PlayerBook;
 import java.util.Collections;
 
 /**
- * The profile list, like Initiative Tracker's: the user's parties (GM) and their player
+ * The profile list: the user's parties (GM) and their player
  * characters (Player) in one list. Tap a row to open it; the three dots hold Rename, Duplicate
  * (parties only) and Delete. New profile asks for a name and GM or Player: GM makes a party
  * (within the party slots), Player a character (free, no limit). A new profile opens right away.

@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Delete characters, from the drawer, like Initiative Tracker: a checklist of the party's
+ * Delete characters, from the drawer: a checklist of the party's
  * characters in initiative order; the checked ones are removed when the user taps Delete.
  * Long-pressing a card still removes a single character.
  *

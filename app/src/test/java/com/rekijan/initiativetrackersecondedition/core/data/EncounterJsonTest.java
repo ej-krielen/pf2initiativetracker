@@ -15,9 +15,8 @@ import java.util.List;
 
 
 /**
- * Tests {@link EncounterJson} against a real save: the SharedPreferences
- * file that version 1.2.0 wrote on an emulator (src/test/resources/shared_prefs_1_2_0.xml). It
- * must load in 2.0 with its characters, conditions, reactions, dying track and round intact.
+ * Tests {@link EncounterJson} against a real single-fight save (see {@link OneXSave}). It must
+ * load with its characters, conditions, reactions, dying track and round intact.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026
@@ -47,7 +46,7 @@ public class EncounterJsonTest {
         assertEquals("Seoni", seoni.getCharacterName());
         assertEquals(12, seoni.getInitiative());
         assertEquals(2, seoni.getDebuffList().size());
-        // 1.x saved "Frightened 2" as the name; 2.0 splits off the value
+        // Saved as "Frightened 2" in the name; the value is split off
         DebuffModel frightened = seoni.getDebuffList().get(0);
         assertEquals("Frightened", frightened.getName());
         assertEquals(2, frightened.getValue());
@@ -87,7 +86,7 @@ public class EncounterJsonTest {
 
         assertEquals(json, EncounterJson.toJson(again));
         assertEquals(keys, values.size());
-        // The value is saved in the 1.x field, so an older version still reads the JSON
+        // The value is saved in the overrideValue field
         assertTrue(json.contains("\"overrideValue\":2"));
     }
 

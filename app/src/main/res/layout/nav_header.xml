@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    The whole drawer content, used as the NavigationView header (like Initiative Tracker): app
+    The whole drawer content, used as the NavigationView header: app
     name, the open profile and Switch profile, then for the GM Encounter (Add, Delete characters,
     Edit order), then Support and More. NavDrawer shows, hides and fills it.
 -->

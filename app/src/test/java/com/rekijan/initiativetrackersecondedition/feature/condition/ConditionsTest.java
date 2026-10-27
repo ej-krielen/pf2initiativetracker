@@ -10,7 +10,7 @@ import org.junit.Test;
 
 /**
  * Tests {@link Conditions}: valued conditions, pre-remaster names and splitting the value off a
- * 1.x condition name.
+ * saved condition name.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026

@@ -11,22 +11,23 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Saves the parties in the app's save file (the 1.x SharedPreferences file): the party list, which
- * party is active, the owned party pack level, and per party its characters (as JSON, in the 1.x
- * format) and round counter, under keys that contain the party id.
+ * Saves the parties in the app's save file: the party list, which party is active, the owned
+ * party pack level, and per party its characters (as JSON) and round counter, under keys that
+ * contain the party id.
  * <p>
- * 1.x kept one fight under GSON_TAG and ROUND_COUNTER; the PF2e fields (dying, wounded, doomed,
- * hero points, reactions, persistent damage, condition values) are all inside that JSON. On the first start of 2.0,
- * {@link #migrateIfNeeded} copies those into the first party, once, in a single write together
- * with the "migrated" flag. The 1.x keys are left in place as a safety net. Plain Java (through
- * {@link KeyValueStore}), so the migration is unit tested.
+ * A single-fight save keeps its characters under GSON_TAG and its round under ROUND_COUNTER; the
+ * PF2e fields (dying, wounded, doomed, hero points, reactions, persistent damage, condition
+ * values) are all inside that JSON. {@link #migrateIfNeeded} copies it into the first party, once,
+ * in a single write together with the "migrated" flag. The single-fight keys are never changed or
+ * removed, so they stay as a safety net. Plain Java (through {@link KeyValueStore}), so it is
+ * unit tested.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026
  */
 public class PartyStore {
 
-    // 1.x keys: read once by the migration, never written or removed
+    // Single-fight save keys: read once by the migration, never written or removed
     static final String KEY_1X_CHARACTERS = "GSON_TAG";
     static final String KEY_1X_ROUND = "ROUND_COUNTER";
 
@@ -37,7 +38,7 @@ public class PartyStore {
     private static final String KEY_CHARACTERS_PREFIX = "party_characters_";
     private static final String KEY_ROUND_PREFIX = "party_round_";
 
-    /** The round a new party starts at; 1.x also started a fresh install at round 1. */
+    /** The round a new party starts at. */
     public static final int FIRST_ROUND = 1;
 
     private static final Gson GSON = new Gson();
@@ -47,8 +48,8 @@ public class PartyStore {
     private final KeyValueStore values;
 
     /**
-     * @param firstPartyName Name for the party made from the 1.x save, or the first party of a
-     *                       fresh install, in the user's language.
+     * @param firstPartyName Name for the party made from a single-fight save, or the first party
+     *                       of a fresh install, in the user's language.
      */
     public PartyStore(KeyValueStore values, String firstPartyName) {
         this.values = values;
@@ -85,7 +86,7 @@ public class PartyStore {
         values.edit().putString(KEY_ACTIVE_PARTY_ID, id).apply();
     }
 
-    /** @return The party's characters as JSON (1.x format), or null when none were saved. */
+    /** @return The party's characters as JSON, or null when none were saved. */
     public String loadCharactersJson(String partyId) {
         return values.getString(charactersKey(partyId), null);
     }
@@ -122,9 +123,9 @@ public class PartyStore {
     }
 
     /**
-     * Turns the 1.x save into the first party, once. A fresh install gets an empty first party
-     * (PartyBook fills it with the starting PCs). The 1.x JSON is copied as it is, without
-     * parsing, so even a save this version can't read is kept.
+     * Turns a single-fight save into the first party, once. A fresh install gets an empty first
+     * party (PartyBook fills it with the starting PCs). The JSON is copied as it is, without
+     * parsing, so even a save that can't be read is kept.
      */
     private void migrateIfNeeded(String firstPartyName) {
         if (values.getBoolean(KEY_MIGRATED, false)) return;

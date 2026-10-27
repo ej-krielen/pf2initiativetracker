@@ -4,8 +4,8 @@ import java.util.UUID;
 
 /**
  * A saved party: a name and a fixed id. Its characters and round counter are saved under that id
- * by {@link PartyStore}, so renaming never moves data. The id is random, so a party can later be
- * synced between devices without clashing.
+ * by {@link PartyStore}, so renaming never moves data. The id is a random UUID, so it doesn't clash
+ * with ids made on other devices.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026

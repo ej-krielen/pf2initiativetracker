@@ -41,27 +41,24 @@ import java.util.Map;
 
 /**
  * Handles Google Play Billing (v9) for the app: the two tips ("Tip the dev"), Remove Ads and the
- * party packs. Same structure as the BillingManager in Initiative Tracker, Secret Roller and Mook
- * Roller.
+ * party packs.
  * <p>
  * Tips are consumable: acknowledged, then consumed so they can be bought again. A tip does not
  * remove the ads. Remove Ads and the party packs are one-time products: acknowledged, never
- * consumed, and restored from Google Play on every start. The party packs are the same as in
- * Initiative Tracker: four products, each level adds room for five more parties (see PartySlots),
- * and only the highest one owned counts. A pack is only offered once Google Play has returned its
- * product details.
+ * consumed, and restored from Google Play on every start. There are four party packs: each level
+ * adds room for five more parties (see PartySlots), and only the highest one owned counts. A pack
+ * is only offered once Google Play has returned its product details.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026
  */
 public class BillingManager implements PurchasesUpdatedListener {
 
-    // The 1.x tip products, keep the ids
+    // Tip products, keep the ids
     private static final String ITEM_SKU_FIVE = "fiveeurodonation";
     private static final String ITEM_SKU_TEN = "teneurodonation";
-    // Same id as Initiative Tracker
     private static final String ITEM_SKU_REMOVE_ADS = "remove_ads";
-    /** Party pack levels 1 to 4, in order: index 0 is level 1. Same ids as Initiative Tracker. */
+    /** Party pack levels 1 to 4, in order: index 0 is level 1. */
     private static final String[] ITEM_SKUS_PARTY_PACK = {
             "party_pack_1", "party_pack_2", "party_pack_3", "party_pack_4"};
     private static final String LOG_TAG = "BillingManager";

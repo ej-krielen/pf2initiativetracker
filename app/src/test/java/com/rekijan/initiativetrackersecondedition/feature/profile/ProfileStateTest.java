@@ -10,7 +10,7 @@ import com.rekijan.initiativetrackersecondedition.core.data.MemoryKeyValueStore;
 import org.junit.Test;
 
 /**
- * Tests {@link ProfileState}: a fresh install (and the 1.x update) opens the party, and the last
+ * Tests {@link ProfileState}: with nothing remembered the party opens, and the last
  * opened profile is remembered.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com

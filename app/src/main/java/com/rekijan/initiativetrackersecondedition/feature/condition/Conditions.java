@@ -13,9 +13,9 @@ import java.util.regex.Pattern;
 
 /**
  * Knows the Pathfinder 2e (Player Core) conditions by name: which ones have a value, and the
- * pre-remaster names that 1.x saves can still contain (Flat Footed is Off-Guard now). Names are
- * compared without case and extra spaces, because saved conditions can be renamed by the user.
- * Plain Java, so the save upgrade is unit tested.
+ * pre-remaster names a save can contain (Flat Footed is Off-Guard). Names are compared without
+ * case and extra spaces, because saved conditions can be renamed by the user. Plain Java, so it
+ * is unit tested.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026
@@ -38,7 +38,7 @@ public final class Conditions {
         LEGACY_NAMES.put("flatfooted", OFF_GUARD);
     }
 
-    /** A name ending in a number, as 1.x saved valued conditions: "Frightened 2". */
+    /** A name ending in a number, a valued condition saved with its value: "Frightened 2". */
     private static final Pattern NAME_WITH_VALUE = Pattern.compile("^(.*\\S)\\s+(\\d{1,2})$");
 
     private Conditions() {
@@ -65,8 +65,8 @@ public final class Conditions {
     }
 
     /**
-     * 1.x put the value of a condition in its name ("Frightened 2"). Splits that into the name
-     * and the value, so the value can count down. Only known valued conditions are changed, so a
+     * Splits a value saved in the name of a condition ("Frightened 2") into the name and the
+     * value, so the value can count down. Only known valued conditions are changed, so a
      * custom (de)buff like "Bless 1" keeps its name.
      */
     public static void upgradeLegacyValue(DebuffModel debuff) {

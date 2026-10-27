@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Drawer category background: a 1dp divider line at the top, inset 16dp on both sides.
-     Separates each group from the one above it, like the design. -->
+     Separates each group from the one above it. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:gravity="top"

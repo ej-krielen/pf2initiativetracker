@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Copied from Secret Roller (the reference app), via Mook Roller.
-         Material 3 type scale in Manrope. Material widgets (buttons, dialogs, menus, inputs)
+    <!-- Material 3 type scale in Manrope. Material widgets (buttons, dialogs, menus, inputs)
          use these text appearances instead of the theme font, so every role is overridden. -->
 
     <style name="TextAppearance.Rekijan.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge">
@@ -69,7 +68,7 @@
     <style name="TextAppearance.Rekijan.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
         <item name="fontFamily">@font/manrope</item>
         <item name="android:fontFamily">@font/manrope</item>
-        <!-- Button labels: bold, like the design -->
+        <!-- Button labels: bold -->
         <item name="android:textStyle">bold</item>
     </style>
 

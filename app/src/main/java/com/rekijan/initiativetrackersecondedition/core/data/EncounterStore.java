@@ -1,12 +1,10 @@
 package com.rekijan.initiativetrackersecondedition.core.data;
 
 /**
- * The app-wide save file and the display settings. Uses the same SharedPreferences file as 1.x
- * ({@link #PREFS_NAME}) and the 1.x setting keys, so users keep their settings after updating, and
- * the 1.x fight is still there for
- * {@link com.rekijan.initiativetrackersecondedition.feature.party.PartyStore} to turn into the
- * first party. The parties themselves are saved by PartyStore; this class keeps the settings and
- * the Remove Ads flag.
+ * The app-wide save file ({@link #PREFS_NAME}) and the display settings. The parties are saved in
+ * the same file by {@link com.rekijan.initiativetrackersecondedition.feature.party.PartyStore};
+ * this class keeps the settings and the Remove Ads flag. The file name and keys must stay the
+ * same, or users lose their saves and settings.
  * <p>
  * The settings (hide condition descriptions, hide reactions) are for the whole app, not per
  * party: they are how the user likes to see the screen, not part of a fight.
@@ -16,12 +14,11 @@ package com.rekijan.initiativetrackersecondedition.core.data;
  */
 public class EncounterStore {
 
-    /** The 1.x SharedPreferences file, keep it as it is. */
+    /** The SharedPreferences file with all saved data, keep the name. */
     public static final String PREFS_NAME = "SHARED_PREF_TAG";
-    // 1.x keys, keep them as they are
+    // Saved keys, keep them as they are
     static final String KEY_HIDE_DESCRIPTIONS = "SHARED_PREF_HIDE_DESC";
     static final String KEY_HIDE_REACTIONS = "SHARED_PREF_HIDE_REACTIONS";
-    // New in 2.0, same key as Initiative Tracker, Mook Roller and Secret Roller
     static final String KEY_ADS_REMOVED = "ads_removed";
 
     private final KeyValueStore values;

@@ -11,7 +11,7 @@ import com.rekijan.initiativetrackersecondedition.core.util.NumberInput;
  * A duration of 0 means it has no timer (or it ran out and the user chose to keep it). A value
  * of 0 means the condition has no value.
  * <p>
- * The field names are part of the JSON saved by 1.x, so they must stay the same.
+ * The field names are part of the saved JSON, so they must stay the same.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 28-5-2019
@@ -30,7 +30,7 @@ public class DebuffModel {
     private String damageType;
     private String damageValue;
     private int difficultyClass;
-    // 1.x saved this field (always 0) but never used it; 2.0 keeps the condition value in it
+    // Saved as "overrideValue" in the JSON
     @SerializedName("overrideValue")
     private int value;
 

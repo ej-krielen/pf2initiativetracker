@@ -5,7 +5,7 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- The sprinter, a bit smaller and higher than in Initiative Tracker to make room for PF2 -->
+    <!-- The sprinter, scaled down and moved up to make room for PF2 -->
     <group
         android:pivotX="54"
         android:pivotY="53"

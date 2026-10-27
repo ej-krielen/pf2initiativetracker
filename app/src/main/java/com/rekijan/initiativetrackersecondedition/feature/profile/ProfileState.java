@@ -4,8 +4,8 @@ import com.rekijan.initiativetrackersecondedition.core.data.KeyValueStore;
 
 /**
  * Remembers which profile was opened last, so the app opens it again on the next start: a party
- * (the GM's encounter; which party is kept by PartyBook) or one of the player's characters. A
- * fresh install and the 1.x update open the party, as before. Plain Java, so it is unit tested.
+ * (the GM's encounter; which party is kept by PartyBook) or one of the player's characters. When
+ * nothing is remembered yet, the party opens. Plain Java, so it is unit tested.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026

@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Converts the character list to and from the JSON format that 1.x stored, so old saves load in
- * 2.0. Valued conditions that 1.x saved as "Frightened 2" get their value split off the name.
- * Plain Java, so that compatibility is unit tested.
+ * Converts the character list to and from the saved JSON. A valued condition saved with its
+ * value in the name ("Frightened 2") gets the value split off the name. Plain Java, so loading
+ * saves is unit tested.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026

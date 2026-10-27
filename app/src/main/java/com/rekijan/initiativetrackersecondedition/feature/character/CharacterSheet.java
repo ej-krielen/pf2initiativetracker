@@ -20,11 +20,11 @@ import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
 /**
- * Binds a character to the sheet layout (view_character_sheet), like Initiative Tracker's: the
- * Stats tab with the PC and dying switches, the numbers, the dying track numbers (dying, max
- * dying, wounded, doomed, recovery DC), hero points, the free-text stat lines and notes, and the
- * Conditions tab with the conditions, buffs and persistent damage. Every edit goes straight into
- * the character and is reported to the change callback.
+ * Binds a character to the sheet layout (view_character_sheet): the Stats tab with the PC and
+ * dying switches, the numbers, the dying track numbers (dying, max dying, wounded, doomed,
+ * recovery DC), hero points, the free-text stat lines and notes, and the Conditions tab with the
+ * conditions, buffs and persistent damage. Every edit goes straight into the character and is
+ * reported to the change callback.
  * <p>
  * Used by the GM's character details and by the player screen. The player sheet also shows name,
  * initiative and hp (the GM edits those on the card) and hides the PC switch, since a player's

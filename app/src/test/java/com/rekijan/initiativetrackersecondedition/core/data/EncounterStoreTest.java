@@ -7,8 +7,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 /**
- * The Remove Ads flag: off for a fresh install or a 1.x update, kept once set, and stored next
- * to the 1.x keys without touching them.
+ * The Remove Ads flag: off for a fresh install or a single-fight save, kept once set, and stored
+ * next to the saved keys without touching them.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026

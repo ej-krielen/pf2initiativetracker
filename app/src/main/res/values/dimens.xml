@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Spacing steps, as in Initiative Tracker, Secret Roller and Mook Roller -->
+    <!-- Spacing steps -->
     <dimen name="space_1">4dp</dimen>
     <dimen name="space_2">8dp</dimen>
     <dimen name="space_3">16dp</dimen>

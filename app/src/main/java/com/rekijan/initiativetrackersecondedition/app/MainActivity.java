@@ -47,7 +47,7 @@ import nl.rekijan.ads.AdConsentManager;
 import nl.rekijan.ads.RekijanBannerAdView;
 
 /**
- * The only activity, like Initiative Tracker's. Opens the profile that was used last: a party's
+ * The only activity. Opens the profile that was used last: a party's
  * encounter (the GM) or a player character ({@link PlayerFragment}). Back from there, or Switch
  * profile in the drawer, goes to the profile list ({@link ProfilesFragment}); back on the list
  * closes the app.

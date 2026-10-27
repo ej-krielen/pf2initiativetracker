@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Content of the "New profile" dialog, like Secret Roller's: a name, and whether the profile
+<!-- Content of the "New profile" dialog: a name, and whether the profile
      is a party (GM) or a character (Player). ProfilesFragment checks both before creating. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"

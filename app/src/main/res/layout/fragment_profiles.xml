@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The profile list, like Secret Roller's start screen: your parties (GM) with the used slots
+<!-- The profile list: your parties (GM) with the used slots
      and Get more parties, then your characters (Player), and New. Rows come from item_profile,
      added by ProfilesFragment. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
