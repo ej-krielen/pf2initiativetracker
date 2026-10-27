@@ -2,7 +2,6 @@ package com.rekijan.initiativetrackersecondedition.core.data;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -11,17 +10,12 @@ import com.rekijan.initiativetrackersecondedition.feature.character.DebuffModel;
 import com.rekijan.initiativetrackersecondedition.feature.character.ReactionModel;
 
 import org.junit.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
-import java.io.InputStream;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 
 /**
- * Tests {@link EncounterJson} and {@link EncounterStore} against a real save: the SharedPreferences
+ * Tests {@link EncounterJson} against a real save: the SharedPreferences
  * file that version 1.2.0 wrote on an emulator (src/test/resources/shared_prefs_1_2_0.xml). It
  * must load in 2.0 with its characters, conditions, reactions, dying track and round intact.
  *
@@ -30,34 +24,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
  */
 public class EncounterJsonTest {
 
-    /** Reads the 1.2.0 prefs file into a store, the way SharedPreferences would. */
-    private static MemoryKeyValueStore loadSaveFrom1x() throws Exception {
-        MemoryKeyValueStore store = new MemoryKeyValueStore();
-        try (InputStream in = EncounterJsonTest.class.getResourceAsStream("/shared_prefs_1_2_0.xml")) {
-            assertNotNull("Test save is missing", in);
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
-            KeyValueStore.Editor editor = store.edit();
-            NodeList strings = doc.getElementsByTagName("string");
-            for (int i = 0; i < strings.getLength(); i++) {
-                Element e = (Element) strings.item(i);
-                editor.putString(e.getAttribute("name"), e.getTextContent());
-            }
-            NodeList ints = doc.getElementsByTagName("int");
-            for (int i = 0; i < ints.getLength(); i++) {
-                Element e = (Element) ints.item(i);
-                editor.putInt(e.getAttribute("name"), Integer.parseInt(e.getAttribute("value")));
-            }
-            editor.apply();
-        }
-        return store;
-    }
-
     @Test
     public void loadsRealSaveFrom1x() throws Exception {
-        EncounterStore store = new EncounterStore(loadSaveFrom1x());
-        List<CharacterModel> characters = store.loadCharacters();
+        MemoryKeyValueStore values = OneXSave.load();
+        List<CharacterModel> characters = EncounterJson.fromJson(values.getString("GSON_TAG", null));
 
-        assertEquals(2, store.loadRound());
+        assertEquals(2, values.getInt("ROUND_COUNTER", 0));
         assertEquals(4, characters.size());
 
         CharacterModel valeros = characters.get(0);
@@ -106,10 +78,9 @@ public class EncounterJsonTest {
 
     @Test
     public void savingKeepsTheOtherKeysAndLoadsBackTheSame() throws Exception {
-        MemoryKeyValueStore values = loadSaveFrom1x();
+        MemoryKeyValueStore values = OneXSave.load();
         int keys = values.size();
-        EncounterStore store = new EncounterStore(values);
-        List<CharacterModel> characters = store.loadCharacters();
+        List<CharacterModel> characters = EncounterJson.fromJson(values.getString("GSON_TAG", null));
 
         String json = EncounterJson.toJson(characters);
         List<CharacterModel> again = EncounterJson.fromJson(json);
@@ -141,7 +112,6 @@ public class EncounterJsonTest {
         MemoryKeyValueStore values = new MemoryKeyValueStore();
         EncounterStore store = new EncounterStore(values);
 
-        assertEquals(1, store.loadRound());
         assertFalse(store.isHideDescriptions());
         assertFalse(store.isHideReactions());
         store.setHideDescriptions(true);

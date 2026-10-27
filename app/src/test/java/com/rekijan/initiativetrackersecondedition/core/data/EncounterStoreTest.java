@@ -30,10 +30,10 @@ public class EncounterStoreTest {
     @Test
     public void adsRemovedLeavesTheOneXKeysAlone() {
         MemoryKeyValueStore values = new MemoryKeyValueStore();
-        values.edit().putInt(EncounterStore.KEY_ROUND, 7).putBoolean(EncounterStore.KEY_HIDE_REACTIONS, true).apply();
+        values.edit().putInt("ROUND_COUNTER", 7).putBoolean(EncounterStore.KEY_HIDE_REACTIONS, true).apply();
         EncounterStore store = new EncounterStore(values);
         store.setAdsRemoved(true);
-        assertEquals(7, store.loadRound());
+        assertEquals(7, values.getInt("ROUND_COUNTER", 0));
         assertTrue(store.isHideReactions());
         assertEquals("ads_removed", EncounterStore.KEY_ADS_REMOVED);
     }

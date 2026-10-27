@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The whole drawer content, used as the NavigationView header (like Initiative Tracker): app
+    name, the open profile and Switch profile, then for the GM Encounter (Add, Delete characters,
+    Edit order), then Support and More. NavDrawer shows, hides and fills it.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="8dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="2dp"
+        android:text="@string/app_name"
+        android:fontFamily="@font/cinzel"
+        android:textAppearance="@style/TextAppearance.Rekijan.Wordmark"
+        android:textColor="@color/rk_wordmark"
+        app:fontFamily="@font/cinzel" />
+
+    <TextView
+        android:id="@+id/nav_profile_textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="14sp"
+        tools:text="Thursday group · round 4" />
+
+    <TextView
+        android:id="@+id/nav_switch_profile"
+        style="@style/Widget.Rekijan.NavItem.Action"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_group"
+        android:text="@string/nav_switch_profile" />
+
+    <!-- Encounter: GM only -->
+    <LinearLayout
+        android:id="@+id/nav_group_encounter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/Widget.Rekijan.NavCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/nav_category_encounter" />
+
+        <TextView
+            android:id="@+id/nav_add_character"
+            style="@style/Widget.Rekijan.NavItem.Action"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_add"
+            android:text="@string/action_add_character"
+            android:textStyle="normal" />
+
+        <TextView
+            android:id="@+id/nav_delete_characters"
+            style="@style/Widget.Rekijan.NavItem.Action"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_delete"
+            android:text="@string/nav_delete_characters"
+            android:textStyle="normal" />
+
+        <TextView
+            android:id="@+id/nav_edit_order"
+            style="@style/Widget.Rekijan.NavItem.Action"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_swap_vert"
+            android:text="@string/edit_order_button_label"
+            android:textStyle="normal" />
+    </LinearLayout>
+
+    <!-- Support -->
+    <TextView
+        android:id="@+id/nav_category_support"
+        style="@style/Widget.Rekijan.NavCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/nav_category_support" />
+
+    <TextView
+        android:id="@+id/nav_remove_ads"
+        style="@style/Widget.Rekijan.NavItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/action_remove_ads" />
+
+    <TextView
+        android:id="@+id/nav_tip"
+        style="@style/Widget.Rekijan.NavItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/action_tip" />
+
+    <!-- More -->
+    <TextView
+        style="@style/Widget.Rekijan.NavCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/nav_category_more" />
+
+    <TextView
+        android:id="@+id/nav_about"
+        style="@style/Widget.Rekijan.NavItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/action_about" />
+
+    <TextView
+        android:id="@+id/nav_privacy"
+        style="@style/Widget.Rekijan.NavItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/action_privacy" />
+
+    <!-- Only when Google's consent SDK says users must be able to change their choice -->
+    <TextView
+        android:id="@+id/nav_privacy_settings"
+        style="@style/Widget.Rekijan.NavItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/action_privacy_settings"
+        android:visibility="gone" />
+</LinearLayout>

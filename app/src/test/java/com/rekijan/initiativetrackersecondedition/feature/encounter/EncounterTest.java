@@ -261,4 +261,43 @@ public class EncounterTest {
         assertEquals(1, calls[0]);
         assertSame(e.get(0), e.getCharacters().get(0));
     }
+
+    @Test
+    public void removeAllPassesFirstInRoundToTheNextOneThatStays() {
+        CharacterModel a = character("A", 20, true);
+        CharacterModel b = character("B", 15, false);
+        CharacterModel c = character("C", 10, true);
+        CharacterModel d = character("D", 5, false);
+        Encounter e = encounterOf(a, b, c, d);
+        int[] calls = {0};
+        e.addListener(() -> calls[0]++);
+
+        e.removeAll(Arrays.asList(a, b));
+
+        assertEquals(Arrays.asList("C", "D"), names(e));
+        assertTrue(c.isFirstInRound());
+        assertEquals(1, calls[0]);
+    }
+
+    @Test
+    public void removeAllOfNothingDoesNothing() {
+        Encounter e = encounterOf(character("A", 1, true));
+        int[] calls = {0};
+        e.addListener(() -> calls[0]++);
+        e.removeAll(new ArrayList<>());
+        assertEquals(0, calls[0]);
+    }
+
+    @Test
+    public void replacePutsAnotherPartyInTheSameFight() {
+        Encounter e = encounterOf(character("A", 1, true));
+        int[] calls = {0};
+        e.addListener(() -> calls[0]++);
+
+        e.replace(Arrays.asList(character("X", 3, true), character("Y", 2, false)), 6);
+
+        assertEquals(Arrays.asList("X", "Y"), names(e));
+        assertEquals(6, e.getRound());
+        assertEquals(1, calls[0]);
+    }
 }

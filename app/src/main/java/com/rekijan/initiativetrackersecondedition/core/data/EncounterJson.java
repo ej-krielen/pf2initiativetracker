@@ -43,15 +43,36 @@ public final class EncounterJson {
             if (characters == null) return null;
             characters.removeIf(Objects::isNull);
             for (CharacterModel c : characters) {
-                c.getDebuffList().removeIf(Objects::isNull);
-                c.getReactionList().removeIf(Objects::isNull);
-                for (DebuffModel d : c.getDebuffList()) {
-                    Conditions.upgradeLegacyValue(d);
-                }
+                clean(c);
             }
             return characters;
         } catch (JsonParseException e) {
             return null;
+        }
+    }
+
+    /** One character in the same format, used for the player characters. */
+    public static String characterToJson(CharacterModel character) {
+        return GSON.toJson(character);
+    }
+
+    /** @return The saved character, or null when nothing (readable) was saved. */
+    public static CharacterModel characterFromJson(String json) {
+        if (json == null || json.trim().isEmpty()) return null;
+        try {
+            CharacterModel character = GSON.fromJson(json, CharacterModel.class);
+            if (character != null) clean(character);
+            return character;
+        } catch (JsonParseException e) {
+            return null;
+        }
+    }
+
+    private static void clean(CharacterModel c) {
+        c.getDebuffList().removeIf(Objects::isNull);
+        c.getReactionList().removeIf(Objects::isNull);
+        for (DebuffModel d : c.getDebuffList()) {
+            Conditions.upgradeLegacyValue(d);
         }
     }
 }

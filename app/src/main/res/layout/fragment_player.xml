@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A player's own character: the sheet with the Stats and Conditions tabs
+     (view_character_sheet), with the name, initiative and hp rows. PlayerFragment binds it; every
+     edit is saved on the phone straight away. Table sync adds its session card above the sheet. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/player_sheet"
+        layout="@layout/view_character_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+</LinearLayout>

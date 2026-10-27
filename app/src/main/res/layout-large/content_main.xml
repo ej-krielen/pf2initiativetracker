@@ -12,7 +12,9 @@
         android:layout_height="match_parent"
         android:layout_weight="1" />
 
+    <!-- The second pane and this line are hidden on the profile list and a player character -->
     <View
+        android:id="@+id/pane_divider"
         android:layout_width="1dp"
         android:layout_height="match_parent"
         android:background="?attr/colorOutlineVariant" />

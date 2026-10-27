@@ -9,7 +9,9 @@ import java.util.List;
 
 /**
  * Creates new characters with the default stat lines (AC 10, saves 10) in the user's language,
- * and the starting party for a fresh install: three PCs and a monster.
+ * and the starting party of four PCs for a fresh install and a new party (most groups have four or
+ * five players; adding one is easier than deleting one). The PF2e fields (max dying 4, recovery
+ * DC 10, one hero point, reaction available) come from {@link CharacterModel}'s defaults.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026
@@ -34,12 +36,12 @@ public final class CharacterDefaults {
         return c;
     }
 
-    /** Three PCs and a monster, the first one is first in round. */
+    /** Four PCs, the first one is first in round. */
     public static List<CharacterModel> startingParty(Context context) {
         List<CharacterModel> party = new ArrayList<>();
         for (int i = 0; i < STARTING_PARTY_SIZE; i++) {
             CharacterModel c = newCharacter(context);
-            c.setPC(i < STARTING_PARTY_SIZE - 1);
+            c.setPC(true);
             party.add(c);
         }
         party.get(0).setFirstInRound(true);

@@ -22,6 +22,7 @@ import com.rekijan.initiativetrackersecondedition.core.data.EncounterStore;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
 import com.rekijan.initiativetrackersecondedition.feature.character.DebuffModel;
 import com.rekijan.initiativetrackersecondedition.feature.encounter.Encounter;
+import com.rekijan.initiativetrackersecondedition.feature.player.PlayerBook;
 
 /**
  * Adds a (de)buff to a character: a standard condition from the searchable list, an empty one to
@@ -33,11 +34,27 @@ import com.rekijan.initiativetrackersecondedition.feature.encounter.Encounter;
 public class ConditionWizardFragment extends Fragment {
 
     private static final String ARG_POSITION = "POSITION";
+    private static final String ARG_PLAYER_ID = "PLAYER_ID";
 
+    /** For a character in the encounter. */
     public static ConditionWizardFragment newInstance(int position) {
         ConditionWizardFragment fragment = new ConditionWizardFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_POSITION, position);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    /** @return True when it adds to a player character instead of the encounter. */
+    public boolean isForPlayer() {
+        return getArguments() != null && getArguments().getString(ARG_PLAYER_ID) != null;
+    }
+
+    /** For one of the user's player characters; the condition is saved with it straight away. */
+    public static ConditionWizardFragment newForPlayer(String playerId) {
+        ConditionWizardFragment fragment = new ConditionWizardFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PLAYER_ID, playerId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -51,21 +68,31 @@ public class ConditionWizardFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         CombatTrackerApp app = (CombatTrackerApp) requireActivity().getApplication();
-        Encounter encounter = app.getEncounter();
         EncounterStore store = app.getStore();
-        int position = requireArguments().getInt(ARG_POSITION);
-        if (!encounter.isValidPosition(position)) {
-            // The character was removed (e.g. before a rotation); show nothing
-            view.setVisibility(View.INVISIBLE);
-            return;
+        String playerId = requireArguments().getString(ARG_PLAYER_ID);
+        CharacterModel character;
+        Runnable onAdded;
+        if (playerId != null) {
+            PlayerBook players = app.getPlayers();
+            character = players.load(playerId);
+            onAdded = () -> players.save(playerId, character);
+        } else {
+            Encounter encounter = app.getEncounter();
+            int position = requireArguments().getInt(ARG_POSITION);
+            if (!encounter.isValidPosition(position)) {
+                // The character was removed (e.g. before a rotation); show nothing
+                view.setVisibility(View.INVISIBLE);
+                return;
+            }
+            character = encounter.get(position);
+            onAdded = encounter::notifyChanged;
         }
-        CharacterModel character = encounter.get(position);
 
         RecyclerView recyclerView = view.findViewById(R.id.debuff_wizard_recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         ConditionWizardAdapter adapter = new ConditionWizardAdapter(
                 ConditionProvider.standardConditions(requireContext()), store.isHideDescriptions(),
-                debuff -> add(encounter, character, debuff,
+                debuff -> add(character, onAdded, debuff,
                         getString(R.string.debuff_added_existing, debuff.getDisplayName())));
         recyclerView.setAdapter(adapter);
 
@@ -93,18 +120,18 @@ public class ConditionWizardFragment extends Fragment {
         });
 
         view.findViewById(R.id.debuff_wizard_add_empty_button).setOnClickListener(v ->
-                add(encounter, character, new DebuffModel(), getString(R.string.debuff_added_empty)));
+                add(character, onAdded, new DebuffModel(), getString(R.string.debuff_added_empty)));
         // Poisons are planned for a later release
         view.findViewById(R.id.debuff_wizard_add_poison_button).setOnClickListener(v ->
                 Toast.makeText(requireContext(), R.string.poison_not_implemented, Toast.LENGTH_LONG).show());
         view.findViewById(R.id.debuff_wizard_add_persistent_damage_button).setOnClickListener(v ->
-                PersistentDamageDialogs.create(requireContext(), debuff -> add(encounter, character, debuff,
+                PersistentDamageDialogs.create(requireContext(), debuff -> add(character, onAdded, debuff,
                         getString(R.string.debuff_added_persistent_damage))));
     }
 
-    private void add(Encounter encounter, CharacterModel character, DebuffModel debuff, String message) {
+    private void add(CharacterModel character, Runnable onAdded, DebuffModel debuff, String message) {
         character.getDebuffList().add(debuff);
-        encounter.notifyChanged();
+        onAdded.run();
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
         getParentFragmentManager().popBackStack();
     }

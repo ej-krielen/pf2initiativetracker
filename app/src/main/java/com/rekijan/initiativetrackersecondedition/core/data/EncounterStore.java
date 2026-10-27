@@ -1,14 +1,15 @@
 package com.rekijan.initiativetrackersecondedition.core.data;
 
-import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
-import com.rekijan.initiativetrackersecondedition.feature.encounter.Encounter;
-
-import java.util.List;
-
 /**
- * Saves and loads the current fight and the display settings. Uses the same SharedPreferences
- * file ({@link #PREFS_NAME}) and keys as 1.x, so users keep their characters, round counter and
- * settings after updating. The Remove Ads flag lives in the same file.
+ * The app-wide save file and the display settings. Uses the same SharedPreferences file as 1.x
+ * ({@link #PREFS_NAME}) and the 1.x setting keys, so users keep their settings after updating, and
+ * the 1.x fight is still there for
+ * {@link com.rekijan.initiativetrackersecondedition.feature.party.PartyStore} to turn into the
+ * first party. The parties themselves are saved by PartyStore; this class keeps the settings and
+ * the Remove Ads flag.
+ * <p>
+ * The settings (hide condition descriptions, hide reactions) are for the whole app, not per
+ * party: they are how the user likes to see the screen, not part of a fight.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026
@@ -18,8 +19,6 @@ public class EncounterStore {
     /** The 1.x SharedPreferences file, keep it as it is. */
     public static final String PREFS_NAME = "SHARED_PREF_TAG";
     // 1.x keys, keep them as they are
-    static final String KEY_CHARACTERS = "GSON_TAG";
-    static final String KEY_ROUND = "ROUND_COUNTER";
     static final String KEY_HIDE_DESCRIPTIONS = "SHARED_PREF_HIDE_DESC";
     static final String KEY_HIDE_REACTIONS = "SHARED_PREF_HIDE_REACTIONS";
     // New in 2.0, same key as Initiative Tracker, Mook Roller and Secret Roller
@@ -29,23 +28,6 @@ public class EncounterStore {
 
     public EncounterStore(KeyValueStore values) {
         this.values = values;
-    }
-
-    /** @return The saved characters, or null when nothing was saved yet. */
-    public List<CharacterModel> loadCharacters() {
-        return EncounterJson.fromJson(values.getString(KEY_CHARACTERS, null));
-    }
-
-    /** @return The saved round; 1.x started a fresh install at round 1. */
-    public int loadRound() {
-        return values.getInt(KEY_ROUND, 1);
-    }
-
-    public void save(Encounter encounter) {
-        values.edit()
-                .putString(KEY_CHARACTERS, EncounterJson.toJson(encounter.getCharacters()))
-                .putInt(KEY_ROUND, encounter.getRound())
-                .apply();
     }
 
     /** @return True when the condition wizard hides the condition descriptions. */

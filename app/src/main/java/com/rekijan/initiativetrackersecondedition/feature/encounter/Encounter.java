@@ -4,6 +4,7 @@ import com.rekijan.initiativetrackersecondedition.feature.character.CharacterMod
 import com.rekijan.initiativetrackersecondedition.feature.character.DebuffModel;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -138,6 +139,40 @@ public class Encounter {
 
     public void remove(CharacterModel character) {
         remove(characters.indexOf(character));
+    }
+
+    /**
+     * Removes several characters (Delete characters in the drawer), with one change notice. When
+     * the one first in round leaves, the next character that stays takes it over.
+     */
+    public void removeAll(Collection<CharacterModel> toRemove) {
+        int size = characters.size();
+        int first = -1;
+        for (int i = 0; i < size; i++) {
+            if (characters.get(i).isFirstInRound()) first = i;
+        }
+        boolean firstLeaves = first >= 0 && toRemove.contains(characters.get(first));
+        CharacterModel successor = null;
+        if (firstLeaves) {
+            for (int step = 1; step < size && successor == null; step++) {
+                CharacterModel next = characters.get((first + step) % size);
+                if (!toRemove.contains(next)) successor = next;
+            }
+        }
+        if (!characters.removeAll(toRemove)) return;
+        if (successor != null) successor.setFirstInRound(true);
+        notifyChanged();
+    }
+
+    /**
+     * Puts another party's characters and round counter in this fight, used when switching
+     * parties. Open screens keep the same Encounter and are told to redraw.
+     */
+    public void replace(List<CharacterModel> newCharacters, int newRound) {
+        characters.clear();
+        characters.addAll(newCharacters);
+        round = Math.max(0, newRound);
+        notifyChanged();
     }
 
     /**

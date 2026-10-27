@@ -1,0 +1,296 @@
+package com.rekijan.initiativetrackersecondedition.feature.profile;
+
+import android.content.res.ColorStateList;
+import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.PopupMenu;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+
+import com.google.android.material.button.MaterialButtonToggleGroup;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.textfield.TextInputLayout;
+import com.rekijan.initiativetrackersecondedition.R;
+import com.rekijan.initiativetrackersecondedition.app.CombatTrackerApp;
+import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
+import com.rekijan.initiativetrackersecondedition.feature.party.Party;
+import com.rekijan.initiativetrackersecondedition.feature.party.PartyBook;
+import com.rekijan.initiativetrackersecondedition.feature.party.PartyDialogs;
+import com.rekijan.initiativetrackersecondedition.feature.party.PartyNames;
+import com.rekijan.initiativetrackersecondedition.feature.player.PlayerBook;
+
+import java.util.Collections;
+
+/**
+ * The profile list, like Initiative Tracker's: the user's parties (GM) and their player
+ * characters (Player) in one list. Tap a row to open it; the three dots hold Rename, Duplicate
+ * (parties only) and Delete. New profile asks for a name and GM or Player: GM makes a party
+ * (within the party slots), Player a character (free, no limit). A new profile opens right away.
+ * Opening and buying are passed to the {@link Host}.
+ *
+ * @author Erik-Jan Krielen rekijan.apps@gmail.com
+ * @since 27-10-2026
+ */
+public class ProfilesFragment extends Fragment {
+
+    /** What the list needs from the activity; implemented by MainActivity. */
+    public interface Host {
+        void openParty(String id);
+
+        void openPlayer(String id);
+
+        /** All party slots are used: offers the next pack, or says to delete one. */
+        void showPartyLimit();
+
+        /** "Get more parties": offers the next pack. */
+        void offerMoreParties();
+
+        /** @return The price of the next party pack, or null when there is none to buy. */
+        @Nullable
+        String nextPackPrice();
+    }
+
+    private static final int MENU_RENAME = 1;
+    private static final int MENU_DUPLICATE = 2;
+    private static final int MENU_DELETE = 3;
+
+    private CombatTrackerApp app;
+
+    public static ProfilesFragment newInstance() {
+        return new ProfilesFragment();
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_profiles, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        app = (CombatTrackerApp) requireActivity().getApplication();
+        view.findViewById(R.id.profiles_new_button).setOnClickListener(v -> showNewProfile());
+        view.findViewById(R.id.profiles_more_parties_button).setOnClickListener(v -> host().offerMoreParties());
+        refresh();
+    }
+
+    /** Redraws the list; also called by MainActivity after a purchase or when prices load. */
+    public void refresh() {
+        View view = getView();
+        if (view == null) return;
+        PartyBook parties = app.getParties();
+        PlayerBook players = app.getPlayers();
+        boolean partyOpen = !app.isPlayerOpen();
+        LayoutInflater inflater = LayoutInflater.from(requireContext());
+
+        ((TextView) view.findViewById(R.id.profiles_parties_label_textView)).setText(
+                getString(R.string.profiles_parties_label, parties.getUsed(), parties.getLimit()));
+        LinearLayout partyList = view.findViewById(R.id.profiles_party_list);
+        partyList.removeAllViews();
+        for (Party party : parties.getParties()) {
+            int count = app.characterCount(party.getId());
+            String detail = getResources().getQuantityString(R.plurals.profiles_party_detail, count, count);
+            boolean open = partyOpen && party.getId().equals(parties.getActiveId());
+            partyList.addView(row(inflater, partyList, party.getName(), detail, true, open,
+                    v -> host().openParty(party.getId()), v -> showPartyMenu(v, party)));
+        }
+        view.findViewById(R.id.profiles_more_parties_button)
+                .setVisibility(host().nextPackPrice() != null ? View.VISIBLE : View.GONE);
+
+        LinearLayout playerList = view.findViewById(R.id.profiles_player_list);
+        playerList.removeAllViews();
+        for (String id : players.getIds()) {
+            String name = players.getName(id);
+            if (name.trim().isEmpty()) name = getString(R.string.empty_character_name);
+            boolean open = id.equals(app.getOpenPlayerId());
+            String finalName = name;
+            playerList.addView(row(inflater, playerList, name, getString(R.string.profiles_player_detail), false,
+                    open, v -> host().openPlayer(id), v -> showPlayerMenu(v, id, finalName)));
+        }
+        view.findViewById(R.id.profiles_players_empty_textView)
+                .setVisibility(players.getIds().isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    private View row(LayoutInflater inflater, ViewGroup parent, String name, String detail, boolean gm,
+                     boolean open, View.OnClickListener onOpen, View.OnClickListener onMore) {
+        View row = inflater.inflate(R.layout.item_profile, parent, false);
+        ((TextView) row.findViewById(R.id.profile_name_textView)).setText(name);
+        ((TextView) row.findViewById(R.id.profile_detail_textView)).setText(detail);
+        TextView role = row.findViewById(R.id.profile_role_textView);
+        role.setText(gm ? R.string.profiles_role_gm : R.string.profiles_role_player);
+        role.setTextColor(ContextCompat.getColor(requireContext(), gm ? R.color.rk_npc_marker : R.color.rk_pc_marker));
+        role.setBackgroundColor(ContextCompat.getColor(requireContext(), gm ? R.color.rk_npc_container : R.color.rk_pc_container));
+        MaterialCardView card = (MaterialCardView) row;
+        if (open) {
+            // The open profile gets a gold outline
+            card.setStrokeWidth(getResources().getDimensionPixelSize(R.dimen.profile_open_stroke));
+            card.setStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.rk_pc_marker)));
+        }
+        row.setOnClickListener(onOpen);
+        View more = row.findViewById(R.id.profile_more_button);
+        more.setContentDescription(getString(R.string.nav_party_options, name));
+        more.setOnClickListener(onMore);
+        return row;
+    }
+
+    // ---------------------------------------------------------------- New
+
+    /**
+     * New profile: a name and GM (a party) or Player (a character) in one dialog. Create keeps
+     * the dialog open while the name or the role is missing or not allowed. A party needs a free
+     * party slot; a new profile opens right away.
+     */
+    private void showNewProfile() {
+        View content = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_new_profile, null);
+        TextInputLayout nameLayout = content.findViewById(R.id.new_profile_name_layout);
+        EditText nameInput = content.findViewById(R.id.new_profile_name_editText);
+        MaterialButtonToggleGroup roleToggle = content.findViewById(R.id.new_profile_role_toggle);
+        View roleError = content.findViewById(R.id.new_profile_role_error_textView);
+        nameInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // Not needed
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                nameLayout.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // Not needed
+            }
+        });
+        roleToggle.addOnButtonCheckedListener((group, checkedId, isChecked) -> roleError.setVisibility(View.GONE));
+
+        AlertDialog dialog = Dialogs.builder(requireContext())
+                .setTitle(R.string.profiles_new_title)
+                .setView(content)
+                .setNegativeButton(R.string.dialog_cancel, null)
+                // Listener set after show(), so a missing name or role keeps the dialog open
+                .setPositiveButton(R.string.dialog_party_create, null)
+                .show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String name = nameInput.getText() == null ? "" : nameInput.getText().toString();
+            int role = roleToggle.getCheckedButtonId();
+            boolean party = role == R.id.new_profile_role_gm;
+            PartyNames.Check check = party ? app.getParties().checkName(name, null)
+                    : PartyNames.check(name, Collections.emptyList(), null);
+            String nameError = PartyDialogs.errorFor(requireContext(), check);
+            if (nameError != null) nameLayout.setError(nameError);
+            if (role == View.NO_ID) roleError.setVisibility(View.VISIBLE);
+            if (nameError != null || role == View.NO_ID) return;
+
+            dialog.dismiss();
+            if (party) {
+                if (!app.getParties().canCreate()) {
+                    host().showPartyLimit();
+                    return;
+                }
+                Party created = app.createParty(name);
+                if (created != null) host().openParty(created.getId());
+            } else {
+                String id = app.getPlayers().create(name);
+                if (id != null) host().openPlayer(id);
+            }
+        });
+    }
+
+    // ---------------------------------------------------------------- Options
+
+    private void showPartyMenu(View anchor, Party party) {
+        PopupMenu menu = popup(anchor);
+        menu.getMenu().add(0, MENU_RENAME, 0, R.string.party_menu_rename);
+        menu.getMenu().add(0, MENU_DUPLICATE, 1, R.string.party_menu_duplicate);
+        // The last party can't be deleted, so it gets no Delete
+        if (app.getParties().getUsed() > 1) menu.getMenu().add(0, MENU_DELETE, 2, R.string.party_menu_delete);
+        menu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case MENU_RENAME:
+                    PartyDialogs.askName(requireContext(), R.string.dialog_party_rename_title, R.string.dialog_party_save,
+                            party.getName(), app.getParties(), party.getId(), name -> {
+                                app.getParties().rename(party.getId(), name);
+                                refresh();
+                            });
+                    return true;
+                case MENU_DUPLICATE:
+                    if (!app.getParties().canCreate()) {
+                        host().showPartyLimit();
+                    } else if (app.duplicateParty(party.getId()) != null) {
+                        refresh();
+                    }
+                    return true;
+                case MENU_DELETE:
+                    deleteParty(party);
+                    return true;
+                default:
+                    return false;
+            }
+        });
+        menu.show();
+    }
+
+    private void deleteParty(Party party) {
+        if (app.getParties().getUsed() <= 1) {
+            Toast.makeText(requireContext(), R.string.toast_party_last, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        PartyDialogs.confirmDelete(requireContext(), party.getName(), app.characterCount(party.getId()), () -> {
+            app.deleteParty(party.getId());
+            refresh();
+        });
+    }
+
+    private void showPlayerMenu(View anchor, String id, String name) {
+        PopupMenu menu = popup(anchor);
+        menu.getMenu().add(0, MENU_RENAME, 0, R.string.party_menu_rename);
+        menu.getMenu().add(0, MENU_DELETE, 1, R.string.party_menu_delete);
+        menu.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == MENU_RENAME) {
+                PartyDialogs.askName(requireContext(), R.string.profiles_rename_character_title, R.string.dialog_party_save,
+                        R.string.profiles_character_name_hint, app.getPlayers().getName(id),
+                        n -> PartyNames.check(n, Collections.emptyList(), null), n -> {
+                            app.getPlayers().rename(id, n);
+                            refresh();
+                        });
+                return true;
+            }
+            if (item.getItemId() == MENU_DELETE) {
+                Dialogs.builder(requireContext())
+                        .setTitle(R.string.profiles_delete_character_title)
+                        .setMessage(getString(R.string.profiles_delete_character_message, name))
+                        .setNegativeButton(R.string.dialog_cancel, null)
+                        .setPositiveButton(R.string.dialog_party_delete_button, (d, w) -> {
+                            app.deletePlayer(id);
+                            refresh();
+                        })
+                        .show();
+                return true;
+            }
+            return false;
+        });
+        menu.show();
+    }
+
+    private PopupMenu popup(View anchor) {
+        return new PopupMenu(new ContextThemeWrapper(requireContext(), R.style.ThemeOverlay_Rekijan_Menu), anchor);
+    }
+
+    private Host host() {
+        return (Host) requireActivity();
+    }
+}
