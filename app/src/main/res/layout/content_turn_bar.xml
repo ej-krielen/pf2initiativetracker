@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Turn bar under the encounter, as in Initiative Tracker: the round with minus and plus, Edit
+     order, and Next turn, the main action, in thumb reach. EncounterFragment wires the buttons;
+     Reset round is in the toolbar menu. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/colorOutlineVariant" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurfaceContainer"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/space_3"
+        android:paddingTop="@dimen/space_2"
+        android:paddingEnd="@dimen/space_3"
+        android:paddingBottom="@dimen/space_2">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/minus_round_button"
+            style="@style/Widget.Rekijan.Button.Tonal.Icon"
+            android:layout_width="@dimen/touch_target"
+            android:layout_height="@dimen/touch_target"
+            android:contentDescription="@string/round_previous"
+            app:icon="@drawable/ic_remove" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:minWidth="56dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/round_label"
+                android:textAppearance="@style/TextAppearance.Rekijan.StatLabel"
+                android:textColor="?attr/colorSecondary" />
+
+            <TextView
+                android:id="@+id/round_counter_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Rekijan.StatValue"
+                android:textColor="?attr/colorOnSurface"
+                tools:text="3" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/plus_round_button"
+            style="@style/Widget.Rekijan.Button.Tonal.Icon"
+            android:layout_width="@dimen/touch_target"
+            android:layout_height="@dimen/touch_target"
+            android:contentDescription="@string/round_next"
+            app:icon="@drawable/ic_add" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/edit_order_button"
+            style="@style/Widget.Rekijan.Button.Tonal.Icon"
+            android:layout_width="@dimen/touch_target"
+            android:layout_height="@dimen/touch_target"
+            android:layout_marginStart="@dimen/space_2"
+            android:contentDescription="@string/edit_order_button_label"
+            android:tooltipText="@string/edit_order_button_label"
+            app:icon="@drawable/ic_swap_vert" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/next_turn_button"
+            style="@style/Widget.Rekijan.Button"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/touch_target"
+            android:layout_marginStart="@dimen/space_2"
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:text="@string/action_next_turn"
+            app:autoSizeMaxTextSize="16sp"
+            app:autoSizeMinTextSize="11sp"
+            app:autoSizeTextType="uniform"
+            app:icon="@drawable/ic_skip_next"
+            app:iconGravity="textStart"
+            app:iconSize="24dp" />
+    </LinearLayout>
+</LinearLayout>

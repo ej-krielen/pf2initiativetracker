@@ -1,149 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<!-- Content of the hp dialog (title and Cancel come from the dialog builder): the current hp, the
+     amount, and Add / Set / Subtract with the hp each would give. HpDialog wires it. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="24dp"
-    android:background="@color/colorPrimaryLight">
+    android:orientation="vertical"
+    android:paddingStart="@dimen/space_4"
+    android:paddingTop="@dimen/space_1"
+    android:paddingEnd="@dimen/space_4">
 
-    <TextView
-        android:id="@+id/old_value_label"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hp_dialog_old_value"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintEnd_toStartOf="@+id/old_value_textView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/old_value_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hp_dialog_old_value"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant" />
+
+        <TextView
+            android:id="@+id/old_value_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?attr/colorOnSurface"
+            android:textStyle="bold"
+            tools:text="24" />
+    </LinearLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_3"
+        android:hint="@string/hp_dialog_input">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/input_editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:importantForAutofill="no"
+            android:inputType="number"
+            android:textAppearance="@style/TextAppearance.Rekijan.StatValue" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Filled bordeaux buttons (Widget.Rekijan.Button.Dialog) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_3"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/add_btn"
+            style="@style/Widget.Rekijan.Button.Dialog"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/hp_dialog_add_btn" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/set_btn"
+            style="@style/Widget.Rekijan.Button.Dialog"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_2"
+            android:layout_marginEnd="@dimen/space_2"
+            android:layout_weight="1"
+            android:text="@string/hp_dialog_set_btn" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/subtract_btn"
+            style="@style/Widget.Rekijan.Button.Dialog"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/hp_dialog_subtract_btn" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_1"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/add_preview_textView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.Rekijan.StatValue"
+            android:textColor="?attr/colorSecondary"
+            tools:text="29" />
+
+        <TextView
+            android:id="@+id/set_preview_textView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_2"
+            android:layout_marginEnd="@dimen/space_2"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.Rekijan.StatValue"
+            android:textColor="?attr/colorSecondary"
+            tools:text="5" />
+
+        <TextView
+            android:id="@+id/subtract_preview_textView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.Rekijan.StatValue"
+            android:textColor="?attr/colorSecondary"
+            tools:text="19" />
+    </LinearLayout>
 
     <TextView
-        android:id="@+id/old_value_textView"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintBaseline_toBaselineOf="@+id/old_value_label"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/old_value_label" />
-
-    <EditText
-        android:id="@+id/input_editText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:gravity="center"
-        android:inputType="number"
-        android:maxLength="5"
-        android:textAppearance="?android:textAppearanceLarge"
-        android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/old_value_label" />
-
-    <TextView
-        android:id="@+id/input_textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hp_dialog_input"
-        android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/input_editText" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_33"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.33" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_66"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.66" />
-
-    <Button
-        android:id="@+id/add_btn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="8dp"
-        android:text="@string/hp_dialog_add_btn"
-        android:theme="@style/AppTheme.Button"
-        app:layout_constraintEnd_toStartOf="@+id/guideline_33"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/input_textView" />
-
-    <Button
-        android:id="@+id/set_btn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="4dp"
-        android:text="@string/hp_dialog_set_btn"
-        android:theme="@style/AppTheme.Button"
-        app:layout_constraintEnd_toStartOf="@+id/guideline_66"
-        app:layout_constraintStart_toStartOf="@+id/guideline_33"
-        app:layout_constraintTop_toTopOf="@id/add_btn" />
-
-    <Button
-        android:id="@+id/subtract_btn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="@string/hp_dialog_subtract_btn"
-        android:theme="@style/AppTheme.Button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/guideline_66"
-        app:layout_constraintTop_toTopOf="@id/add_btn" />
-
-    <TextView
-        android:id="@+id/preview_header"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:text="@string/hp_dialog_preview"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/add_btn" />
+        android:textAppearance="@style/TextAppearance.Rekijan.StatLabel" />
 
-    <TextView
-        android:id="@+id/add_preview_textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textColor="@color/white"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@id/add_btn"
-        app:layout_constraintStart_toStartOf="@id/add_btn"
-        app:layout_constraintTop_toBottomOf="@id/preview_header" />
-
-    <TextView
-        android:id="@+id/set_preview_textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/white"
-        android:textStyle="bold"
-        app:layout_constraintBaseline_toBaselineOf="@+id/add_preview_textView"
-        app:layout_constraintEnd_toEndOf="@id/set_btn"
-        app:layout_constraintStart_toStartOf="@id/set_btn" />
-
-    <TextView
-        android:id="@+id/subtract_preview_textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/white"
-        android:textStyle="bold"
-        app:layout_constraintBaseline_toBaselineOf="@+id/add_preview_textView"
-        app:layout_constraintEnd_toEndOf="@id/subtract_btn"
-        app:layout_constraintStart_toStartOf="@id/subtract_btn" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

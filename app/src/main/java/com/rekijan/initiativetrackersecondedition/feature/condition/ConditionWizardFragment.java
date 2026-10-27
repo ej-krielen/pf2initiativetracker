@@ -1,17 +1,17 @@
 package com.rekijan.initiativetrackersecondedition.feature.condition;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SearchView;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -69,23 +69,23 @@ public class ConditionWizardFragment extends Fragment {
                         getString(R.string.debuff_added_existing, debuff.getDisplayName())));
         recyclerView.setAdapter(adapter);
 
-        SearchView searchView = view.findViewById(R.id.debuff_wizard_searchView);
-        EditText searchEditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
-        searchEditText.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        EditText searchEditText = view.findViewById(R.id.debuff_wizard_searchView);
+        searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
-            public boolean onQueryTextChange(String newText) {
-                adapter.filter(newText);
-                return true;
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.filter(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
             }
         });
 
-        CheckBox hideDescriptionsCheckBox = view.findViewById(R.id.debuff_wizard_description_checkBox);
+        CompoundButton hideDescriptionsCheckBox = view.findViewById(R.id.debuff_wizard_description_checkBox);
         hideDescriptionsCheckBox.setChecked(store.isHideDescriptions());
         hideDescriptionsCheckBox.setOnCheckedChangeListener((button, checked) -> {
             store.setHideDescriptions(checked);

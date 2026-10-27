@@ -26,7 +26,20 @@ public final class InfoDialogs {
                 .setTitle(R.string.dialog_about_info_title)
                 .setMessage(R.string.dialog_about_info)
                 .setPositiveButton(R.string.dialog_about_ok, (d, w) -> Dialogs.openUrl(context, WEBSITE_URL))
+                .setNeutralButton(R.string.licenses_button, (d, w) -> licenses(context))
                 .setNegativeButton(R.string.dialog_cancel, null)
+                .show();
+    }
+
+    /**
+     * Shows the licenses of the icons and the bundled fonts (Manrope, Cinzel). The SIL Open Font
+     * License asks for the font license text to ship with the app.
+     */
+    public static void licenses(Context context) {
+        Dialogs.builder(context)
+                .setTitle(R.string.licenses_title)
+                .setMessage(Dialogs.readRawText(context, R.raw.licenses))
+                .setPositiveButton(R.string.dialog_ok, null)
                 .show();
     }
 

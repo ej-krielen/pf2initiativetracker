@@ -4,10 +4,15 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -27,8 +32,9 @@ import com.rekijan.initiativetrackersecondedition.monetization.BillingManager;
 /**
  * The only activity. Hosts the encounter list and, on a phone, swaps it for the character
  * details, reactions, condition wizard or the Edit Order screen; on a tablet those sit next to
- * the list. It also handles the toolbar menu and saves the fight when the app goes to the
- * background.
+ * the list. It also handles the toolbar menu (PCs to max HP and Sort as icons, the rest in the
+ * overflow; Next turn is in the encounter's turn bar) and saves the fight when the app goes to
+ * the background. Android 12+ shows the system splash from the launch theme.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 17-9-2015
@@ -36,9 +42,9 @@ import com.rekijan.initiativetrackersecondedition.monetization.BillingManager;
 public class MainActivity extends AppCompatActivity {
 
     /** Menu actions that only make sense while the encounter list is on screen. */
-    private static final int[] ENCOUNTER_ACTIONS = {R.id.action_settings_next_turn, R.id.action_settings_sort,
+    private static final int[] ENCOUNTER_ACTIONS = {R.id.action_settings_set_pcs_max_hp, R.id.action_settings_sort,
             R.id.action_settings_add_character, R.id.action_settings_delete_character,
-            R.id.action_settings_set_pcs_max_hp, R.id.action_settings_hide_reactions,
+            R.id.action_settings_reset_round, R.id.action_settings_hide_reactions,
             R.id.action_settings_start_turn_info, R.id.action_settings_end_turn_info};
 
     private CombatTrackerApp app;
@@ -49,11 +55,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setPopupTheme(R.style.PopupMenuStyle);
+        applySystemBarInsets();
 
         app = (CombatTrackerApp) getApplication();
         encounter = app.getEncounter();
@@ -111,10 +118,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings_next_turn) {
-            closeDetailsOnPhone();
-            nextTurn();
-        } else if (id == R.id.action_settings_sort) {
+        if (id == R.id.action_settings_sort) {
             closeDetailsOnPhone();
             TurnDialogs.askRoundReset(this, encounter, encounter.sortByInitiative());
         } else if (id == R.id.action_settings_add_character) {
@@ -124,6 +128,8 @@ public class MainActivity extends AppCompatActivity {
             InfoDialogs.howToDeleteCharacter(this);
         } else if (id == R.id.action_settings_set_pcs_max_hp) {
             showMaxHpResult(encounter.setPcsToMaxHp());
+        } else if (id == R.id.action_settings_reset_round) {
+            encounter.resetRound();
         } else if (id == R.id.action_settings_hide_reactions) {
             store.setHideReactions(!store.isHideReactions());
             invalidateOptionsMenu();
@@ -185,7 +191,8 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
-    private void nextTurn() {
+    /** Next turn, from the encounter's turn bar. */
+    public void nextTurn() {
         Encounter.Turn turn = encounter.nextTurn();
         if (turn == null) return;
         TurnDialogs.onTurnChanged(this, encounter, turn);
@@ -213,7 +220,25 @@ public class MainActivity extends AppCompatActivity {
 
     private void onBackStackChanged() {
         boolean canGoBack = getSupportFragmentManager().getBackStackEntryCount() > 0;
-        if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(canGoBack);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(canGoBack);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
+        }
         invalidateOptionsMenu();
+    }
+
+    /**
+     * Edge-to-edge: pads the screen for the status bar, navigation bar and display cutout, and
+     * for the keyboard when it is open. Done here, so it works the same on every Android version.
+     */
+    private void applySystemBarInsets() {
+        View root = findViewById(R.id.root);
+        ViewCompat.setOnApplyWindowInsetsListener(root, (v, windowInsets) -> {
+            Insets bars = windowInsets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+            Insets ime = windowInsets.getInsets(WindowInsetsCompat.Type.ime());
+            v.setPadding(bars.left, bars.top, bars.right, Math.max(bars.bottom, ime.bottom));
+            return WindowInsetsCompat.CONSUMED;
+        });
     }
 }

@@ -3,7 +3,6 @@ package com.rekijan.initiativetrackersecondedition.feature.reaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
@@ -39,7 +38,7 @@ public class ReactionAdapter extends RecyclerView.Adapter<ReactionAdapter.Reacti
         final EditText nameEditText;
         final EditText descriptionEditText;
         final CompoundButton availableSwitch;
-        final Button removeButton;
+        final View removeButton;
 
         ReactionViewHolder(View itemView) {
             super(itemView);

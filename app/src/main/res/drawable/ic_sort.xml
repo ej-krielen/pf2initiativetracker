@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sort by initiative: a down arrow next to 9 over 0. Tabler Icons "sort descending numbers"
+     (MIT License), drawn as strokes. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:tint="?attr/colorControlNormal"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M4,15l3,3l3,-3M7,6v12M17,14a2,2 0,0 1,2 2v3a2,2 0,1 1,-4 0v-3a2,2 0,0 1,2 -2zM15,5a2,2 0,1 0,4 0a2,2 0,0 0,-4 0M19,5v3a2,2 0,0 1,-2 2h-1.5"
+        android:strokeWidth="2"
+        android:strokeColor="@android:color/white"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

@@ -1,27 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The encounter: one card per character in initiative order, then the turn bar (round, Edit
+     order and Next turn). The top card is the character whose turn it is. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:tag="MAIN_FRAGMENT"
-    tools:context=".feature.encounter.EncounterFragment"
-    tools:showIn="@layout/activity_main">
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimaryLight"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp">
-
-        <include layout="@layout/content_round_counter" />
-
-    </RelativeLayout>
+    tools:context=".feature.encounter.EncounterFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/initiative_recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingStart="@dimen/space_3"
+        android:paddingTop="@dimen/space_1"
+        android:paddingEnd="@dimen/space_3"
+        android:paddingBottom="@dimen/space_3" />
 
+    <include
+        android:id="@+id/turn_bar"
+        layout="@layout/content_turn_bar" />
 </LinearLayout>

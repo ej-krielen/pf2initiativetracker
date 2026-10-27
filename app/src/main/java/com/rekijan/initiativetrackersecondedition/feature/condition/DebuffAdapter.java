@@ -3,9 +3,7 @@ package com.rekijan.initiativetrackersecondedition.feature.condition;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,10 +40,10 @@ public class DebuffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     static class DebuffViewHolder extends RecyclerView.ViewHolder {
         final EditText nameEditText;
         final EditText valueEditText;
-        final TextView valueLabel;
+        final View valueLabel;
         final EditText durationEditText;
         final EditText descriptionEditText;
-        final Button removeButton;
+        final View removeButton;
 
         DebuffViewHolder(View itemView) {
             super(itemView);
@@ -65,7 +63,7 @@ public class DebuffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         final EditText dcEditText;
         final EditText durationEditText;
         final EditText descriptionEditText;
-        final Button removeButton;
+        final View removeButton;
 
         PersistentDamageViewHolder(View itemView) {
             super(itemView);

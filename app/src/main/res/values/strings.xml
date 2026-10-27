@@ -1,18 +1,15 @@
 <resources>
 
     <!-- App wide-->
-    <string name="app_name">InitiativeTracker</string>
-
-    <!-- SplashActivity-->
-    <string name="splash_title">Initiative\nTracker</string>
-    <string name="splash_site">More apps at\nwww.rekijan.nl</string>
-
-    <!-- MainActivity-->
-    <string name="title_activity_main">Initiative Tracker</string>
+    <!-- Launcher label and toolbar wordmark; the full name is in About and the store listing -->
+    <string name="app_name">PF2 Combat Tracker</string>
+    <string name="app_full_name" translatable="false">Pathfinder 2 Combat Tracker</string>
 
     <!-- Menu-->
     <string name="action_next_turn">Next turn</string>
     <string name="action_sort">Sort</string>
+    <string name="action_set_pcs_max_hp_short">PCs to max HP</string>
+    <string name="action_reset_round">Reset round</string>
     <string name="action_add_character">Add a character</string>
     <string name="action_delete_character">Delete a character</string>
     <string name="action_set_pcs_max_hp">Set PCs at max hp</string>
@@ -32,56 +29,70 @@
 
     <!-- Character Cards-->
     <string name="char_card_initiative">Init</string>
+    <string name="char_card_initiative_hint" translatable="false">0</string>
     <string name="char_card_hp">HP</string>
-    <string name="char_card_buffs">Buffs or</string>
-    <string name="char_card_debuffs">(De)buffs:</string>
-    <string name="char_card_show_more">Show\nMore</string>
-    <string name="char_card_other_reactions">Edit\nReactions</string>
-    <string name="char_card_hero_points">Hero Points</string>
+    <string name="char_card_pc">PC</string>
+    <string name="char_card_npc">NPC</string>
+    <string name="char_card_dying">Dying</string>
+    <plurals name="char_card_hero_points">
+        <item quantity="one">%d hero point</item>
+        <item quantity="other">%d hero points</item>
+    </plurals>
+    <string name="char_card_show_more">Show details</string>
+    <string name="char_card_other_reactions">Other reactions</string>
     <string name="char_card_reaction">Reaction</string>
-    <string name="char_card_reactions_available_label">%1$d other reactions available</string>
-    <string name="char_card_reaction_available_label">1 other reaction available</string>
-    <string name="char_card_dying_label">Dying: %1$d out of %2$d (wounded %3$d, doomed %4$d). Recovery Check: DC%5$d.</string>
+    <plurals name="char_card_reactions_available">
+        <item quantity="one">%d other reaction ready</item>
+        <item quantity="other">%d other reactions ready</item>
+    </plurals>
+    <string name="char_card_dying_label">Dying %1$d of %2$d · Wounded %3$d · Doomed %4$d · Recovery DC %5$d</string>
+    <string name="char_card_dying_step_on">Dying %1$d reached</string>
+    <string name="char_card_dying_step_off">Dying %1$d not reached</string>
+    <string name="char_card_dying_step_doomed">Dying %1$d taken by doomed</string>
+    <string name="char_card_persistent_dc">DC %1$d</string>
     <string name="char_card_hide_reactions">Hide reactions</string>
     <string name="char_card_show_reactions">Show reactions</string>
 
     <!--Debuff Cards-->
     <string name="debuff_card_name">(De)buff name</string>
     <string name="debuff_card_duration">10</string>
-    <string name="debuff_card_duration_label">Duration\n(rounds)</string>
+    <string name="debuff_card_duration_label">Rounds</string>
     <string name="debuff_card_description">(De)buff description</string>
     <string name="debuff_card_remove_button">Remove</string>
     <string name="debuff_card_value_label">Value</string>
     <string name="debuff_card_value_hint">1</string>
 
     <!--Reaction detail fragment-->
-    <string name="reaction_details_name_title">Non-standard reactions for :\u0020 %1$s</string>
+    <string name="reaction_details_name_title">Other reactions for: %1$s</string>
 
     <!--Condition cards-->
     <string name="debuff_wizard_hide_desc">Hide descriptions</string>
     <string name="debuff_wizard_reminder">Don\'t forget to fill in at least a duration or value. If the value decreases each turn submit it as a duration instead.</string>
-    <string name="condition_card_duration_label">Duration\n(rounds)</string>
+    <string name="condition_card_duration_label">Rounds</string>
     <string name="condition_card_value_label">Value</string>
 
     <!--Reaction Cards-->
+    <string name="reactions_header">Reactions</string>
     <string name="reaction_card_name">Reaction name</string>
     <string name="reaction_card_available">Available</string>
     <string name="reaction_card_description">Reaction description</string>
     <string name="reaction_card_remove_button">Remove</string>
 
     <!--Character detail fragment-->
-    <string name="char_detail_switch_pc_on">Character is a  PC</string>
+    <string name="char_detail_switch_pc_on">Player character (PC)</string>
     <string name="char_detail_switch_is_dying_on">Is dying</string>
     <string name="char_detail_initiative_bonus">Initiative bonus</string>
-    <string name="char_detail_max_hp">Max hp</string>
-    <string name="char_detail_fast_healing">Fast Healing</string>
+    <string name="char_detail_max_hp">Max HP</string>
+    <string name="char_detail_fast_healing">Fast healing</string>
     <string name="char_detail_regeneration">Regeneration</string>
     <string name="char_detail_dying">Dying value</string>
     <string name="char_detail_max_dying">Max dying value</string>
     <string name="max_dying_value_invalid">Max dying value cannot exceed %1$d</string>
     <string name="char_detail_wounded">Wounded value</string>
     <string name="char_detail_doomed">Doomed value</string>
-    <string name="char_detail_recovery_dc">Starting\nRecovery DC</string>
+    <string name="char_detail_recovery_dc">Base recovery DC</string>
+    <string name="char_detail_dying_header">Dying and hero points</string>
+    <string name="char_detail_stats_header">Stats</string>
     <string name="char_detail_hero_points">Hero points</string>
     <string name="char_detail_skills">Skills</string>
     <string name="char_detail_attack_routine">Attack routine</string>
@@ -96,7 +107,9 @@
     <!-- Edit Order fragment -->
     <string name="up_button_label">Λ</string>
     <string name="down_button_label">v</string>
-    <string name="edit_order_instruction">Press and hold a character to set it to be the one first in the round.</string>
+    <string name="edit_order_instruction">Drag a character by its handle to move it. Press and hold a character to make it the first in the round.</string>
+    <string name="edit_order_drag">Drag to move</string>
+    <string name="edit_order_first_in_round">First in round</string>
 
     <!-- EditText Hints-->
     <string name="EH_character_name">Character name</string>
@@ -116,29 +129,34 @@
     <string name="debuff_added_poison">Added %1$s poison</string>
 
     <!-- Condition buttons-->
-    <string name="add_empty">Add empty</string>
-    <string name="add_poison">Add poison</string>
+    <string name="add_empty">Empty</string>
+    <string name="add_poison">Poison</string>
     <string name="poison_not_implemented">This feature is not yet implemented</string>
-    <string name="add_persistent">Persistent\ndamage</string>
+    <string name="add_persistent">Persistent</string>
+    <string name="debuff_wizard_add_header">Add new</string>
+    <string name="debuff_wizard_conditions_header">Conditions</string>
+    <string name="debuff_wizard_search">Search conditions</string>
 
     <!-- Persistent Damage-->
     <string name="persistent_dialog_title">Create a persistent damage debuff</string>
     <string name="add_persistent_dialog">Add</string>
     <string name="persistent_name">Persistent %1$s damage (%2$s)</string>
     <string name="persistent_name_hint">Name</string>
-    <string name="persistent_type_hint">Type (of damage)</string>
+    <string name="persistent_type_hint">Damage type</string>
+    <string name="persistent_type_placeholder">fire</string>
+    <string name="persistent_damage_apply_hint">Damage taken</string>
     <string name="persistent_damage_hint">5 or 1d6</string>
     <string name="persistent_damage_label">Damage</string>
     <string name="persistent_dc_hint">15</string>
     <string name="persistent_dc_label">DC</string>
     <string name="persistent_duration_hint">0</string>
-    <string name="persistent_duration_label">Duration</string>
+    <string name="persistent_duration_label">Rounds</string>
     <string name="persistent_description_hint">Description</string>
     <string name="persistent_error_label">Damage type can\'t be empty</string>
     <string name="persistent_damage_override">Override value</string>
     <string name="persistent_damage_must_override">Could not find value. Override manually</string>
-    <string name="persistent_damage_take_damage">Take Damage</string>
-    <string name="persistent_damage_flat_check_success">Flat Check\nsucceeded</string>
+    <string name="persistent_damage_take_damage">Take damage</string>
+    <string name="persistent_damage_flat_check_success">Flat check passed</string>
     <string name="persistent_damage_dialog_title">Handle %1$s\'s persistent damage</string>
     <string name="apply_persistent_values">Type: %1$s, damage: %2$s, DC: %3$d, duration: %4$d.</string>
     <string name="dialog_persistent_info">Hit apply to take the damage this turn. Note same type damage don\'t stack. Resistances, immunities, and weaknesses apply so you might want to override the values.\nRemove them in character detail screen.</string>
@@ -168,9 +186,11 @@ The last step of starting your turn is always the same.\n\n\n
 &#8226; You can use 1 free action or reaction with a trigger of “Your turn ends” or something similar.\n\n
 &#8226; Resolve anything else specified to happen at the end of your turn.</string>
     <string name="dialog_turn_end_info_title">End Your Turn info</string>
-    <string name="dialog_about_info">To learn more about the app, and its developer, please visit the website.</string>
+    <string name="dialog_about_info">Pathfinder 2 Combat Tracker, by Rekijan Apps. To learn more about the app and its developer, visit the website.</string>
     <string name="dialog_about_info_title">About</string>
     <string name="dialog_about_ok">Go to website</string>
+    <string name="licenses_button">Licenses</string>
+    <string name="licenses_title">Licenses</string>
     <string name="error_no_such_value">The following value was not found:\u0020</string>
     <string name="dialog_reset_round_counter_title">Reset round counter?</string>
     <string name="dialog_reset_round_counter">Confirming will reset the round counter to 1.</string>
@@ -237,13 +257,13 @@ The last step of starting your turn is always the same.\n\n\n
     <string name="dialog_recovery_info_crit_failure">Increase dying value by 2.</string>
 
     <!--Round counter-->
-    <string name="plus_round_button_label">+</string>
-    <string name="minus_round_button_label">-</string>
-    <string name="reset_round_button_label">Reset</string>
-    <string name="edit_order_button_label">Edit\norder</string>
+    <string name="round_label">Round</string>
+    <string name="round_next">Next round</string>
+    <string name="round_previous">Previous round</string>
+    <string name="edit_order_button_label">Edit order</string>
 
     <!--Character details-->
-    <string name="character_details_name_title">Character details for :\u0020 %1$s</string>
+    <string name="character_details_name_title">Character details for: %1$s</string>
     <string name="character_details_ac">AC %1$d</string>
     <string name="standard_saves">Fort %1$d Ref %1$d Will %1$d</string>
     <string name="standard__mobile_saves">Fort %1$d Ref %1$d \n Will %1$d</string>
@@ -251,9 +271,10 @@ The last step of starting your turn is always the same.\n\n\n
 
     <!--Tip dialog    -->
     <string name="tip_dialog_title">Tip the developer</string>
-    <string name="tip_dialog_select">Select your amount\n \nAmount is before taxes, total price in your currency is displayed next to it.</string>
-    <string name="tip_dialog_five">€5,-</string>
-    <string name="tip_dialog_ten">€10,-</string>
+    <string name="tip_dialog_intro">Enjoying PF2 Combat Tracker? A tip helps keep it going.</string>
+    <string name="tip_small">Small tip</string>
+    <string name="tip_big">Big tip</string>
+    <string name="tip_dialog_price_note">Price as shown by Google Play, in your currency.</string>
 
     <!-- Automatic healing dialog -->
     <string name="auto_healing_dialog_fast_healing_title">Fast Healing detected</string>

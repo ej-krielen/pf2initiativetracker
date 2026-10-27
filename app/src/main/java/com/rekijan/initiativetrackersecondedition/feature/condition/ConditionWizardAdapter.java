@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -50,8 +49,8 @@ public class ConditionWizardAdapter extends RecyclerView.Adapter<ConditionWizard
         final TextView descriptionTextView;
         final EditText durationEditText;
         final EditText valueEditText;
-        final TextView valueLabel;
-        final Button addButton;
+        final View valueLabel;
+        final View addButton;
 
         ConditionViewHolder(View itemView) {
             super(itemView);

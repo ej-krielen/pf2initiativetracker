@@ -10,10 +10,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
+
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.card.MaterialCardView;
 import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
 import com.rekijan.initiativetrackersecondedition.feature.encounter.Encounter;
@@ -41,7 +42,8 @@ public class EditOrderAdapter extends RecyclerView.Adapter<EditOrderAdapter.Orde
     }
 
     static class OrderViewHolder extends RecyclerView.ViewHolder {
-        final CardView cardView;
+        final MaterialCardView cardView;
+        final View markerView;
         final TextView initiativeTextView;
         final TextView nameTextView;
         final ImageView dragHandle;
@@ -50,6 +52,7 @@ public class EditOrderAdapter extends RecyclerView.Adapter<EditOrderAdapter.Orde
         OrderViewHolder(View itemView) {
             super(itemView);
             cardView = itemView.findViewById(R.id.edit_order_cardView);
+            markerView = itemView.findViewById(R.id.edit_order_marker_view);
             initiativeTextView = itemView.findViewById(R.id.edit_order_initiative_textView);
             nameTextView = itemView.findViewById(R.id.edit_order_name_textView);
             dragHandle = itemView.findViewById(R.id.drag_handle_imageView);
@@ -70,8 +73,11 @@ public class EditOrderAdapter extends RecyclerView.Adapter<EditOrderAdapter.Orde
         Context context = holder.itemView.getContext();
         CharacterModel character = encounter.get(position);
 
-        int color = ContextCompat.getColor(context, character.isPC() ? R.color.pcColor : R.color.npcColor);
-        holder.cardView.setCardBackgroundColor(color);
+        // Same PC / NPC colors as the encounter list
+        holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context,
+                character.isPC() ? R.color.rk_pc_container : R.color.rk_npc_container));
+        holder.markerView.setBackgroundColor(ContextCompat.getColor(context,
+                character.isPC() ? R.color.rk_pc_marker : R.color.rk_npc_marker));
         holder.initiativeTextView.setText(String.valueOf(character.getInitiative()));
         holder.nameTextView.setText(character.getCharacterName());
         holder.firstInRoundImage.setVisibility(character.isFirstInRound() ? View.VISIBLE : View.INVISIBLE);

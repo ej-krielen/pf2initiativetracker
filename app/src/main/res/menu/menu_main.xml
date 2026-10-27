@@ -1,63 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Toolbar: PCs to max HP and Sort as icons, the rest in the overflow menu. Next turn and the
+     round are in the turn bar under the encounter. No <group> for the encounter actions:
+     AppCompat moves a whole group to the overflow when one item does not fit, so
+     MainActivity.ENCOUNTER_ACTIONS shows and hides them per item. -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".app.MainActivity">
-    <!-- Next turn up to End Turn info only show while the encounter list is on screen. No
-         group: AppCompat moves a whole group to the overflow when one item does not fit -->
+
+    <!-- Only shown on the encounter -->
     <item
-        android:id="@+id/action_settings_next_turn"
+        android:id="@+id/action_settings_set_pcs_max_hp"
+        android:icon="@drawable/ic_heal"
         android:orderInCategory="1"
-        android:title="@string/action_next_turn"
-        app:showAsAction="ifRoom" />
+        android:title="@string/action_set_pcs_max_hp_short"
+        app:showAsAction="always" />
     <item
         android:id="@+id/action_settings_sort"
+        android:icon="@drawable/ic_sort"
         android:orderInCategory="2"
         android:title="@string/action_sort"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
     <item
         android:id="@+id/action_settings_add_character"
         android:orderInCategory="3"
         android:title="@string/action_add_character"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_settings_delete_character"
         android:orderInCategory="4"
         android:title="@string/action_delete_character"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
     <item
-        android:id="@+id/action_settings_set_pcs_max_hp"
+        android:id="@+id/action_settings_reset_round"
         android:orderInCategory="5"
-        android:title="@string/action_set_pcs_max_hp"
-        app:showAsAction="ifRoom" />
+        android:title="@string/action_reset_round"
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_settings_hide_reactions"
         android:checkable="true"
         android:orderInCategory="6"
         android:title="@string/action_hide_reactions"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_settings_start_turn_info"
         android:orderInCategory="7"
         android:title="@string/action_start_turn_info"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_settings_end_turn_info"
         android:orderInCategory="8"
         android:title="@string/action_end_turn_info"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
+
+    <!-- Always there -->
     <item
-    android:id="@+id/action_settings_about"
-    android:orderInCategory="9"
-    android:title="@string/action_about"
-    app:showAsAction="ifRoom" />
+        android:id="@+id/action_settings_about"
+        android:orderInCategory="9"
+        android:title="@string/action_about"
+        app:showAsAction="never" />
     <item
-    android:id="@+id/action_settings_privacy"
-    android:orderInCategory="10"
-    android:title="@string/action_privacy"
-    app:showAsAction="ifRoom" />
+        android:id="@+id/action_settings_privacy"
+        android:orderInCategory="10"
+        android:title="@string/action_privacy"
+        app:showAsAction="never" />
     <item
-    android:id="@+id/action_settings_tip"
-    android:orderInCategory="11"
-    android:title="@string/action_tip"
-    app:showAsAction="ifRoom" />
+        android:id="@+id/action_settings_tip"
+        android:orderInCategory="11"
+        android:title="@string/action_tip"
+        app:showAsAction="never" />
 </menu>

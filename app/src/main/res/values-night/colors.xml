@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PF2 Combat Tracker - Rekijan Apps "Bordeaux" theme (DARK).
+     Same names as values/colors.xml and the same values as Initiative Tracker. -->
+<resources>
+
+    <!-- ============ Palette ============ -->
+    <color name="rk_background">#17141A</color>
+    <color name="rk_surface">#221E25</color>
+    <color name="rk_surface_high">#2D2830</color>
+    <color name="rk_surface_highest">#37313A</color>
+    <color name="rk_outline">#3E3842</color>
+    <color name="rk_primary">#9E3845</color>
+    <color name="rk_on_primary">#FFFFFF</color>
+    <color name="rk_accent">#DDBB74</color>
+    <color name="rk_text">#EFE8E1</color>
+    <color name="rk_text_muted">#B7ADA7</color>
+    <color name="rk_wordmark">@color/rk_accent</color>
+
+    <!-- ============ PC and NPC cards ============ -->
+    <color name="rk_pc_container">#2E2921</color>
+    <color name="rk_pc_marker">@color/rk_accent</color>
+    <color name="rk_npc_container">#33222A</color>
+    <!-- Lighter than rk_primary so the stripe and label stay readable on the dark card -->
+    <color name="rk_npc_marker">#C4505F</color>
+
+    <!-- ============ PF2e: dying track, doomed, persistent damage ============ -->
+    <color name="rk_dying">@color/md_error</color>
+    <color name="rk_on_dying">@color/rk_background</color>
+    <color name="rk_dying_container">#3A2128</color>
+    <color name="rk_doomed">#B99BCB</color>
+    <color name="rk_on_doomed">@color/rk_background</color>
+    <color name="rk_track_empty">@color/rk_surface_highest</color>
+
+    <!-- ============ Material 3 roles ============ -->
+    <color name="md_primary">@color/rk_primary</color>
+    <color name="md_on_primary">#FFFFFF</color>
+    <color name="md_primary_container">#3A2A30</color>
+    <color name="md_on_primary_container">#F2C9CE</color>
+
+    <color name="md_secondary">@color/rk_accent</color>
+    <color name="md_on_secondary">@color/rk_background</color>
+    <color name="md_secondary_container">#3F372E</color>
+    <color name="md_on_secondary_container">#F3CE63</color>
+
+    <color name="md_background">@color/rk_background</color>
+    <color name="md_on_background">@color/rk_text</color>
+    <color name="md_surface">@color/rk_background</color>
+    <color name="md_on_surface">@color/rk_text</color>
+    <color name="md_surface_variant">@color/rk_surface_high</color>
+    <color name="md_on_surface_variant">@color/rk_text_muted</color>
+
+    <color name="md_surface_container_lowest">#0B0A0C</color>
+    <color name="md_surface_container_low">@color/rk_surface</color>
+    <color name="md_surface_container">@color/rk_surface</color>
+    <color name="md_surface_container_high">@color/rk_surface_high</color>
+    <color name="md_surface_container_highest">@color/rk_surface_highest</color>
+
+    <color name="md_outline">#7A7079</color>
+    <color name="md_outline_variant">@color/rk_outline</color>
+
+    <color name="md_error">#EE7C89</color>
+    <color name="md_on_error">@color/rk_background</color>
+
+</resources>

@@ -1,339 +1,292 @@
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One character in the initiative order: a PC (gold), NPC (bordeaux) or dying (red) tinted card
+     with a marker stripe, the initiative and name (editable in place), the hp (tap to change), a
+     details button, the (de)buffs and persistent damage, the reaction row (can be folded away) and,
+     while dying, the dying track. CharacterAdapter sets the colors and the active-turn outline. -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/initiative_character_cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/activity_vertical_margin"
-    android:layout_marginTop="2dp"
-    android:layout_marginEnd="@dimen/activity_vertical_margin"
-    android:layout_marginBottom="2dp"
-    card_view:cardUseCompatPadding="true">
+    android:layout_marginBottom="@dimen/space_2"
+    app:contentPadding="0dp">
 
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="8dp">
+        android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/initiative_character_initiative_editText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:gravity="center"
-            android:hint="0"
-            android:imeOptions="actionDone"
-            android:inputType="number"
-            android:maxLength="5"
-            android:selectAllOnFocus="true"
-            card_view:layout_constraintStart_toStartOf="parent"
-            card_view:layout_constraintTop_toTopOf="parent" />
+        <View
+            android:id="@+id/initiative_character_marker_view"
+            android:layout_width="@dimen/card_marker_width"
+            android:layout_height="match_parent"
+            tools:background="@color/rk_pc_marker" />
 
-        <TextView
-            android:id="@+id/initiative_character_initiative_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/char_card_initiative"
-            android:textAllCaps="true"
-            card_view:layout_constraintEnd_toEndOf="@+id/initiative_character_initiative_editText"
-            card_view:layout_constraintStart_toStartOf="@+id/initiative_character_initiative_editText"
-            card_view:layout_constraintTop_toBottomOf="@+id/initiative_character_initiative_editText" />
-
-        <EditText
-            android:id="@+id/initiative_character_name_editText"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:hint="@string/EH_character_name"
-            android:imeOptions="actionDone"
-            android:inputType="textPersonName|textCapWords"
-            card_view:layout_constraintEnd_toStartOf="@+id/initiative_character_hp_textView"
-            card_view:layout_constraintStart_toEndOf="@+id/initiative_character_initiative_editText"
-            card_view:layout_constraintTop_toTopOf="parent" />
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/space_2"
+            android:paddingTop="@dimen/space_2"
+            android:paddingBottom="@dimen/space_2">
 
-        <TextView
-            android:id="@+id/initiative_character_hp_textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="12dp"
-            android:layout_marginStart="12dp"
-            android:background="?attr/editTextBackground"
-            android:gravity="center"
-            android:textAppearance="?android:attr/textAppearanceMediumInverse"
-            android:textColor="@color/text_color"
-            card_view:layout_constraintEnd_toStartOf="@+id/initiative_character_detail_button"
-            card_view:layout_constraintTop_toTopOf="parent" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/initiative_character_hp_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/char_card_hp"
-            android:textAllCaps="true"
-            card_view:layout_constraintEnd_toEndOf="@+id/initiative_character_hp_textView"
-            card_view:layout_constraintStart_toStartOf="@+id/initiative_character_hp_textView"
-            card_view:layout_constraintTop_toBottomOf="@+id/initiative_character_hp_textView" />
+                <LinearLayout style="@style/Widget.Rekijan.StatBox">
 
-        <Button
-            android:id="@+id/initiative_character_detail_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:text="@string/char_card_show_more"
-            card_view:layout_constraintBottom_toBottomOf="@+id/initiative_character_hp_label"
-            card_view:layout_constraintEnd_toEndOf="parent"
-            card_view:layout_constraintTop_toTopOf="@+id/initiative_character_hp_textView" />
+                    <EditText
+                        android:id="@+id/initiative_character_initiative_editText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:gravity="center"
+                        android:hint="@string/char_card_initiative_hint"
+                        android:imeOptions="actionDone"
+                        android:importantForAutofill="no"
+                        android:inputType="number"
+                        android:maxLength="5"
+                        android:minHeight="32dp"
+                        android:padding="0dp"
+                        android:selectAllOnFocus="true"
+                        android:textAppearance="@style/TextAppearance.Rekijan.StatValue"
+                        android:textColor="?attr/colorOnSurface"
+                        tools:text="22" />
 
-        <TextView
-            android:id="@+id/initiative_character_debuff_overview_textView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:padding="8dp"
-            card_view:layout_constraintEnd_toEndOf="parent"
-            card_view:layout_constraintStart_toStartOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@+id/initiative_character_initiative_label" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/char_card_initiative"
+                        android:textAppearance="@style/TextAppearance.Rekijan.StatLabel" />
+                </LinearLayout>
 
-        <Button
-            android:id="@+id/initiative_character_reactions_button"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:text="@string/char_card_other_reactions"
-            card_view:layout_constraintEnd_toEndOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@+id/initiative_character_collapse_reaction_button" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/space_2"
+                    android:paddingEnd="@dimen/space_2">
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/initiative_character_reaction_available_switch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="8dp"
-            card_view:layout_constraintStart_toStartOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@+id/initiative_character_collapse_reaction_button" />
+                    <EditText
+                        android:id="@+id/initiative_character_name_editText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:hint="@string/EH_character_name"
+                        android:imeOptions="actionDone"
+                        android:importantForAutofill="no"
+                        android:inputType="textPersonName|textCapWords"
+                        android:minHeight="@dimen/touch_target"
+                        android:padding="0dp"
+                        android:textAppearance="@style/TextAppearance.Rekijan.CardTitle"
+                        android:textColor="?attr/colorOnSurface"
+                        tools:text="Valeros" />
 
-        <TextView
-            android:id="@+id/initiative_character_reactions_available_textView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:gravity="end|center_vertical"
-            android:text="@string/char_card_reactions_available_label"
-            card_view:layout_constraintBottom_toBottomOf="@+id/initiative_character_reactions_button"
-            card_view:layout_constraintEnd_toStartOf="@+id/initiative_character_reactions_button"
-            card_view:layout_constraintStart_toEndOf="@+id/initiative_character_reaction_available_switch"
-            card_view:layout_constraintTop_toTopOf="@+id/initiative_character_reactions_button" />
+                    <!-- PC / NPC, hero points or Dying, in the marker color -->
+                    <TextView
+                        android:id="@+id/initiative_character_type_textView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="-8dp"
+                        android:textAppearance="@style/TextAppearance.Rekijan.StatLabel"
+                        tools:text="PC · 1 hero point"
+                        tools:textColor="@color/rk_pc_marker" />
+                </LinearLayout>
 
-        <TextView
-            android:id="@+id/initiative_character_reaction_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/char_card_reaction"
-            card_view:layout_constraintEnd_toEndOf="@+id/initiative_character_reaction_available_switch"
-            card_view:layout_constraintStart_toStartOf="@+id/initiative_character_reaction_available_switch"
-            card_view:layout_constraintTop_toBottomOf="@id/initiative_character_reaction_available_switch" />
+                <LinearLayout
+                    android:id="@+id/initiative_character_hp_box"
+                    style="@style/Widget.Rekijan.StatBox"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:paddingStart="@dimen/space_2"
+                    android:paddingEnd="@dimen/space_2">
 
-        <Button
-            android:id="@+id/initiative_character_collapse_reaction_button"
-            android:layout_width="wrap_content"
-            android:layout_height="32dp"
-            android:layout_marginTop="8dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:text="@string/char_card_hide_reactions"
-            card_view:layout_constraintEnd_toEndOf="parent"
-            card_view:layout_constraintStart_toStartOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@+id/initiative_character_debuff_overview_textView" />
+                    <TextView
+                        android:id="@+id/initiative_character_hp_textView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:minHeight="32dp"
+                        android:textAppearance="@style/TextAppearance.Rekijan.StatValue"
+                        android:textColor="?attr/colorOnSurface"
+                        tools:text="31 / 48" />
 
-        <Button
-            android:id="@+id/initiative_character_open_reaction_button"
-            android:layout_width="wrap_content"
-            android:layout_height="32dp"
-            android:layout_marginTop="8dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:text="@string/char_card_show_reactions"
-            card_view:layout_constraintEnd_toEndOf="parent"
-            card_view:layout_constraintStart_toStartOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@+id/initiative_character_debuff_overview_textView" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/char_card_hp"
+                        android:textAppearance="@style/TextAppearance.Rekijan.StatLabel" />
+                </LinearLayout>
 
+                <ImageButton
+                    android:id="@+id/initiative_character_detail_button"
+                    style="@style/Widget.Rekijan.IconButton"
+                    android:contentDescription="@string/char_card_show_more"
+                    android:src="@drawable/ic_chevron_right" />
+            </LinearLayout>
 
-        <ImageView
-            android:id="@+id/initiative_character_dying_rules_imageView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:src="@drawable/ic_baseline_info_24"
-            card_view:layout_constraintEnd_toEndOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@+id/initiative_character_reaction_label" />
-
-        <TextView
-            android:id="@+id/initiative_character_dying_label"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            card_view:layout_constraintBottom_toBottomOf="@+id/initiative_character_dying_rules_imageView"
-            card_view:layout_constraintEnd_toStartOf="@+id/initiative_character_dying_rules_imageView"
-            card_view:layout_constraintStart_toStartOf="parent"
-            card_view:layout_constraintTop_toTopOf="@+id/initiative_character_dying_rules_imageView" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/initiative_character_dying_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="8dp"
-            android:layout_margin="8dp"
-            card_view:layout_constraintBottom_toBottomOf="parent"
-            card_view:layout_constraintEnd_toEndOf="parent"
-            card_view:layout_constraintStart_toStartOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@+id/initiative_character_dying_rules_imageView">
-
+            <!-- (De)buffs, valued conditions in bold, e.g. "Frightened 2 · Off-Guard (1)" -->
             <TextView
-                android:id="@+id/dying_one_textView"
-                style="@style/dyingHealthyTextStyle"
-                android:layout_width="40dp"
-                android:layout_height="68dp"
-                android:gravity="bottom|center_horizontal"
-                android:paddingBottom="8dp"
-                android:text="1"
-                card_view:layout_constraintStart_toStartOf="parent"
-                card_view:layout_constraintTop_toTopOf="parent" />
+                android:id="@+id/initiative_character_debuff_overview_textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_2"
+                android:layout_marginEnd="@dimen/space_3"
+                android:drawablePadding="@dimen/space_1"
+                android:textAppearance="@style/TextAppearance.Rekijan.M3BodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:visibility="gone"
+                app:drawableStartCompat="@drawable/ic_auto_awesome"
+                app:drawableTint="?attr/colorSecondary"
+                tools:text="Frightened 2 · Off-Guard (1) · Bless (3)"
+                tools:visibility="visible" />
 
-            <ImageView
-                android:id="@+id/dying_one_imageView"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginTop="8dp"
-                android:src="@drawable/ic_dying_healthy"
-                card_view:layout_constraintEnd_toEndOf="@+id/dying_one_textView"
-                card_view:layout_constraintStart_toStartOf="@+id/dying_one_textView"
-                card_view:layout_constraintTop_toTopOf="@+id/dying_one_textView" />
-
+            <!-- Persistent damage, e.g. "1d6 fire · DC 15" -->
             <TextView
-                android:id="@+id/dying_two_textView"
-                style="@style/dyingHealthyTextStyle"
-                android:layout_width="40dp"
-                android:layout_height="68dp"
-                android:gravity="bottom|center_horizontal"
-                android:paddingBottom="8dp"
-                android:text="2"
-                card_view:layout_constraintStart_toEndOf="@+id/dying_one_textView"
-                card_view:layout_constraintTop_toTopOf="parent" />
+                android:id="@+id/initiative_character_persistent_textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_1"
+                android:layout_marginEnd="@dimen/space_3"
+                android:drawablePadding="@dimen/space_1"
+                android:textAppearance="@style/TextAppearance.Rekijan.M3BodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:visibility="gone"
+                app:drawableStartCompat="@drawable/ic_flame"
+                app:drawableTint="@color/rk_dying"
+                tools:text="1d6 fire persistent · DC 15"
+                tools:visibility="visible" />
 
-            <ImageView
-                android:id="@+id/dying_two_imageView"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginTop="8dp"
-                android:src="@drawable/ic_dying_healthy"
-                card_view:layout_constraintEnd_toEndOf="@+id/dying_two_textView"
-                card_view:layout_constraintStart_toStartOf="@+id/dying_two_textView"
-                card_view:layout_constraintTop_toTopOf="@+id/dying_two_textView" />
+            <!-- Reactions: the reaction toggle (resets at the start of the turn), the custom
+                 reactions, and folding the row away. The menu hides it on every card. -->
+            <LinearLayout
+                android:id="@+id/initiative_character_reaction_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_2"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/dying_three_textView"
-                style="@style/dyingHealthyTextStyle"
-                android:layout_width="40dp"
-                android:layout_height="68dp"
-                android:gravity="bottom|center_horizontal"
-                android:paddingBottom="8dp"
-                android:text="3"
-                card_view:layout_constraintStart_toEndOf="@+id/dying_two_textView"
-                card_view:layout_constraintTop_toTopOf="parent" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginEnd="@dimen/space_2"
+                    android:background="?attr/colorOutlineVariant" />
 
-            <ImageView
-                android:id="@+id/dying_three_imageView"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginTop="8dp"
-                android:src="@drawable/ic_dying_healthy"
-                card_view:layout_constraintEnd_toEndOf="@+id/dying_three_textView"
-                card_view:layout_constraintStart_toStartOf="@+id/dying_three_textView"
-                card_view:layout_constraintTop_toTopOf="@+id/dying_three_textView" />
+                <LinearLayout
+                    android:id="@+id/initiative_character_reaction_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/dying_four_textView"
-                style="@style/dyingHealthyTextStyle"
-                android:layout_width="40dp"
-                android:layout_height="68dp"
-                android:gravity="bottom|center_horizontal"
-                android:paddingBottom="8dp"
-                android:text="4"
-                card_view:layout_constraintStart_toEndOf="@+id/dying_three_textView"
-                card_view:layout_constraintTop_toTopOf="parent" />
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/initiative_character_reaction_available_switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minHeight="@dimen/touch_target"
+                        android:paddingStart="@dimen/space_1"
+                        android:paddingEnd="0dp"
+                        android:text="@string/char_card_reaction"
+                        android:textAppearance="@style/TextAppearance.Rekijan.LabelLarge"
+                        android:textColor="?attr/colorOnSurface"
+                        app:switchPadding="@dimen/space_2" />
 
-            <ImageView
-                android:id="@+id/dying_four_imageView"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginTop="8dp"
-                android:src="@drawable/ic_dying_healthy"
-                card_view:layout_constraintEnd_toEndOf="@+id/dying_four_textView"
-                card_view:layout_constraintStart_toStartOf="@+id/dying_four_textView"
-                card_view:layout_constraintTop_toTopOf="@+id/dying_four_textView" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/initiative_character_reactions_button"
+                        style="@style/Widget.Rekijan.Button.Text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:gravity="end|center_vertical"
+                        android:maxLines="1"
+                        tools:text="2 other reactions ready" />
 
-            <TextView
-                android:id="@+id/dying_five_textView"
-                style="@style/dyingHealthyTextStyle"
-                android:layout_width="40dp"
-                android:layout_height="68dp"
-                android:gravity="bottom|center_horizontal"
-                android:paddingBottom="8dp"
-                android:text="5"
-                card_view:layout_constraintStart_toEndOf="@+id/dying_four_textView"
-                card_view:layout_constraintTop_toTopOf="parent" />
+                    <ImageButton
+                        android:id="@+id/initiative_character_collapse_reaction_button"
+                        style="@style/Widget.Rekijan.IconButton"
+                        android:contentDescription="@string/char_card_hide_reactions"
+                        android:src="@drawable/ic_expand_less"
+                        app:tint="?attr/colorOnSurfaceVariant" />
+                </LinearLayout>
 
-            <ImageView
-                android:id="@+id/dying_five_imageView"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginTop="8dp"
-                android:src="@drawable/ic_dying_healthy"
-                card_view:layout_constraintEnd_toEndOf="@+id/dying_five_textView"
-                card_view:layout_constraintStart_toStartOf="@+id/dying_five_textView"
-                card_view:layout_constraintTop_toTopOf="@+id/dying_five_textView" />
+                <!-- Folded: only the way back -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/initiative_character_open_reaction_button"
+                    style="@style/Widget.Rekijan.Button.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:minHeight="40dp"
+                    android:text="@string/char_card_show_reactions"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:visibility="gone"
+                    app:icon="@drawable/ic_expand_more"
+                    app:iconGravity="end"
+                    app:iconTint="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/dying_six_textView"
-                style="@style/dyingHealthyTextStyle"
-                android:layout_width="40dp"
-                android:layout_height="68dp"
-                android:gravity="bottom|center_horizontal"
-                android:paddingBottom="8dp"
-                android:text="6"
-                card_view:layout_constraintStart_toEndOf="@+id/dying_five_textView"
-                card_view:layout_constraintTop_toTopOf="parent" />
+            <!-- Dying: the numbers, the rules, and the track (one step per point up to max dying) -->
+            <LinearLayout
+                android:id="@+id/initiative_character_dying_block"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_1"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
 
-            <ImageView
-                android:id="@+id/dying_six_imageView"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginTop="8dp"
-                android:src="@drawable/ic_dying_healthy"
-                card_view:layout_constraintEnd_toEndOf="@+id/dying_six_textView"
-                card_view:layout_constraintStart_toStartOf="@+id/dying_six_textView"
-                card_view:layout_constraintTop_toTopOf="@+id/dying_six_textView" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                    <TextView
+                        android:id="@+id/initiative_character_dying_label"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textAppearance="@style/TextAppearance.Rekijan.M3BodySmall"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        tools:text="Dying 2 of 4 · Wounded 1 · Doomed 1 · Recovery DC 12" />
 
+                    <ImageButton
+                        android:id="@+id/initiative_character_dying_rules_imageView"
+                        style="@style/Widget.Rekijan.IconButton"
+                        android:contentDescription="@string/dialog_dying_rules_title"
+                        android:src="@drawable/ic_info"
+                        app:tint="?attr/colorOnSurfaceVariant" />
+                </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                <LinearLayout
+                    android:id="@+id/initiative_character_dying_layout"
+                    android:baselineAligned="false"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/space_2"
+                    android:orientation="horizontal">
 
-</androidx.cardview.widget.CardView>
+                    <TextView style="@style/Widget.Rekijan.DyingStep" tools:text="1" />
+
+                    <TextView style="@style/Widget.Rekijan.DyingStep" tools:text="2" />
+
+                    <TextView style="@style/Widget.Rekijan.DyingStep" tools:text="3" />
+
+                    <TextView style="@style/Widget.Rekijan.DyingStep" tools:text="4" />
+
+                    <TextView style="@style/Widget.Rekijan.DyingStep" tools:text="5" />
+
+                    <TextView style="@style/Widget.Rekijan.DyingStep" tools:text="6" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

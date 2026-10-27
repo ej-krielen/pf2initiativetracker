@@ -1,127 +1,140 @@
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One persistent damage on the character details: name and remove, damage type, damage, flat
+     check DC and duration, and a description. Marked with the flame. DebuffAdapter binds it. -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/persistent_damage_cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/activity_vertical_margin"
-    android:layout_marginTop="2dp"
-    android:layout_marginEnd="@dimen/activity_vertical_margin"
-    android:layout_marginBottom="2dp"
-    card_view:cardUseCompatPadding="true">
+    android:layout_marginBottom="@dimen/space_2"
+    app:contentPaddingBottom="@dimen/space_3"
+    app:contentPaddingEnd="@dimen/space_1"
+    app:contentPaddingStart="@dimen/space_3"
+    app:contentPaddingTop="@dimen/space_3">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="8dp"
-        android:background="@color/cardBackgroundLight">
+        android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/persistent_damage_name_editText"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:hint="@string/persistent_name_hint"
-            card_view:layout_constraintStart_toStartOf="parent"
-            card_view:layout_constraintTop_toTopOf="parent" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/persistent_damage_type_editText"
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="@dimen/space_2"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_flame"
+                app:tint="@color/rk_dying" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/persistent_name_hint">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/persistent_damage_name_editText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionDone"
+                    android:importantForAutofill="no"
+                    android:inputType="textCapSentences" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/remove_persistent_damage_button"
+                style="@style/Widget.Rekijan.IconButton"
+                android:contentDescription="@string/debuff_card_remove_button"
+                android:src="@drawable/ic_delete" />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:hint="@string/persistent_type_hint"
-            card_view:layout_constraintStart_toStartOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@id/persistent_damage_name_editText" />
+            android:layout_marginTop="@dimen/space_2"
+            android:layout_marginEnd="@dimen/space_3"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/persistent_damage_value_editText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:hint="@string/persistent_damage_hint"
-            card_view:layout_constraintEnd_toEndOf="@id/persistent_damage_value_textView"
-            card_view:layout_constraintStart_toStartOf="@id/persistent_damage_value_textView"
-            card_view:layout_constraintTop_toBottomOf="@+id/persistent_damage_type_editText" />
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Rekijan.TextInputLayout.Outlined.Row"
+                android:layout_marginEnd="@dimen/space_2"
+                android:hint="@string/persistent_type_hint">
 
-        <TextView
-            android:id="@+id/persistent_damage_value_textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:text="@string/persistent_damage_label"
-            card_view:layout_constraintStart_toStartOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@id/persistent_damage_value_editText" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/persistent_damage_type_editText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionDone"
+                    android:importantForAutofill="no"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/persistent_damage_dc_editText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:hint="@string/persistent_dc_hint"
-            android:inputType="number"
-            android:maxLength="5"
-            card_view:layout_constraintEnd_toEndOf="@id/persistent_damage_dc_textView"
-            card_view:layout_constraintStart_toStartOf="@id/persistent_damage_dc_textView"
-            card_view:layout_constraintTop_toBottomOf="@+id/persistent_damage_type_editText" />
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Rekijan.TextInputLayout.Outlined.Row"
+                android:hint="@string/persistent_damage_label">
 
-        <TextView
-            android:id="@+id/persistent_damage_dc_textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:text="@string/persistent_dc_label"
-            card_view:layout_constraintEnd_toStartOf="@+id/persistent_damage_duration_textView"
-            card_view:layout_constraintStart_toEndOf="@id/persistent_damage_value_textView"
-            card_view:layout_constraintTop_toBottomOf="@id/persistent_damage_dc_editText" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/persistent_damage_value_editText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:imeOptions="actionDone"
+                    android:importantForAutofill="no"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
 
-        <EditText
-            android:id="@+id/persistent_damage_duration_editText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:hint="@string/persistent_duration_hint"
-            android:inputType="number"
-            android:maxLength="5"
-            card_view:layout_constraintEnd_toEndOf="@id/persistent_damage_duration_textView"
-            card_view:layout_constraintStart_toStartOf="@id/persistent_damage_duration_textView"
-            card_view:layout_constraintTop_toBottomOf="@+id/persistent_damage_type_editText" />
-
-        <TextView
-            android:id="@+id/persistent_damage_duration_textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="24dp"
-            android:layout_marginBottom="8dp"
-            android:text="@string/persistent_duration_label"
-            card_view:layout_constraintEnd_toEndOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@id/persistent_damage_dc_editText" />
-
-        <EditText
-            android:id="@+id/persistent_damage_description_editText"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:hint="@string/persistent_description_hint"
-            android:inputType="textCapSentences"
-            android:textColor="@color/white"
-            android:textColorHint="@color/white_hint"
-            card_view:layout_constraintStart_toStartOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@id/persistent_damage_value_textView" />
+            android:layout_marginTop="@dimen/space_2"
+            android:layout_marginEnd="@dimen/space_3"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/remove_persistent_damage_button"
-            android:layout_width="wrap_content"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Rekijan.TextInputLayout.Outlined.Row"
+                android:layout_marginEnd="@dimen/space_2"
+                android:hint="@string/persistent_dc_label">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/persistent_damage_dc_editText"
+                    style="@style/Widget.Rekijan.NumberField"
+                    android:gravity="center" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Rekijan.TextInputLayout.Outlined.Row"
+                android:hint="@string/persistent_duration_label">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/persistent_damage_duration_editText"
+                    style="@style/Widget.Rekijan.NumberField"
+                    android:gravity="center" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:text="@string/debuff_card_remove_button"
-            card_view:layout_constraintEnd_toEndOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@id/persistent_damage_description_editText" />
+            android:layout_marginTop="@dimen/space_2"
+            android:layout_marginEnd="@dimen/space_3"
+            android:hint="@string/persistent_description_hint">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-</androidx.cardview.widget.CardView>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/persistent_damage_description_editText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine|textCapSentences" />
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
