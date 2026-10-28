@@ -88,15 +88,37 @@
                         android:textColor="?attr/colorOnSurface"
                         tools:text="Valeros" />
 
-                    <!-- PC / NPC, hero points or Dying, in the marker color -->
-                    <TextView
-                        android:id="@+id/initiative_character_type_textView"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="-8dp"
-                        android:textAppearance="@style/TextAppearance.Rekijan.StatLabel"
-                        tools:text="PC · 1 hero point"
-                        tools:textColor="@color/rk_pc_marker" />
+                        android:orientation="vertical">
+
+                        <!-- Table sync: Synced or Player left above the PC line, outlined in its color (CharacterAdapter) -->
+                        <TextView
+                            android:id="@+id/character_sync_textView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="2dp"
+                            android:background="@drawable/bg_sync_tag"
+                            android:paddingStart="6dp"
+                            android:paddingEnd="6dp"
+                            android:textAppearance="@style/TextAppearance.Rekijan.StatLabel"
+                            android:visibility="gone"
+                            tools:backgroundTint="@color/rk_status_on"
+                            tools:text="@string/char_card_synced"
+                            tools:textColor="@color/rk_status_on"
+                            tools:visibility="visible" />
+
+                        <!-- PC / NPC, hero points or Dying, in the marker color -->
+                        <TextView
+                            android:id="@+id/initiative_character_type_textView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.Rekijan.StatLabel"
+                            tools:text="PC · 1 hero point"
+                            tools:textColor="@color/rk_pc_marker" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <LinearLayout

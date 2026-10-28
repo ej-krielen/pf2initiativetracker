@@ -31,6 +31,7 @@ import com.rekijan.initiativetrackersecondedition.feature.party.PartyBook;
 import com.rekijan.initiativetrackersecondedition.feature.party.PartyDialogs;
 import com.rekijan.initiativetrackersecondedition.feature.party.PartyNames;
 import com.rekijan.initiativetrackersecondedition.feature.player.PlayerBook;
+import com.rekijan.initiativetrackersecondedition.feature.sync.SyncManager;
 
 import java.util.Collections;
 
@@ -44,7 +45,7 @@ import java.util.Collections;
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026
  */
-public class ProfilesFragment extends Fragment {
+public class ProfilesFragment extends Fragment implements SyncManager.StateListener {
 
     /** What the list needs from the activity; implemented by MainActivity. */
     public interface Host {
@@ -84,7 +85,19 @@ public class ProfilesFragment extends Fragment {
         app = (CombatTrackerApp) requireActivity().getApplication();
         view.findViewById(R.id.profiles_new_button).setOnClickListener(v -> showNewProfile());
         view.findViewById(R.id.profiles_more_parties_button).setOnClickListener(v -> host().offerMoreParties());
+        app.getSync().addStateListener(this);
         refresh();
+    }
+
+    @Override
+    public void onDestroyView() {
+        app.getSync().removeStateListener(this);
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onSyncStateChanged() {
+        if (getView() != null) refresh();
     }
 
     /** Redraws the list; also called by MainActivity after a purchase or when prices load. */
@@ -93,6 +106,7 @@ public class ProfilesFragment extends Fragment {
         if (view == null) return;
         PartyBook parties = app.getParties();
         PlayerBook players = app.getPlayers();
+        SyncManager sync = app.getSync();
         boolean partyOpen = !app.isPlayerOpen();
         LayoutInflater inflater = LayoutInflater.from(requireContext());
 
@@ -103,8 +117,10 @@ public class ProfilesFragment extends Fragment {
         for (Party party : parties.getParties()) {
             int count = app.characterCount(party.getId());
             String detail = getResources().getQuantityString(R.plurals.profiles_party_detail, count, count);
+            boolean hosting = party.getId().equals(sync.getHostPartyId()) && sync.getHostCode() != null;
             boolean open = partyOpen && party.getId().equals(parties.getActiveId());
-            partyList.addView(row(inflater, partyList, party.getName(), detail, true, open,
+            if (hosting) detail = getString(R.string.profiles_hosting, detail, sync.getHostCode());
+            partyList.addView(row(inflater, partyList, party.getName(), detail, hosting, true, open,
                     v -> host().openParty(party.getId()), v -> showPartyMenu(v, party)));
         }
         view.findViewById(R.id.profiles_more_parties_button)
@@ -113,22 +129,24 @@ public class ProfilesFragment extends Fragment {
         LinearLayout playerList = view.findViewById(R.id.profiles_player_list);
         playerList.removeAllViews();
         for (String id : players.getIds()) {
+            String code = sync.getPlayerCode(id);
+            String detail = code != null ? getString(R.string.sync_joined, code) : getString(R.string.profiles_not_joined);
             String name = players.getName(id);
             if (name.trim().isEmpty()) name = getString(R.string.empty_character_name);
             boolean open = id.equals(app.getOpenPlayerId());
             String finalName = name;
-            playerList.addView(row(inflater, playerList, name, getString(R.string.profiles_player_detail), false,
-                    open, v -> host().openPlayer(id), v -> showPlayerMenu(v, id, finalName)));
+            playerList.addView(row(inflater, playerList, name, detail, code != null, false, open, v -> host().openPlayer(id), v -> showPlayerMenu(v, id, finalName)));
         }
         view.findViewById(R.id.profiles_players_empty_textView)
                 .setVisibility(players.getIds().isEmpty() ? View.VISIBLE : View.GONE);
     }
 
-    private View row(LayoutInflater inflater, ViewGroup parent, String name, String detail, boolean gm,
-                     boolean open, View.OnClickListener onOpen, View.OnClickListener onMore) {
+    private View row(LayoutInflater inflater, ViewGroup parent, String name, String detail, boolean lamp,
+                     boolean gm, boolean open, View.OnClickListener onOpen, View.OnClickListener onMore) {
         View row = inflater.inflate(R.layout.item_profile, parent, false);
         ((TextView) row.findViewById(R.id.profile_name_textView)).setText(name);
         ((TextView) row.findViewById(R.id.profile_detail_textView)).setText(detail);
+        row.findViewById(R.id.profile_status_lamp).setVisibility(lamp ? View.VISIBLE : View.GONE);
         TextView role = row.findViewById(R.id.profile_role_textView);
         role.setText(gm ? R.string.profiles_role_gm : R.string.profiles_role_player);
         role.setTextColor(ContextCompat.getColor(requireContext(), gm ? R.color.rk_npc_marker : R.color.rk_pc_marker));

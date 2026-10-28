@@ -24,18 +24,25 @@ import com.rekijan.initiativetrackersecondedition.app.MainActivity;
 import com.rekijan.initiativetrackersecondedition.core.data.EncounterStore;
 import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
 import com.rekijan.initiativetrackersecondedition.core.util.RecyclerLongPressListener;
+import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
+import com.rekijan.initiativetrackersecondedition.feature.sync.SyncManager;
+import com.rekijan.initiativetrackersecondedition.feature.sync.SyncRules;
+
+import java.util.Collections;
 
 /**
  * The main screen: the initiative order and the turn bar (round, Edit order, Next turn). Long
- * press a card to remove that character. The menu actions (sort, add, ...) are handled by
+ * press a card to remove that character; a synced PC can also be unlinked there, and its player is
+ * told. The menu actions (sort, add, ...) are handled by
  * {@link MainActivity}.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 17-9-2015
  */
-public class EncounterFragment extends Fragment implements Encounter.Listener {
+public class EncounterFragment extends Fragment implements Encounter.Listener, SyncManager.StateListener {
 
     private Encounter encounter;
+    private SyncManager sync;
     private CharacterAdapter adapter;
     private TextView roundTextView;
 
@@ -53,6 +60,7 @@ public class EncounterFragment extends Fragment implements Encounter.Listener {
         super.onViewCreated(view, savedInstanceState);
         CombatTrackerApp app = (CombatTrackerApp) requireActivity().getApplication();
         encounter = app.getEncounter();
+        sync = app.getSync();
         EncounterStore store = app.getStore();
         MainActivity activity = (MainActivity) requireActivity();
 
@@ -76,18 +84,20 @@ public class EncounterFragment extends Fragment implements Encounter.Listener {
             public void showReactions(int position) {
                 activity.showReactions(position);
             }
-        }, store::isHideReactions);
+        }, store::isHideReactions, sync::getStatus);
         recyclerView.setAdapter(adapter);
         recyclerView.addOnItemTouchListener(new RecyclerLongPressListener(requireContext(), recyclerView,
                 this::askRemoveCharacter));
 
         encounter.addListener(this);
+        sync.addStateListener(this);
         onEncounterChanged();
     }
 
     @Override
     public void onDestroyView() {
         encounter.removeListener(this);
+        sync.removeStateListener(this);
         super.onDestroyView();
     }
 
@@ -96,6 +106,13 @@ public class EncounterFragment extends Fragment implements Encounter.Listener {
     public void onEncounterChanged() {
         roundTextView.setText(String.valueOf(encounter.getRound()));
         adapter.notifyDataSetChanged();
+    }
+
+    /** Players' sheets came or went: the Synced and Player left tags change. */
+    @SuppressLint("NotifyDataSetChanged") // Any card's tag may change
+    @Override
+    public void onSyncStateChanged() {
+        if (adapter != null) adapter.notifyDataSetChanged();
     }
 
     /**
@@ -120,12 +137,25 @@ public class EncounterFragment extends Fragment implements Encounter.Listener {
 
     private void askRemoveCharacter(int position) {
         if (!encounter.isValidPosition(position)) return;
-        String name = encounter.get(position).getCharacterName();
+        CharacterModel character = encounter.get(position);
+        String name = character.getCharacterName();
         if (TextUtils.isEmpty(name)) name = getString(R.string.empty_character_name);
+        if (sync.getStatus(character) != SyncRules.Status.NONE) {
+            Dialogs.builder(requireContext())
+                    .setTitle(getString(R.string.sync_remove_title, name))
+                    .setMessage(getString(R.string.sync_remove_message, name))
+                    .setPositiveButton(R.string.sync_remove, (d, w) ->
+                            sync.removeCharacters(Collections.singletonList(character)))
+                    .setNeutralButton(R.string.sync_keep_unlink, (d, w) -> sync.unlink(character))
+                    .setNegativeButton(R.string.dialog_cancel, null)
+                    .show();
+            return;
+        }
         Dialogs.builder(requireContext())
                 .setTitle(R.string.dialog_delete_title)
                 .setMessage(getString(R.string.dialog_delete) + " " + name + "?")
-                .setPositiveButton(R.string.dialog_ok, (d, w) -> encounter.remove(position))
+                .setPositiveButton(R.string.dialog_ok, (d, w) ->
+                        sync.removeCharacters(Collections.singletonList(character)))
                 .setNegativeButton(R.string.dialog_cancel, null)
                 .show();
     }

@@ -12,6 +12,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
@@ -20,6 +21,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Lifecycle;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
@@ -27,6 +29,7 @@ import com.rekijan.initiativetrackersecondedition.BuildConfig;
 import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.core.data.EncounterStore;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterDefaults;
+import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterDetailFragment;
 import com.rekijan.initiativetrackersecondedition.feature.condition.ConditionWizardFragment;
 import com.rekijan.initiativetrackersecondedition.feature.encounter.CharacterDialogs;
@@ -41,10 +44,16 @@ import com.rekijan.initiativetrackersecondedition.feature.party.PartySlots;
 import com.rekijan.initiativetrackersecondedition.feature.player.PlayerFragment;
 import com.rekijan.initiativetrackersecondedition.feature.profile.ProfilesFragment;
 import com.rekijan.initiativetrackersecondedition.feature.reaction.ReactionsFragment;
+import com.rekijan.initiativetrackersecondedition.feature.sync.ApprovalDialogs;
+import com.rekijan.initiativetrackersecondedition.feature.sync.SyncDiff;
+import com.rekijan.initiativetrackersecondedition.feature.sync.SyncFragment;
+import com.rekijan.initiativetrackersecondedition.feature.sync.SyncManager;
 import com.rekijan.initiativetrackersecondedition.monetization.BillingManager;
 
 import nl.rekijan.ads.AdConsentManager;
 import nl.rekijan.ads.RekijanBannerAdView;
+
+import java.util.List;
 
 /**
  * The only activity. Opens the profile that was used last: a party's
@@ -53,12 +62,13 @@ import nl.rekijan.ads.RekijanBannerAdView;
  * closes the app.
  * <p>
  * For the GM, the encounter list is swapped on a phone for the character details, reactions,
- * condition wizard or Edit order; on a tablet those sit next to the list. The toolbar holds PCs to
+ * condition wizard, Edit order or Table sync; on a tablet those sit next to the list. The toolbar holds PCs to
  * max HP and Sort as icons and the other encounter actions in the overflow; Next turn is in the
  * encounter's turn bar. The navigation drawer ({@link NavDrawer}) holds Switch profile, Add
- * character, Delete characters, Edit order and the app items. It also runs the ad consent flow and
- * the ad bar, billing (tips, Remove Ads, party packs), and saves the fight when the app goes to
- * the background. Android 12+ shows the system splash from the launch theme.
+ * character, Delete characters, Edit order, Table sync and the app items. It also runs the ad
+ * consent flow and the ad bar, billing (tips, Remove Ads, party packs), shows the GM's Table sync
+ * requests ({@link ApprovalDialogs}) one at a time, and saves the fight when the app goes to the
+ * background. Android 12+ shows the system splash from the launch theme.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 17-9-2015
@@ -78,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
     private RekijanBannerAdView adBar;
     private AdConsentManager adConsentManager;
     private MaterialToolbar toolbar;
+    private AlertDialog requestDialog;
     private DrawerLayout drawerLayout;
     private NavDrawer navDrawer;
     private OnBackPressedCallback profileRootBack;
@@ -176,10 +187,13 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
     protected void onResume() {
         super.onResume();
         adBar.resume();
+        app.getSync().setRequestListener(this::showNextRequest);
+        showNextRequest();
     }
 
     @Override
     protected void onPause() {
+        app.getSync().setRequestListener(null);
         app.saveEncounter();
         adBar.pause();
         super.onPause();
@@ -305,6 +319,16 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
         if (mainPane() instanceof EditOrderFragment) return;
         closeDetailsOnPhone();
         showEditOrder();
+    }
+
+    @Override
+    public void onTableSync() {
+        if (mainPane() instanceof SyncFragment) return;
+        closeDetailsOnPhone();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.main_fragment_container, SyncFragment.newInstance())
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
@@ -514,7 +538,7 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
             mode = NavDrawer.Mode.GM;
             line = getString(R.string.nav_active_party, app.getParties().getActive().getName(), encounter.getRound());
         }
-        navDrawer.refresh(new NavDrawer.State(mode, line, removeAdsPrice, showPrivacySettings));
+        navDrawer.refresh(app, new NavDrawer.State(mode, line, removeAdsPrice, showPrivacySettings));
     }
 
     private void refreshProfiles() {
@@ -577,6 +601,44 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
         }
         invalidateOptionsMenu();
         refreshDrawer();
+        showNextRequest();
+    }
+
+    /**
+     * Shows the next Table sync request for the GM, one at a time and only on the GM's screens
+     * while this screen is in front. After an answer the next one in the queue follows.
+     */
+    private void showNextRequest() {
+        if (requestDialog != null && requestDialog.isShowing()) return;
+        if (!getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED) || !isGmScreen(mainPane())) return;
+        SyncManager sync = app.getSync();
+        SyncManager.Request request = sync.nextRequest();
+        if (request == null) return;
+        ApprovalDialogs.Listener answer = new ApprovalDialogs.Listener() {
+            @Override
+            public void onApprove(List<SyncDiff.Change> accepted) {
+                sync.approve(request, accepted);
+            }
+
+            @Override
+            public void onRefuse() {
+                sync.refuse(request);
+            }
+
+            @Override
+            public void onLink(CharacterModel pc) {
+                // The request comes back as changes from that PC once this dialog is gone
+                sync.link(request, pc);
+            }
+        };
+        String name = request.sheet.name.isEmpty() ? getString(R.string.empty_character_name) : request.sheet.name;
+        requestDialog = request.join
+                ? ApprovalDialogs.showJoin(this, request, app.getParties().getActive().getName(), answer)
+                : ApprovalDialogs.showChanges(this, name, request.changes, answer);
+        requestDialog.setOnDismissListener(d -> {
+            requestDialog = null;
+            showNextRequest();
+        });
     }
 
     /**

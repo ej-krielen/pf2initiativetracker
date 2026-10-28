@@ -9,11 +9,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 
 import com.rekijan.initiativetrackersecondedition.R;
+import com.rekijan.initiativetrackersecondedition.app.CombatTrackerApp;
 import com.rekijan.initiativetrackersecondedition.core.util.DialogQueue;
 import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel.RecoveryResult;
 import com.rekijan.initiativetrackersecondedition.feature.encounter.Encounter;
+
+import java.util.Collections;
 
 /**
  * The questions about hit points, dying and death: remove a dead monster, knock a PC out, dying
@@ -58,7 +61,7 @@ public final class HealthDialogs {
                         .setTitle(R.string.dialog_delete_low_title)
                         .setMessage(R.string.dialog_delete_low)
                         .setPositiveButton(R.string.dialog_delete_low_positive, (d, w) -> {
-                            encounter.remove(character);
+                            remove(context, character);
                             done.run();
                         })
                         .setNegativeButton(R.string.dialog_delete_low_negative,
@@ -210,6 +213,12 @@ public final class HealthDialogs {
                 .show();
     }
 
+    /** Removes the character through Table sync, so a synced player is told. */
+    private static void remove(Context context, CharacterModel character) {
+        ((CombatTrackerApp) context.getApplicationContext()).getSync()
+                .removeCharacters(Collections.singletonList(character));
+    }
+
     private static void askRemoveWhenDead(Context context, Encounter encounter, CharacterModel character,
                                           Runnable done) {
         if (!character.isAlreadyDead()) {
@@ -219,7 +228,7 @@ public final class HealthDialogs {
         Dialogs.builder(context)
                 .setTitle(R.string.dialog_delete_low_title)
                 .setMessage(R.string.dialog_delete_low)
-                .setPositiveButton(R.string.dialog_delete_low_positive, (d, w) -> encounter.remove(character))
+                .setPositiveButton(R.string.dialog_delete_low_positive, (d, w) -> remove(context, character))
                 .setNegativeButton(R.string.dialog_delete_low_negative, null)
                 .setOnDismissListener(d -> done.run())
                 .show();

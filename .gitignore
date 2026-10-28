@@ -16,3 +16,6 @@
 *.jks
 *.keystore
 /projectFilesBackup/
+
+# Firebase config for Table sync: kept out of git, get it from the Firebase console
+google-services.json

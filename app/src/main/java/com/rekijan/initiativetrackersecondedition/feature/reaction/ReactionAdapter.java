@@ -27,7 +27,8 @@ public class ReactionAdapter extends RecyclerView.Adapter<ReactionAdapter.Reacti
     private final Runnable onChanged;
 
     /**
-     * @param onChanged Called after a reaction was used, restored or removed, so the card can redraw.
+     * @param onChanged Called after every edit, and after a reaction was used, restored or removed,
+     *                  so the card can redraw and the change is saved.
      */
     public ReactionAdapter(CharacterModel character, Runnable onChanged) {
         this.character = character;
@@ -59,8 +60,14 @@ public class ReactionAdapter extends RecyclerView.Adapter<ReactionAdapter.Reacti
     @Override
     public void onBindViewHolder(@NonNull ReactionViewHolder holder, int position) {
         ReactionModel reaction = character.getReactionList().get(position);
-        TextBinding.bindText(holder.nameEditText, reaction.getName(), reaction::setName);
-        TextBinding.bindText(holder.descriptionEditText, reaction.getDescription(), reaction::setDescription);
+        TextBinding.bindText(holder.nameEditText, reaction.getName(), text -> {
+            reaction.setName(text);
+            onChanged.run();
+        });
+        TextBinding.bindText(holder.descriptionEditText, reaction.getDescription(), text -> {
+            reaction.setDescription(text);
+            onChanged.run();
+        });
 
         // Remove the old listener first, so setChecked does not change a recycled reaction
         holder.availableSwitch.setOnCheckedChangeListener(null);

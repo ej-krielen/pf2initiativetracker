@@ -1,0 +1,174 @@
+rules_version = '2';
+
+// Firestore security rules for Table sync.
+// Deploy: firebase deploy --only firestore:rules (see firebase.json), or paste this file into the
+// Firebase console under Firestore Database > Rules.
+//
+// Data:
+//   sessions/{code}                  gmUid, createdAt, expiresAt          (written by the GM)
+//   sessions/{code}/players/{docId}  a player character's sheet, sentAt, expiresAt (that player)
+//   sessions/{code}/gmCopies/{docId} the GM's version of that sheet, answeredSentAt, rejected, ended (the GM)
+//   docId = "<player uid>_<character id>"
+//
+// Keep in sync with the app: SessionCodes (code pattern), SyncIds (docId), PlayerSheet and GmCopy
+// (field names and limits), GmCopy.Ending (ended values), SyncRepository (30-day expiry, capped at
+// 33 days here for clock margin).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function sessionPath(code) {
+      return /databases/$(database)/documents/sessions/$(code);
+    }
+
+    function session(code) {
+      return get(sessionPath(code)).data;
+    }
+
+    function isGm(code) {
+      return signedIn() && exists(sessionPath(code)) && session(code).gmUid == request.auth.uid;
+    }
+
+    function isLive(code) {
+      return exists(sessionPath(code)) && session(code).expiresAt > request.time;
+    }
+
+    function validExpiry(t) {
+      return t is timestamp && t > request.time && t <= request.time + duration.value(33, 'd');
+    }
+
+    function text(d, key, max) {
+      return d[key] is string && d[key].size() <= max;
+    }
+
+    function whole(d, key, min, max) {
+      return d[key] is int && d[key] >= min && d[key] <= max;
+    }
+
+    // The part of the document id before the underscore is the owner's uid
+    function ownsDoc(docId) {
+      return docId.split('_')[0] == request.auth.uid;
+    }
+
+    function validDocId(docId) {
+      return docId.matches('^[A-Za-z0-9]+_[A-Za-z0-9-]{1,64}$');
+    }
+
+    // The fields of a sheet (PlayerSheet), shared by a player's send and the GM's copy. Each
+    // reaction and condition is checked by the apps; here only their number
+    // (PlayerSheet.MAX_REACTIONS, PlayerSheet.MAX_CONDITIONS).
+    function validSheetFields(d) {
+      return text(d, 'name', 50)
+          && whole(d, 'initiative', -99, 999)
+          && whole(d, 'initiativeBonus', -99, 999)
+          && whole(d, 'hp', -99999, 99999)
+          && whole(d, 'maxHp', 0, 99999)
+          && whole(d, 'fastHealing', 0, 999)
+          && whole(d, 'regeneration', 0, 999)
+          && whole(d, 'heroPoints', 0, 99)
+          && d.dying is bool
+          && whole(d, 'dyingValue', 0, 99)
+          && whole(d, 'maxDying', 1, 6)
+          && whole(d, 'wounded', 0, 99)
+          && whole(d, 'doomed', 0, 99)
+          && whole(d, 'recoveryDc', 0, 99)
+          && text(d, 'ac', 200)
+          && text(d, 'saves', 200)
+          && text(d, 'skills', 1000)
+          && text(d, 'attackRoutine', 1000)
+          && text(d, 'notes', 2000)
+          && d.reactionAvailable is bool
+          && d.reactions is list && d.reactions.size() <= 20
+          && d.conditions is list && d.conditions.size() <= 50;
+    }
+
+    function sheetKeys() {
+      return ['name', 'initiative', 'initiativeBonus', 'hp', 'maxHp', 'fastHealing', 'regeneration',
+              'heroPoints', 'dying', 'dyingValue', 'maxDying', 'wounded', 'doomed', 'recoveryDc',
+              'ac', 'saves', 'skills', 'attackRoutine', 'notes', 'reactionAvailable', 'reactions',
+              'conditions', 'expiresAt'];
+    }
+
+    // A player's send: the sheet with a name, and when it was sent
+    function validSheet(code, d) {
+      return d.keys().hasOnly(sheetKeys().concat(['sentAt']))
+          && d.keys().hasAll(sheetKeys().concat(['sentAt']))
+          && validSheetFields(d)
+          && d.name.size() > 0
+          && d.sentAt is int && d.sentAt >= 0
+          && d.expiresAt == session(code).expiresAt;
+    }
+
+    // The GM's copy: the sheet (a name may be empty), the send it answers, a rejected join, and
+    // whether the GM removed or unlinked the character ('' while linked)
+    function validGmCopy(code, d) {
+      return d.keys().hasOnly(sheetKeys().concat(['answeredSentAt', 'rejected', 'ended']))
+          && d.keys().hasAll(sheetKeys().concat(['answeredSentAt', 'rejected', 'ended']))
+          && validSheetFields(d)
+          && d.answeredSentAt is int && d.answeredSentAt >= 0
+          && d.rejected is bool
+          && d.ended in ['', 'removed', 'unlinked']
+          && d.expiresAt == session(code).expiresAt;
+    }
+
+    match /sessions/{code} {
+      // Anyone signed in may look up a session by its code (to join); only its GM may list theirs
+      allow get: if signedIn();
+      allow list: if signedIn() && resource.data.gmUid == request.auth.uid;
+
+      allow create: if signedIn()
+          && code.matches('^[A-HJ-NP-Z2-9]{6}$')
+          && request.resource.data.keys().hasOnly(['gmUid', 'createdAt', 'expiresAt'])
+          && request.resource.data.gmUid == request.auth.uid
+          && request.resource.data.createdAt == request.time
+          && validExpiry(request.resource.data.expiresAt);
+
+      // The GM may only renew the expiry
+      allow update: if signedIn()
+          && resource.data.gmUid == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['expiresAt'])
+          && validExpiry(request.resource.data.expiresAt);
+
+      allow delete: if signedIn() && resource.data.gmUid == request.auth.uid;
+
+      // A player character's sheet. The document id is "<uid>_<character id>" (SyncIds), so one
+      // phone can send several characters and only its owner can write it.
+      match /players/{docId} {
+        // A player sees their own sheets; the GM sees everyone's
+        allow read: if signedIn() && (ownsDoc(docId) || isGm(code));
+
+        // A player writes only their own sheet, only while the session is live
+        allow create, update: if signedIn()
+            && ownsDoc(docId)
+            && validDocId(docId)
+            && isLive(code)
+            && validSheet(code, request.resource.data);
+
+        // The GM may renew the expiry of a sheet to the session's new expiry
+        allow update: if isGm(code)
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['expiresAt'])
+            && request.resource.data.expiresAt == session(code).expiresAt;
+
+        // The player may delete their own sheet (Leave); the GM any, while the session exists
+        allow delete: if signedIn() && (ownsDoc(docId) || isGm(code));
+      }
+
+      // The GM's version of a player character, same document id. The GM is the final arbiter:
+      // only the GM writes it, and only that player (and the GM) can read it, so a player
+      // never sees other characters or monsters.
+      match /gmCopies/{docId} {
+        allow read: if signedIn() && (ownsDoc(docId) || isGm(code));
+
+        allow create, update: if isGm(code)
+            && isLive(code)
+            && validDocId(docId)
+            && validGmCopy(code, request.resource.data);
+
+        allow delete: if isGm(code);
+      }
+    }
+  }
+}

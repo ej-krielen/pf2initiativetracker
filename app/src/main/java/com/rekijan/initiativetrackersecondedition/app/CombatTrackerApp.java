@@ -15,6 +15,9 @@ import com.rekijan.initiativetrackersecondedition.feature.party.PartyBook;
 import com.rekijan.initiativetrackersecondedition.feature.party.PartyStore;
 import com.rekijan.initiativetrackersecondedition.feature.player.PlayerBook;
 import com.rekijan.initiativetrackersecondedition.feature.profile.ProfileState;
+import com.rekijan.initiativetrackersecondedition.feature.sync.SyncManager;
+import com.rekijan.initiativetrackersecondedition.feature.sync.SyncRepository;
+import com.rekijan.initiativetrackersecondedition.feature.sync.SyncStore;
 
 import java.util.List;
 
@@ -24,7 +27,8 @@ import java.util.List;
  * first use (a party without saved characters starts with four PCs), saved when the app goes to
  * the background, and swapped in place when the user switches parties. A single-fight save is
  * turned into the first party (see PartyStore). The settings and the Remove Ads flag are in
- * {@link EncounterStore}.
+ * {@link EncounterStore}. It also runs Table sync ({@link SyncManager}), which merges players'
+ * sends into the active party through the same Encounter.
  * <p>
  * Besides parties, the user can have player characters ({@link PlayerBook}), and
  * {@link ProfileState} remembers which of the two was opened last, so the app opens it again.
@@ -32,13 +36,14 @@ import java.util.List;
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 16-5-2019
  */
-public class CombatTrackerApp extends Application {
+public class CombatTrackerApp extends Application implements SyncManager.Host {
 
     private EncounterStore store;
     private PartyBook parties;
     private PlayerBook players;
     private ProfileState profile;
     private Encounter encounter;
+    private SyncManager sync;
 
     @Override
     public void onCreate() {
@@ -50,6 +55,10 @@ public class CombatTrackerApp extends Application {
         parties = new PartyBook(new PartyStore(values, firstName), firstName);
         players = new PlayerBook(values);
         profile = new ProfileState(values);
+
+        sync = new SyncManager(this, new SyncRepository(), new SyncStore(values),
+                () -> AppCheckInstaller.install(this));
+        sync.resumeOnStartup();
     }
 
     public EncounterStore getStore() {
@@ -62,6 +71,25 @@ public class CombatTrackerApp extends Application {
 
     public PlayerBook getPlayers() {
         return players;
+    }
+
+    public SyncManager getSync() {
+        return sync;
+    }
+
+    @Override
+    public String getActivePartyId() {
+        return parties.getActiveId();
+    }
+
+    @Override
+    public CharacterModel loadPlayer(String id) {
+        return players.load(id);
+    }
+
+    @Override
+    public void savePlayer(String id, CharacterModel character) {
+        players.save(id, character);
     }
 
     // ---------------------------------------------------------------- Profiles
@@ -87,15 +115,17 @@ public class CombatTrackerApp extends Application {
         if (players.contains(id)) profile.openPlayer(id);
     }
 
-    /** Deletes a player character. Deleting the open one makes the party the open profile. */
+    /** Deletes a player character: it leaves its session first. Deleting the open one opens the party. */
     public void deletePlayer(String id) {
         boolean wasOpen = id.equals(getOpenPlayerId());
+        sync.forgetPlayer(id);
         players.delete(id);
         if (wasOpen) profile.openParty();
     }
 
     // ---------------------------------------------------------------- Parties
 
+    @Override
     public Encounter getEncounter() {
         if (encounter == null) {
             String id = parties.getActiveId();
@@ -104,6 +134,7 @@ public class CombatTrackerApp extends Application {
         return encounter;
     }
 
+    @Override
     public void saveEncounter() {
         if (encounter != null) {
             parties.save(parties.getActiveId(), encounter.getCharacters(), encounter.getRound());
@@ -116,6 +147,7 @@ public class CombatTrackerApp extends Application {
         saveEncounter();
         parties.setActive(id);
         getEncounter().replace(charactersOf(id), parties.loadRound(id));
+        sync.onActivePartyChanged();
     }
 
     /** @return The new party (four PCs, round 1), or null when the limit or the name says no. */
@@ -140,6 +172,8 @@ public class CombatTrackerApp extends Application {
         String newActive = parties.delete(id);
         if (newActive == null) return false;
         if (wasActive) getEncounter().replace(charactersOf(newActive), parties.loadRound(newActive));
+        sync.onPartyDeleted(id);
+        if (wasActive) sync.onActivePartyChanged();
         return true;
     }
 

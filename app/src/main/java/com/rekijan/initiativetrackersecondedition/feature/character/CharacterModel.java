@@ -71,6 +71,11 @@ public class CharacterModel {
     private String characterNotes;
     private ArrayList<DebuffModel> debuffList = new ArrayList<>();
     private ArrayList<ReactionModel> reactionsList = new ArrayList<>();
+    /**
+     * Table sync link: "<player uid>_<character id>" of the player who sent this character, see
+     * SyncIds. Null for characters the GM runs.
+     */
+    private String syncId;
 
     /** Empty character; also used by Gson when loading saved data. */
     public CharacterModel() {
@@ -412,6 +417,14 @@ public class CharacterModel {
         // A save without a reaction list gets an empty one
         if (reactionsList == null) reactionsList = new ArrayList<>();
         return reactionsList;
+    }
+
+    public String getSyncId() {
+        return syncId;
+    }
+
+    public void setSyncId(String syncId) {
+        this.syncId = syncId;
     }
 
     /** @return How many custom reactions are still available this round. */

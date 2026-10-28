@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.rekijan.initiativetrackersecondedition.R;
+import com.rekijan.initiativetrackersecondedition.app.CombatTrackerApp;
 import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
 
@@ -49,7 +50,8 @@ public final class CharacterDialogs {
                         if (checked[i]) chosen.add(characters.get(i));
                     }
                     if (chosen.isEmpty()) return;
-                    encounter.removeAll(chosen);
+                    // Through Table sync, so synced players among them are told
+                    ((CombatTrackerApp) context.getApplicationContext()).getSync().removeCharacters(chosen);
                     onDeleted.run();
                 })
                 .show();

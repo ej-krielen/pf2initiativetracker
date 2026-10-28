@@ -23,6 +23,9 @@
     <!-- Lighter than rk_primary so the stripe and label stay readable on the dark card -->
     <color name="rk_npc_marker">#C4505F</color>
 
+    <color name="rk_status_on">#97C459</color>
+    <color name="rk_status_wait">#E0A84A</color>
+
     <!-- ============ PF2e: dying track, doomed, persistent damage ============ -->
     <color name="rk_dying">@color/md_error</color>
     <color name="rk_on_dying">@color/rk_background</color>

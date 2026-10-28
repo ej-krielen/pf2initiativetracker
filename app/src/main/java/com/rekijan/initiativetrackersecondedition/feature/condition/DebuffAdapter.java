@@ -13,6 +13,9 @@ import com.rekijan.initiativetrackersecondedition.core.util.TextBinding;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
 import com.rekijan.initiativetrackersecondedition.feature.character.DebuffModel;
 
+import java.util.function.Consumer;
+import java.util.function.IntConsumer;
+
 /**
  * Edits the (de)buffs of one character, each with a remove button: name, value (for valued
  * conditions), duration and description, or for persistent damage also the damage type, damage
@@ -30,7 +33,8 @@ public class DebuffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private final Runnable onChanged;
 
     /**
-     * @param onChanged Called after a (de)buff was removed, so the encounter list can redraw.
+     * @param onChanged Called after every edit and after a (de)buff was removed, so the encounter
+     *                  list can redraw and the change is saved.
      */
     public DebuffAdapter(CharacterModel character, Runnable onChanged) {
         this.character = character;
@@ -96,26 +100,26 @@ public class DebuffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         DebuffModel debuff = character.getDebuffList().get(position);
         if (holder instanceof PersistentDamageViewHolder pd) {
-            TextBinding.bindText(pd.nameEditText, debuff.getName(), debuff::setName);
-            TextBinding.bindText(pd.typeEditText, debuff.getDamageType(), debuff::setDamageType);
-            TextBinding.bindText(pd.damageEditText, debuff.getDamageValue(), debuff::setDamageValue);
+            TextBinding.bindText(pd.nameEditText, debuff.getName(), edited(debuff::setName));
+            TextBinding.bindText(pd.typeEditText, debuff.getDamageType(), edited(debuff::setDamageType));
+            TextBinding.bindText(pd.damageEditText, debuff.getDamageValue(), edited(debuff::setDamageValue));
             TextBinding.bindInt(pd.dcEditText, debuff.getDifficultyClass(), 0, DebuffModel.MAX_DC,
-                    debuff::setDifficultyClass);
+                    editedInt(debuff::setDifficultyClass));
             TextBinding.bindInt(pd.durationEditText, debuff.getDuration(), 0, DebuffModel.MAX_DURATION,
-                    debuff::setDuration);
-            TextBinding.bindText(pd.descriptionEditText, debuff.getDescription(), debuff::setDescription);
+                    editedInt(debuff::setDuration));
+            TextBinding.bindText(pd.descriptionEditText, debuff.getDescription(), edited(debuff::setDescription));
             pd.removeButton.setOnClickListener(v -> removeAt(pd.getBindingAdapterPosition()));
         } else if (holder instanceof DebuffViewHolder d) {
-            TextBinding.bindText(d.nameEditText, debuff.getName(), debuff::setName);
+            TextBinding.bindText(d.nameEditText, debuff.getName(), edited(debuff::setName));
             // The value field shows for valued conditions, and for any (de)buff that has a value
             int valueVisibility = debuff.getValue() > 0 || Conditions.isValued(debuff.getName())
                     ? View.VISIBLE : View.GONE;
             d.valueEditText.setVisibility(valueVisibility);
             d.valueLabel.setVisibility(valueVisibility);
-            TextBinding.bindInt(d.valueEditText, debuff.getValue(), 0, DebuffModel.MAX_VALUE, debuff::setValue);
+            TextBinding.bindInt(d.valueEditText, debuff.getValue(), 0, DebuffModel.MAX_VALUE, editedInt(debuff::setValue));
             TextBinding.bindInt(d.durationEditText, debuff.getDuration(), 0, DebuffModel.MAX_DURATION,
-                    debuff::setDuration);
-            TextBinding.bindText(d.descriptionEditText, debuff.getDescription(), debuff::setDescription);
+                    editedInt(debuff::setDuration));
+            TextBinding.bindText(d.descriptionEditText, debuff.getDescription(), edited(debuff::setDescription));
             d.removeButton.setOnClickListener(v -> removeAt(d.getBindingAdapterPosition()));
         }
     }
@@ -123,6 +127,21 @@ public class DebuffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public int getItemCount() {
         return character.getDebuffList().size();
+    }
+
+    /** @return The setter, followed by the change callback. */
+    private Consumer<String> edited(Consumer<String> setter) {
+        return text -> {
+            setter.accept(text);
+            onChanged.run();
+        };
+    }
+
+    private IntConsumer editedInt(IntConsumer setter) {
+        return number -> {
+            setter.accept(number);
+            onChanged.run();
+        };
     }
 
     private void removeAt(int position) {

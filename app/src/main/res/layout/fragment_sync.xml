@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Table sync for the GM: start a session for the active party, show the code to read out or
+     share, the players who sent a character, and Stop session. Players join from their own
+     character screen (fragment_player). SyncFragment fills it. -->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:paddingStart="@dimen/space_3"
+    android:paddingEnd="@dimen/space_3"
+    android:paddingBottom="@dimen/space_3">
+
+    <LinearLayout
+        android:id="@+id/sync_host_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/sync_host_intro_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_3"
+            android:textAppearance="@style/TextAppearance.Rekijan.Body"
+            android:textColor="?attr/colorOnSurface"
+            tools:text="@string/sync_host_intro" />
+
+        <Button
+            android:id="@+id/sync_start_button"
+            style="@style/Widget.Rekijan.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_3"
+            android:text="@string/sync_start" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/sync_code_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_3">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sync_code_label"
+                    android:textAppearance="@style/TextAppearance.Rekijan.StatLabel"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <TextView
+                    android:id="@+id/sync_code_textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.2"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textIsSelectable="true"
+                    android:textSize="34sp"
+                    android:textStyle="bold"
+                    tools:text="K7QX4M" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/sync_copy_button"
+                        style="@style/Widget.Rekijan.Button.Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/sync_copy" />
+
+                    <Button
+                        android:id="@+id/sync_share_button"
+                        style="@style/Widget.Rekijan.Button.Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/sync_share" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/sync_host_party_textView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Rekijan.BodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    tools:text="Players join into Tuesday group." />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/sync_players_label_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_3"
+            android:textAppearance="@style/TextAppearance.Rekijan.SectionHeader"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            tools:text="Joined players (3)" />
+
+        <LinearLayout
+            android:id="@+id/sync_players_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <Button
+            android:id="@+id/sync_stop_button"
+            style="@style/Widget.Rekijan.Button.Tonal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_3"
+            android:text="@string/sync_stop" />
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

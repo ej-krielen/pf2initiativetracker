@@ -335,6 +335,46 @@
                         android:inputType="textMultiLine|textCapSentences"
                         android:minLines="4" />
                 </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Player only: the reaction and the custom reactions (the GM has them on the card) -->
+                <LinearLayout
+                    android:id="@+id/sheet_player_reactions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/sheet_reactions_header_textView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_3"
+                        android:text="@string/sheet_reactions_header"
+                        android:textAppearance="@style/TextAppearance.Rekijan.SectionHeader" />
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/sheet_reaction_available_switch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="@dimen/touch_target"
+                        android:text="@string/sheet_reaction_available"
+                        android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/sheet_reactions_recyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_1"
+                        android:nestedScrollingEnabled="false" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/sheet_add_reaction_button"
+                        style="@style/Widget.Rekijan.Button.Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/sheet_reaction_add"
+                        app:icon="@drawable/ic_add" />
+                </LinearLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 

@@ -1,0 +1,359 @@
+package com.rekijan.initiativetrackersecondedition.feature.sync;
+
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Source;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
+
+/**
+ * All Firestore access for Table sync. A session is sessions/{code} (owner gmUid, createdAt,
+ * expiresAt); each player character's sheet is sessions/{code}/players/{docId}, and the GM's
+ * copy of it (the GM's version of the whole sheet) is
+ * sessions/{code}/gmCopies/{docId}, with docId from {@link SyncIds}. The rules in
+ * firestore.rules decide who may do what.
+ * <p>
+ * A session lives until {@link #SESSION_RETENTION_DAYS} days after the GM last used it: the GM's
+ * app renews the expiry of the session and its players when it opens the session. Expired
+ * sessions are removed by {@link #cleanupExpiredSessions}, and the rules refuse writes to them.
+ * <p>
+ * Actions the user waits for report failure after at most {@link #TIMEOUT_SECONDS} seconds,
+ * because a Firestore write without a connection waits instead of failing. Background work
+ * (renewing, cleanup) only logs.
+ *
+ * @author Erik-Jan Krielen rekijan.apps@gmail.com
+ * @since 28-10-2026
+ */
+public class SyncRepository {
+
+    private static final String TAG = "SyncRepository";
+    private static final String COLLECTION_SESSIONS = "sessions";
+    private static final String COLLECTION_PLAYERS = "players";
+    private static final String COLLECTION_GM_COPIES = "gmCopies";
+    private static final String KEY_CREATED_AT = "createdAt";
+    private static final String KEY_GM_UID = "gmUid";
+    private static final String KEY_EXPIRES_AT = "expiresAt";
+    /** Keep in sync with the 33-day cap in firestore.rules (30 plus clock margin) and the privacy policy. */
+    private static final long SESSION_RETENTION_DAYS = 30;
+    /** The expiry is only renewed when that gains at least a day, to avoid needless writes. */
+    private static final long MIN_EXTENSION_GAIN_DAYS = 1;
+    private static final long TIMEOUT_SECONDS = 15;
+
+    // Created on first use, so the app never touches Firestore unless Table sync is used
+    private FirebaseFirestore db;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final Random random = new Random();
+
+    /** An online action that only succeeds or fails. */
+    public interface CompletionCallback {
+        void onSuccess();
+
+        void onFailure(Exception e);
+    }
+
+    /** Result of creating a session. */
+    public interface CreateCallback {
+        /** @param expiresAt The new session's expiry, for later writes to it. */
+        void onCreated(String code, Timestamp expiresAt);
+
+        void onFailure(Exception e);
+    }
+
+    /** Result of looking up a session's expiry. */
+    public interface ExpiryCallback {
+        /** @param expiresAt Null when the session does not exist or has expired. */
+        void onResult(@Nullable Timestamp expiresAt);
+
+        void onFailure(Exception e);
+    }
+
+    /** Live updates of the GM's copy of one player character. */
+    public interface GmCopyListener {
+        /** @param copy Null when the GM's app hasn't uploaded one yet. */
+        void onGmCopy(@Nullable GmCopy copy);
+
+        void onError(FirebaseFirestoreException error);
+    }
+
+    /** Live updates of the players in a session. */
+    public interface PlayersListener {
+        /** @param sheets Per document id (see SyncIds), the latest (cleaned) sheet. */
+        void onPlayers(Map<String, PlayerSheet> sheets);
+
+        void onError(FirebaseFirestoreException error);
+    }
+
+    /** Creates a session with a new code, owned by gmUid, and cleans up this GM's expired ones. */
+    public void createSession(@NonNull String gmUid, @NonNull CreateCallback callback) {
+        String code = SessionCodes.generate(random);
+        Map<String, Object> data = new HashMap<>();
+        data.put(KEY_GM_UID, gmUid);
+        data.put(KEY_CREATED_AT, FieldValue.serverTimestamp());
+        Timestamp expiresAt = newExpiry();
+        data.put(KEY_EXPIRES_AT, expiresAt);
+        withTimeout(sessionRef(code).set(data), "createSession " + code)
+                .addOnSuccessListener(unused -> {
+                    callback.onCreated(code, expiresAt);
+                    cleanupExpiredSessions(gmUid);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "createSession failed for " + code, e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /** Looks up when a session expires, from the server; null when it is gone or expired. */
+    public void fetchExpiry(@NonNull String code, @NonNull ExpiryCallback callback) {
+        withTimeout(sessionRef(code).get(Source.SERVER), "fetchExpiry " + code)
+                .addOnSuccessListener(doc -> callback.onResult(
+                        doc.exists() && !isExpired(doc) ? doc.getTimestamp(KEY_EXPIRES_AT) : null))
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "fetchExpiry failed for " + code, e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /** Writes a player character's sheet to sessions/{code}/players/{docId}; it expires with the session. */
+    public void savePlayer(@NonNull String code, @NonNull String docId, @NonNull PlayerSheet sheet,
+                           @NonNull Timestamp expiresAt, @NonNull CompletionCallback callback) {
+        Map<String, Object> data = sheet.toMap();
+        data.put(KEY_EXPIRES_AT, expiresAt);
+        withTimeout(playerRef(code, docId).set(data), "savePlayer " + code)
+                .addOnSuccessListener(unused -> callback.onSuccess())
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "savePlayer failed for " + code, e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /** Removes the player's own sheet when they leave. Best effort: it expires anyway. */
+    public void deletePlayer(@NonNull String code, @NonNull String docId) {
+        playerRef(code, docId).delete().addOnFailureListener(e ->
+                Log.w(TAG, "deletePlayer failed for " + code, e));
+    }
+
+    /**
+     * Writes the GM's copy of a player character (the whole sheet). Background work for
+     * the GM's app: failures are only logged and reported, the next change tries again.
+     *
+     * @param onFailure Run when the write failed, e.g. because the expiry is no longer the session's.
+     */
+    public void saveGmCopy(@NonNull String code, @NonNull String docId, @NonNull GmCopy copy,
+                           @NonNull Timestamp expiresAt, @NonNull Runnable onFailure) {
+        Map<String, Object> data = copy.toMap();
+        data.put(KEY_EXPIRES_AT, expiresAt);
+        gmCopyRef(code, docId).set(data).addOnFailureListener(e -> {
+            Log.w(TAG, "saveGmCopy failed for " + docId, e);
+            onFailure.run();
+        });
+    }
+
+    /**
+     * Listens to the GM's copy of one player character; the player's screen follows it live.
+     * The caller removes the returned registration when done.
+     */
+    @NonNull
+    public ListenerRegistration listenToGmCopy(@NonNull String code, @NonNull String docId,
+                                               @NonNull GmCopyListener listener) {
+        return gmCopyRef(code, docId).addSnapshotListener((doc, error) -> {
+            if (error != null) {
+                listener.onError(error);
+                return;
+            }
+            // Skip the local echo of a write still on its way; the server's version follows
+            if (doc == null || doc.getMetadata().hasPendingWrites()) return;
+            listener.onGmCopy(doc.exists() ? GmCopy.fromMap(doc.getData()) : null);
+        });
+    }
+
+    /**
+     * Listens to all players' sheets in a session. The caller removes the returned registration
+     * when done. Sheets without a name are left out.
+     */
+    @NonNull
+    public ListenerRegistration listenToPlayers(@NonNull String code, @NonNull PlayersListener listener) {
+        return sessionRef(code).collection(COLLECTION_PLAYERS).addSnapshotListener((snapshot, error) -> {
+            if (error != null) {
+                listener.onError(error);
+                return;
+            }
+            if (snapshot == null) return;
+            Map<String, PlayerSheet> sheets = new LinkedHashMap<>();
+            for (QueryDocumentSnapshot doc : snapshot) {
+                PlayerSheet sheet = PlayerSheet.fromMap(doc.getData());
+                if (sheet != null) sheets.put(doc.getId(), sheet);
+            }
+            listener.onPlayers(sheets);
+        });
+    }
+
+    /**
+     * Deletes a session: first its players and the GM's copies (one by one, the rules allow that
+     * only while the session exists), then the session itself.
+     */
+    public void deleteSession(@NonNull String code, @NonNull CompletionCallback callback) {
+        DocumentReference ref = sessionRef(code);
+        Task<List<Object>> reads = Tasks.whenAllSuccess(
+                ref.collection(COLLECTION_PLAYERS).get(Source.SERVER),
+                ref.collection(COLLECTION_GM_COPIES).get(Source.SERVER));
+        withTimeout(reads, "deleteSession read " + code)
+                .continueWithTask(task -> {
+                    if (!task.isSuccessful()) return Tasks.<Void>forException(failure(task));
+                    List<Task<Void>> deletes = new ArrayList<>();
+                    for (Object result : task.getResult()) {
+                        for (QueryDocumentSnapshot doc : (QuerySnapshot) result) {
+                            deletes.add(doc.getReference().delete());
+                        }
+                    }
+                    return withTimeout(Tasks.whenAll(deletes), "deleteSession documents " + code);
+                })
+                .continueWithTask(task -> {
+                    if (!task.isSuccessful()) return task;
+                    return withTimeout(ref.delete(), "deleteSession " + code);
+                })
+                .addOnSuccessListener(unused -> callback.onSuccess())
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "deleteSession failed for " + code, e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Renews the expiry of the session and then of its players, when that gains at least a day.
+     * Only the owning GM is allowed to; failures are only logged.
+     *
+     * @param onExtended Gets the new expiry once the session has it.
+     */
+    public void extendSessionIfNeeded(@NonNull String code, @NonNull Consumer<Timestamp> onExtended) {
+        DocumentReference ref = sessionRef(code);
+        ref.get(Source.SERVER).addOnSuccessListener(doc -> {
+            Timestamp current = doc.getTimestamp(KEY_EXPIRES_AT);
+            long now = System.currentTimeMillis();
+            long newMillis = now + TimeUnit.DAYS.toMillis(SESSION_RETENTION_DAYS);
+            if (!doc.exists() || current == null || current.toDate().getTime() <= now) return;
+            if (newMillis - current.toDate().getTime() < TimeUnit.DAYS.toMillis(MIN_EXTENSION_GAIN_DAYS)) return;
+            Timestamp newExpiry = new Timestamp(new Date(newMillis));
+            ref.update(KEY_EXPIRES_AT, newExpiry)
+                    .addOnSuccessListener(unused -> {
+                        onExtended.accept(newExpiry);
+                        extendPlayers(ref, newExpiry);
+                    })
+                    .addOnFailureListener(e -> Log.w(TAG, "extend failed for " + code, e));
+        }).addOnFailureListener(e -> Log.w(TAG, "extend: read failed for " + code, e));
+    }
+
+    /** Deletes this GM's expired sessions with their players. Best effort, only logs. */
+    public void cleanupExpiredSessions(@NonNull String gmUid) {
+        long now = System.currentTimeMillis();
+        db().collection(COLLECTION_SESSIONS).whereEqualTo(KEY_GM_UID, gmUid).get()
+                .addOnSuccessListener(sessions -> {
+                    for (QueryDocumentSnapshot doc : sessions) {
+                        Timestamp expiresAt = doc.getTimestamp(KEY_EXPIRES_AT);
+                        if (expiresAt != null && expiresAt.toDate().getTime() < now) {
+                            deleteSession(doc.getId(), new CompletionCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    // Background cleanup: nothing to show
+                                }
+
+                                @Override
+                                public void onFailure(Exception e) {
+                                    // Already logged by deleteSession
+                                }
+                            });
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> Log.w(TAG, "cleanup: query failed", e));
+    }
+
+    /** Renews the players' sheets and the GM's copies to the session's new expiry. */
+    private void extendPlayers(DocumentReference ref, Timestamp newExpiry) {
+        for (String collection : new String[]{COLLECTION_PLAYERS, COLLECTION_GM_COPIES}) {
+            ref.collection(collection).get(Source.SERVER).addOnSuccessListener(docs -> {
+                for (QueryDocumentSnapshot doc : docs) {
+                    doc.getReference().update(KEY_EXPIRES_AT, newExpiry).addOnFailureListener(e ->
+                            Log.w(TAG, "extend failed: " + collection + "/" + doc.getId(), e));
+                }
+            }).addOnFailureListener(e -> Log.w(TAG, "extend " + collection + ": read failed", e));
+        }
+    }
+
+    private static Exception failure(Task<?> task) {
+        Exception e = task.getException();
+        return e != null ? e : new Exception("Firestore task failed");
+    }
+
+    private FirebaseFirestore db() {
+        if (db == null) db = FirebaseFirestore.getInstance();
+        return db;
+    }
+
+    private DocumentReference sessionRef(String code) {
+        return db().collection(COLLECTION_SESSIONS).document(code);
+    }
+
+    private DocumentReference playerRef(String code, String docId) {
+        return sessionRef(code).collection(COLLECTION_PLAYERS).document(docId);
+    }
+
+    private DocumentReference gmCopyRef(String code, String docId) {
+        return sessionRef(code).collection(COLLECTION_GM_COPIES).document(docId);
+    }
+
+    /** Past its expiry a session counts as gone, like in the rules. */
+    private static boolean isExpired(DocumentSnapshot doc) {
+        Timestamp expiresAt = doc.getTimestamp(KEY_EXPIRES_AT);
+        return expiresAt != null && expiresAt.toDate().getTime() < System.currentTimeMillis();
+    }
+
+    private static Timestamp newExpiry() {
+        return new Timestamp(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(SESSION_RETENTION_DAYS)));
+    }
+
+    /**
+     * Fails the returned task when the given one hasn't finished in {@link #TIMEOUT_SECONDS}. The
+     * Firestore operation itself keeps going; a session written late just expires unused.
+     */
+    private <T> Task<T> withTimeout(Task<T> task, String what) {
+        TaskCompletionSource<T> source = new TaskCompletionSource<>();
+        Runnable timeout = () -> source.trySetException(new TimeoutException(what + " timed out"));
+        mainHandler.postDelayed(timeout, TimeUnit.SECONDS.toMillis(TIMEOUT_SECONDS));
+        task.addOnCompleteListener(t -> {
+            mainHandler.removeCallbacks(timeout);
+            if (t.isSuccessful()) {
+                source.trySetResult(t.getResult());
+            } else {
+                Exception e = t.getException();
+                source.trySetException(e != null ? e : new Exception(what + " failed"));
+            }
+        });
+        return source.getTask();
+    }
+}

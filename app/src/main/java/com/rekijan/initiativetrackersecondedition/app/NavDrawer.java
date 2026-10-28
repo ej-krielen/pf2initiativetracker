@@ -9,11 +9,11 @@ import androidx.annotation.Nullable;
 import com.rekijan.initiativetrackersecondedition.R;
 
 /**
- * Fills the navigation drawer (layout nav_header) and passes taps to the {@link Listener}: the open
- * profile with Switch profile; for the GM the encounter actions
- * (Add character, Delete characters, Edit order); then Remove Ads, Tip the dev, About, Privacy
- * Policy and Privacy Settings. A player and the profile list only get the app items. Call
- * {@link #refresh} after anything it shows has changed.
+ * Fills the navigation drawer (layout nav_header) and passes taps to the {@link Listener}: the
+ * open profile with Switch profile; for the GM the encounter actions (Add character, Delete
+ * characters, Edit order) and Table sync (with the hosted code); then Remove Ads, Tip the dev,
+ * About, Privacy Policy and Privacy Settings. A player and the profile list only get the app
+ * items. Call {@link #refresh} after anything it shows has changed.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026
@@ -30,6 +30,8 @@ public class NavDrawer {
 
         void onEditOrder();
 
+        void onTableSync();
+
         void onRemoveAds();
 
         void onTip();
@@ -45,7 +47,7 @@ public class NavDrawer {
     public enum Mode {
         /** A party's encounter: all items. */
         GM,
-        /** A player character: no encounter items. */
+        /** A player character: no encounter or Table sync items. */
         PLAYER,
         /** The profile list: no profile is open. */
         PROFILES
@@ -82,6 +84,7 @@ public class NavDrawer {
         bind(R.id.nav_add_character, listener::onAddCharacter);
         bind(R.id.nav_delete_characters, listener::onDeleteCharacters);
         bind(R.id.nav_edit_order, listener::onEditOrder);
+        bind(R.id.nav_table_sync, listener::onTableSync);
         bind(R.id.nav_remove_ads, listener::onRemoveAds);
         bind(R.id.nav_tip, listener::onTip);
         bind(R.id.nav_about, listener::onAbout);
@@ -89,14 +92,20 @@ public class NavDrawer {
         bind(R.id.nav_privacy_settings, listener::onPrivacySettings);
     }
 
-    public void refresh(State state) {
+    public void refresh(CombatTrackerApp app, State state) {
         Context context = header.getContext();
+        boolean gm = state.mode == Mode.GM;
 
         TextView profileText = header.findViewById(R.id.nav_profile_textView);
         profileText.setText(state.profileLine != null ? state.profileLine : context.getString(R.string.nav_no_profile));
         header.findViewById(R.id.nav_switch_profile)
                 .setVisibility(state.mode == Mode.PROFILES ? View.GONE : View.VISIBLE);
-        header.findViewById(R.id.nav_group_encounter).setVisibility(state.mode == Mode.GM ? View.VISIBLE : View.GONE);
+        header.findViewById(R.id.nav_group_encounter).setVisibility(gm ? View.VISIBLE : View.GONE);
+
+        TextView tableSync = header.findViewById(R.id.nav_table_sync);
+        String hostCode = app.getSync().getHostCode();
+        tableSync.setText(hostCode != null ? context.getString(R.string.nav_table_sync_hosting, hostCode)
+                : context.getString(R.string.nav_table_sync));
 
         TextView removeAds = header.findViewById(R.id.nav_remove_ads);
         removeAds.setVisibility(state.removeAdsPrice != null ? View.VISIBLE : View.GONE);

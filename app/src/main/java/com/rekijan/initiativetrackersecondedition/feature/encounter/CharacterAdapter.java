@@ -34,16 +34,19 @@ import com.rekijan.initiativetrackersecondedition.feature.character.CharacterMod
 import com.rekijan.initiativetrackersecondedition.feature.character.DebuffModel;
 import com.rekijan.initiativetrackersecondedition.feature.health.HealthDialogs;
 import com.rekijan.initiativetrackersecondedition.feature.health.HpDialog;
+import com.rekijan.initiativetrackersecondedition.feature.sync.SyncRules;
 
 import java.util.List;
 import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 
 /**
  * Shows the initiative order: one card per character with initiative and name (editable in
  * place), hp (tap to change), a summary of their (de)buffs and persistent damage, the reaction
  * row (can be folded away, or hidden for everyone from the menu) and, while dying, the dying
  * track. PCs get gold cards, NPCs bordeaux and dying characters red; the character whose turn it
- * is (the top card) gets a gold outline.
+ * is (the top card) gets a gold outline. While hosting Table sync, a synced PC is tagged Synced,
+ * or Player left when its player isn't in the session.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 17-9-2015
@@ -60,14 +63,18 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
     private final Encounter encounter;
     private final Navigation navigation;
     private final BooleanSupplier hideReactions;
+    private final Function<CharacterModel, SyncRules.Status> syncStatus;
 
     /**
      * @param hideReactions Tells whether the user hid the reactions on all cards.
+     * @param syncStatus    What each card shows about Table sync.
      */
-    public CharacterAdapter(Encounter encounter, Navigation navigation, BooleanSupplier hideReactions) {
+    public CharacterAdapter(Encounter encounter, Navigation navigation, BooleanSupplier hideReactions,
+                            Function<CharacterModel, SyncRules.Status> syncStatus) {
         this.encounter = encounter;
         this.navigation = navigation;
         this.hideReactions = hideReactions;
+        this.syncStatus = syncStatus;
     }
 
     static class CharacterViewHolder extends RecyclerView.ViewHolder {
@@ -76,6 +83,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         final EditText initiativeEditText;
         final EditText nameEditText;
         final TextView typeTextView;
+        final TextView syncTextView;
         final View hpBox;
         final TextView hpTextView;
         final TextView debuffsTextView;
@@ -99,6 +107,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
             initiativeEditText = itemView.findViewById(R.id.initiative_character_initiative_editText);
             nameEditText = itemView.findViewById(R.id.initiative_character_name_editText);
             typeTextView = itemView.findViewById(R.id.initiative_character_type_textView);
+            syncTextView = itemView.findViewById(R.id.character_sync_textView);
             hpBox = itemView.findViewById(R.id.initiative_character_hp_box);
             hpTextView = itemView.findViewById(R.id.initiative_character_hp_textView);
             debuffsTextView = itemView.findViewById(R.id.initiative_character_debuff_overview_textView);
@@ -130,6 +139,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         CharacterModel character = encounter.get(position);
 
         bindColors(holder, context, character, position == 0);
+        bindSyncTag(holder.syncTextView, context, syncStatus.apply(character));
 
         TextBinding.bindInt(holder.initiativeEditText, character.getInitiative(),
                 CharacterModel.MIN_INITIATIVE, CharacterModel.MAX_INITIATIVE, character::setInitiative);
@@ -157,6 +167,20 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
      * Gold for a PC, bordeaux for an NPC, red while dying: the card tint, marker stripe and type
      * label ("PC · 2 hero points", "NPC", "PC · Dying"). A gold outline on the active character.
      */
+    /** Synced in green, Player left in amber, or nothing; the outline takes the same color. */
+    private static void bindSyncTag(TextView tag, Context context, SyncRules.Status status) {
+        if (status == SyncRules.Status.NONE) {
+            tag.setVisibility(View.GONE);
+            return;
+        }
+        boolean synced = status == SyncRules.Status.SYNCED;
+        int color = ContextCompat.getColor(context, synced ? R.color.rk_status_on : R.color.rk_status_wait);
+        tag.setText(synced ? R.string.char_card_synced : R.string.char_card_player_left);
+        tag.setTextColor(color);
+        tag.setBackgroundTintList(ColorStateList.valueOf(color));
+        tag.setVisibility(View.VISIBLE);
+    }
+
     private static void bindColors(CharacterViewHolder holder, Context context, CharacterModel character,
                                    boolean isActive) {
         boolean dying = character.isDying();
@@ -246,7 +270,11 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
 
         holder.reactionSwitch.setOnCheckedChangeListener(null);
         holder.reactionSwitch.setChecked(character.isReactionAvailable());
-        holder.reactionSwitch.setOnCheckedChangeListener((button, isChecked) -> character.setReactionAvailable(isChecked));
+        holder.reactionSwitch.setOnCheckedChangeListener((button, isChecked) -> {
+            character.setReactionAvailable(isChecked);
+            // Tells Table sync too, so a synced player sees the reaction used
+            encounter.notifyChanged();
+        });
 
         int total = character.getReactionList().size();
         int available = character.getAvailableReactionCount();
