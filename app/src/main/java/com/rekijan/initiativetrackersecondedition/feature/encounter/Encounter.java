@@ -7,7 +7,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The initiative order and round counter of the current fight. The character at the top of the
@@ -16,6 +20,16 @@ import java.util.List;
  * <p>
  * Changes to the order, the list or the round are passed to the {@link Listener}s, so open
  * screens can redraw.
+ * <p>
+ * Spells: a condition with a caster counts down at the start of its caster's turn, on every
+ * target (Player Core, Turns: an effect lasting a number of rounds loses one at the start of its
+ * creator's turn). When a caster leaves the fight while their spells still hold targets, each
+ * spell gets a spell card in the caster's place, so it keeps counting on the same initiative; the
+ * screen then asks which of them go on ({@link #takeCastersGone}). A spell card goes away once
+ * its spell ended.
+ * <p>
+ * Locks on valued conditions: rounds of a lock counted on another character's turn go down at
+ * the start of that turn, and a lock that lasts as long as a spell opens when the spell ends.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 21-6-2026
@@ -37,16 +51,19 @@ public class Encounter {
         public final List<DebuffModel> expiredDebuffs;
         /** The character whose turn starts now. */
         public final CharacterModel active;
+        /** Spells the active character cast that ran out at the start of this turn, on each target. */
+        public final List<Expired> expiredSpells;
         /** True when the active character is dying and has to attempt a recovery check. */
         public final boolean recoveryCheck;
         public final boolean newRound;
 
         Turn(CharacterModel ended, List<DebuffModel> persistentDamage, List<DebuffModel> expiredDebuffs,
-             CharacterModel active, boolean recoveryCheck, boolean newRound) {
+             CharacterModel active, List<Expired> expiredSpells, boolean recoveryCheck, boolean newRound) {
             this.ended = ended;
             this.persistentDamage = persistentDamage;
             this.expiredDebuffs = expiredDebuffs;
             this.active = active;
+            this.expiredSpells = expiredSpells;
             this.recoveryCheck = recoveryCheck;
             this.newRound = newRound;
         }
@@ -54,7 +71,8 @@ public class Encounter {
         /**
          * @return What the user has to resolve, in order: first everything of the turn that
          * ended (persistent damage, then expired (de)buffs), then the start of the new turn
-         * (fast healing, regeneration, recovery check).
+         * (expired spells, one step per spell for all its targets, fast healing, regeneration,
+         * recovery check).
          */
         public List<TurnStep> steps() {
             List<TurnStep> steps = new ArrayList<>();
@@ -64,10 +82,42 @@ public class Encounter {
             for (DebuffModel d : expiredDebuffs) {
                 steps.add(new TurnStep(TurnStep.Kind.EXPIRED_DEBUFF, ended, d));
             }
+            Map<String, List<Expired>> spells = new LinkedHashMap<>();
+            for (Expired e : expiredSpells) {
+                String key = e.condition.getSpellId() != null ? e.condition.getSpellId() : "name:" + e.condition.getName();
+                List<Expired> group = spells.get(key);
+                if (group == null) spells.put(key, group = new ArrayList<>());
+                group.add(e);
+            }
+            for (List<Expired> group : spells.values()) {
+                steps.add(new TurnStep(TurnStep.Kind.EXPIRED_SPELL, active, null, group));
+            }
             if (active.getFastHealing() > 0) steps.add(new TurnStep(TurnStep.Kind.FAST_HEALING, active, null));
             if (active.getRegeneration() > 0) steps.add(new TurnStep(TurnStep.Kind.REGENERATION, active, null));
             if (recoveryCheck) steps.add(new TurnStep(TurnStep.Kind.RECOVERY_CHECK, active, null));
             return steps;
+        }
+    }
+
+    /** A condition that reached 0, and who has it. */
+    public static final class Expired {
+        public final CharacterModel character;
+        public final DebuffModel condition;
+
+        Expired(CharacterModel character, DebuffModel condition) {
+            this.character = character;
+            this.condition = condition;
+        }
+    }
+
+    /** A caster left the fight; their spells go on as these spell cards until the GM says otherwise. */
+    public static final class CasterGone {
+        public final String casterName;
+        public final List<CharacterModel> spellCards;
+
+        CasterGone(String casterName, List<CharacterModel> spellCards) {
+            this.casterName = casterName;
+            this.spellCards = spellCards;
         }
     }
 
@@ -92,6 +142,7 @@ public class Encounter {
 
     private final List<CharacterModel> characters = new ArrayList<>();
     private final List<Listener> listeners = new ArrayList<>();
+    private final List<CasterGone> castersGone = new ArrayList<>();
     private int round;
 
     public Encounter(List<CharacterModel> characters, int round) {
@@ -126,15 +177,12 @@ public class Encounter {
 
     /**
      * Removes a character. When it was first in round, the next character in the order takes
-     * that over, so the round counter keeps going up at the right moment.
+     * that over, so the round counter keeps going up at the right moment. See {@link #removeAll}
+     * for casters and spell cards.
      */
     public void remove(int position) {
         if (!isValidPosition(position)) return;
-        CharacterModel removed = characters.remove(position);
-        if (removed.isFirstInRound() && !characters.isEmpty()) {
-            characters.get(position % characters.size()).setFirstInRound(true);
-        }
-        notifyChanged();
+        removeAll(Collections.singletonList(characters.get(position)));
     }
 
     public void remove(CharacterModel character) {
@@ -144,8 +192,76 @@ public class Encounter {
     /**
      * Removes several characters (Delete characters in the drawer), with one change notice. When
      * the one first in round leaves, the next character that stays takes it over.
+     * <p>
+     * A caster whose spells still hold targets that stay is replaced by one spell card per spell,
+     * on the same spot (first in round included), and reported by {@link #takeCastersGone}. A
+     * spell card that is removed ends its spell on every target.
      */
     public void removeAll(Collection<CharacterModel> toRemove) {
+        List<CharacterModel> leaving = new ArrayList<>();
+        for (CharacterModel c : toRemove) {
+            if (characters.contains(c) && !leaving.contains(c)) leaving.add(c);
+        }
+        if (leaving.isEmpty()) return;
+        for (CharacterModel c : leaving) {
+            if (c.isSpellCard()) removeSpellsOf(c.getStableId());
+        }
+        List<CharacterModel> gone = new ArrayList<>();
+        for (CharacterModel c : leaving) {
+            List<CharacterModel> cards = c.isSpellCard() ? Collections.emptyList() : spellCardsFor(c, leaving);
+            if (cards.isEmpty()) {
+                gone.add(c);
+                continue;
+            }
+            int position = characters.indexOf(c);
+            characters.remove(position);
+            characters.addAll(position, cards);
+            cards.get(0).setFirstInRound(c.isFirstInRound());
+            castersGone.add(new CasterGone(c.getCharacterName(), cards));
+        }
+        removeKeepingFirstInRound(gone);
+        notifyChanged();
+    }
+
+    /**
+     * @return The casters that left the fight since the last call, with the spell cards that
+     * took their place; the list is emptied, so each one is asked about once.
+     */
+    public List<CasterGone> takeCastersGone() {
+        List<CasterGone> taken = new ArrayList<>(castersGone);
+        castersGone.clear();
+        return taken;
+    }
+
+    /** @return True when a condition in the fight was cast by this character (or spell card). */
+    public boolean hasSpellsOf(CharacterModel caster) {
+        String id = caster.getStableId();
+        for (CharacterModel c : characters) {
+            for (DebuffModel d : c.getDebuffList()) {
+                if (id.equals(d.getCasterId())) return true;
+            }
+        }
+        return false;
+    }
+
+    /** Unlocks the conditions whose lock lasted as long as a spell that is no longer on anyone. */
+    private void releaseEndedSpellLocks() {
+        Set<String> spells = new HashSet<>();
+        for (CharacterModel c : characters) {
+            for (DebuffModel d : c.getDebuffList()) {
+                if (d.getSpellId() != null) spells.add(d.getSpellId());
+            }
+        }
+        for (CharacterModel c : characters) {
+            for (DebuffModel d : c.getDebuffList()) {
+                if (d.getLockSpellId() != null && !spells.contains(d.getLockSpellId())) d.unlock();
+            }
+        }
+    }
+
+    /** Removes these characters; when the one first in round leaves, the next that stays takes it over. */
+    private void removeKeepingFirstInRound(List<CharacterModel> toRemove) {
+        if (toRemove.isEmpty()) return;
         int size = characters.size();
         int first = -1;
         for (int i = 0; i < size; i++) {
@@ -159,9 +275,54 @@ public class Encounter {
                 if (!toRemove.contains(next)) successor = next;
             }
         }
-        if (!characters.removeAll(toRemove)) return;
+        characters.removeAll(toRemove);
         if (successor != null) successor.setFirstInRound(true);
-        notifyChanged();
+    }
+
+    /**
+     * One spell card per spell the caster cast on characters that stay, with the caster's
+     * initiative and the spell's name. Those conditions now count on the card's turn.
+     */
+    private List<CharacterModel> spellCardsFor(CharacterModel caster, List<CharacterModel> leaving) {
+        String id = caster.getStableId();
+        Map<String, CharacterModel> cards = new LinkedHashMap<>();
+        for (CharacterModel c : characters) {
+            if (leaving.contains(c)) continue;
+            for (DebuffModel d : c.getDebuffList()) {
+                if (!id.equals(d.getCasterId())) continue;
+                String key = d.getSpellId() != null ? d.getSpellId() : "name:" + d.getName();
+                CharacterModel card = cards.get(key);
+                if (card == null) {
+                    card = new CharacterModel();
+                    card.setCharacterName(d.getName());
+                    card.setInitiative(caster.getInitiative());
+                    card.setSpellCardCaster(caster.getCharacterName());
+                    cards.put(key, card);
+                }
+                d.setCasterId(card.getStableId());
+            }
+        }
+        return new ArrayList<>(cards.values());
+    }
+
+    /** Takes every condition cast by this id off every character. */
+    private void removeSpellsOf(String casterId) {
+        for (CharacterModel c : characters) {
+            c.getDebuffList().removeIf(d -> casterId.equals(d.getCasterId()));
+        }
+    }
+
+    /**
+     * Spell cards whose spells all ended go away. Not the one at the top: it is having its turn,
+     * so it goes when the turn moves on ({@link #nextTurn}).
+     */
+    private void removeEndedSpellCards() {
+        List<CharacterModel> ended = new ArrayList<>();
+        for (int i = 1; i < characters.size(); i++) {
+            CharacterModel c = characters.get(i);
+            if (c.isSpellCard() && !hasSpellsOf(c)) ended.add(c);
+        }
+        removeKeepingFirstInRound(ended);
     }
 
     /**
@@ -171,6 +332,7 @@ public class Encounter {
     public void replace(List<CharacterModel> newCharacters, int newRound) {
         characters.clear();
         characters.addAll(newCharacters);
+        castersGone.clear();
         round = Math.max(0, newRound);
         notifyChanged();
     }
@@ -189,12 +351,16 @@ public class Encounter {
         return hasDuplicateInitiative();
     }
 
-    /** @return True when two PCs, or two NPCs, have the same initiative. */
+    /**
+     * @return True when two PCs, or two NPCs, have the same initiative. Spell cards don't count:
+     * they share their caster's initiative.
+     */
     public boolean hasDuplicateInitiative() {
         for (int i = 0; i < characters.size(); i++) {
             for (int j = i + 1; j < characters.size(); j++) {
                 CharacterModel a = characters.get(i);
                 CharacterModel b = characters.get(j);
+                if (a.isSpellCard() || b.isSpellCard()) continue;
                 if (a.getInitiative() == b.getInitiative() && a.isPC() == b.isPC()) return true;
             }
         }
@@ -210,25 +376,53 @@ public class Encounter {
     /**
      * Moves the turn on. The top character ends their turn (persistent damage, frightened goes
      * down, durations tick) and goes to the bottom; the next one starts their turn (reactions
-     * come back). The round goes up when the new active character is first in round.
+     * come back, and the spells they cast lose a round on every target). The round goes up when
+     * the new active character is first in round.
+     * <p>
+     * A spell whose caster isn't in the fight counts down at the end of its own character's turn,
+     * so it still ends. A spell card at the top whose spells all ended leaves instead of going to
+     * the bottom.
      *
      * @return What happened, or null when there are fewer than two characters.
      */
     public Turn nextTurn() {
         if (characters.size() < 2) return null;
         CharacterModel ended = characters.get(0);
-        List<DebuffModel> persistentDamage = ended.isAlreadyDead()
-                ? new ArrayList<>() : ended.getPersistentDamage();
-        List<DebuffModel> expired = ended.endTurn();
+        Set<String> present = new HashSet<>();
+        for (CharacterModel c : characters) present.add(c.getStableId());
+        List<DebuffModel> persistentDamage;
+        List<DebuffModel> expired;
+        boolean roundStarted = false;
+        if (ended.isSpellCard() && !hasSpellsOf(ended)) {
+            characters.remove(0);
+            persistentDamage = new ArrayList<>();
+            expired = new ArrayList<>();
+            // Its round already started on its turn; the next one is first in round from now on
+            roundStarted = ended.isFirstInRound();
+            if (roundStarted) characters.get(0).setFirstInRound(true);
+        } else {
+            persistentDamage = ended.isAlreadyDead() ? new ArrayList<>() : ended.getPersistentDamage();
+            expired = ended.endTurn(present);
+            Collections.rotate(characters, -1);
+        }
 
-        Collections.rotate(characters, -1);
         CharacterModel active = characters.get(0);
         active.startTurn();
+        List<Expired> expiredSpells = new ArrayList<>();
+        String activeId = active.getStableId();
+        for (CharacterModel c : characters) {
+            for (DebuffModel d : c.getDebuffList()) {
+                if (d.getDuration() > 0 && activeId.equals(d.getCasterId()) && d.tick()) {
+                    expiredSpells.add(new Expired(c, d));
+                }
+                if (activeId.equals(d.getLockCounterId())) d.tickLock();
+            }
+        }
         boolean recoveryCheck = active.isDying() && !active.isAlreadyDead();
-        boolean newRound = active.isFirstInRound();
+        boolean newRound = active.isFirstInRound() && !roundStarted;
         if (newRound) round++;
         notifyChanged();
-        return new Turn(ended, persistentDamage, expired, active, recoveryCheck, newRound);
+        return new Turn(ended, persistentDamage, expired, active, expiredSpells, recoveryCheck, newRound);
     }
 
     /**
@@ -304,8 +498,13 @@ public class Encounter {
         listeners.remove(listener);
     }
 
-    /** Tells the listeners; call this after changing a character from outside. */
+    /**
+     * Tells the listeners; call this after changing a character from outside. Spell cards whose
+     * spell just ended are removed first, and locks that lasted as long as an ended spell open.
+     */
     public void notifyChanged() {
+        removeEndedSpellCards();
+        releaseEndedSpellLocks();
         for (Listener l : new ArrayList<>(listeners)) {
             l.onEncounterChanged();
         }

@@ -10,13 +10,15 @@ import com.rekijan.initiativetrackersecondedition.feature.character.DebuffModel;
 import com.rekijan.initiativetrackersecondedition.feature.condition.PersistentDamageDialogs;
 import com.rekijan.initiativetrackersecondedition.feature.health.HealthDialogs;
 import com.rekijan.initiativetrackersecondedition.feature.health.HpChange;
+import com.rekijan.initiativetrackersecondedition.feature.spell.SpellDialogs;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * The questions the app asks when the turn moves on: persistent damage and expired (de)buffs at
- * the end of a turn; fast healing, regeneration and recovery checks at the start of the next.
+ * the end of a turn; spells that ran out, fast healing, regeneration and recovery checks at the
+ * start of the next.
  * They are asked one at a time, in the order of {@link Encounter.Turn#steps}. And after sorting:
  * reset the round counter?
  *
@@ -60,6 +62,9 @@ public final class TurnDialogs {
                 break;
             case EXPIRED_DEBUFF:
                 askRemoveExpiredDebuff(context, encounter, character, step.debuff, done);
+                break;
+            case EXPIRED_SPELL:
+                SpellDialogs.askExpired(context, encounter, step.spell, done);
                 break;
             case FAST_HEALING:
                 askAutomaticHealing(context, encounter, character, character.getFastHealing(),

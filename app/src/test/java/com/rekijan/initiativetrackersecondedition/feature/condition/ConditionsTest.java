@@ -2,6 +2,7 @@ package com.rekijan.initiativetrackersecondedition.feature.condition;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.rekijan.initiativetrackersecondedition.feature.character.DebuffModel;
@@ -65,5 +66,15 @@ public class ConditionsTest {
 
         assertEquals("Frightened 2", fire.getName());
         assertFalse(Conditions.is(fire, Conditions.FRIGHTENED));
+    }
+
+    @Test
+    public void searchFindsTheOldNameAndOnlyThenShowsIt() {
+        assertEquals("Off-Guard (flat-footed)", Conditions.searchLabel("Off-Guard", "flat-f"));
+        assertEquals("Off-Guard (flat-footed)", Conditions.searchLabel("Off-Guard", "Flat F"));
+        assertEquals("Off-Guard", Conditions.searchLabel("Off-Guard", "off"));
+        assertEquals("Off-Guard", Conditions.searchLabel("Off-Guard", ""));
+        assertEquals("Frightened", Conditions.searchLabel("Frightened", "FRI"));
+        assertNull(Conditions.searchLabel("Frightened", "flat"));
     }
 }

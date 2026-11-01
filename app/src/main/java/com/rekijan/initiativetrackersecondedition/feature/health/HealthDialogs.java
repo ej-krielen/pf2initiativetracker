@@ -15,6 +15,7 @@ import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel.RecoveryResult;
 import com.rekijan.initiativetrackersecondedition.feature.encounter.Encounter;
+import com.rekijan.initiativetrackersecondedition.feature.spell.SpellDialogs;
 
 import java.util.Collections;
 
@@ -228,9 +229,13 @@ public final class HealthDialogs {
         Dialogs.builder(context)
                 .setTitle(R.string.dialog_delete_low_title)
                 .setMessage(R.string.dialog_delete_low)
-                .setPositiveButton(R.string.dialog_delete_low_positive, (d, w) -> remove(context, character))
-                .setNegativeButton(R.string.dialog_delete_low_negative, null)
-                .setOnDismissListener(d -> done.run())
+                .setPositiveButton(R.string.dialog_delete_low_positive, (d, w) -> {
+                    remove(context, character);
+                    // A caster's spells may go on as spell cards: ask now, before the next question
+                    SpellDialogs.askCastersGone(context, encounter, done);
+                })
+                .setNegativeButton(R.string.dialog_delete_low_negative, (d, w) -> done.run())
+                .setOnCancelListener(d -> done.run())
                 .show();
     }
 }

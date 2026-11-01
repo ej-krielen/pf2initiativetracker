@@ -15,6 +15,7 @@ import com.rekijan.initiativetrackersecondedition.app.CombatTrackerApp;
 import com.rekijan.initiativetrackersecondedition.app.MainActivity;
 import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
 import com.rekijan.initiativetrackersecondedition.feature.encounter.Encounter;
+import com.rekijan.initiativetrackersecondedition.feature.spell.SpellDialogs;
 import com.rekijan.initiativetrackersecondedition.feature.sync.PlayerSheet;
 import com.rekijan.initiativetrackersecondedition.feature.sync.SyncManager;
 import com.rekijan.initiativetrackersecondedition.feature.sync.SyncRules;
@@ -23,7 +24,8 @@ import com.rekijan.initiativetrackersecondedition.feature.sync.SyncRules;
  * The details of one character in the GM's encounter: the name, then the sheet with the Stats and
  * Conditions tabs ({@link CharacterSheet}): PC or not, dying or not, initiative bonus, max hp, fast
  * healing, regeneration, the dying track (dying, max dying, wounded, doomed, recovery DC), hero
- * points, the free-text stat lines, notes and the conditions. On a phone it replaces the list; on
+ * points, the free-text stat lines, notes and the conditions (a spell can be ended on all its
+ * targets from there). On a phone it replaces the list; on
  * a tablet it is shown next to it. While hosting Table sync, a synced PC shows that under the
  * name, with Unlink: the GM runs it from then on. When the GM approves a change from the player
  * while this screen is open, the sheet shows it right away.
@@ -44,10 +46,16 @@ public class CharacterDetailFragment extends Fragment implements SyncManager.Sta
     private PlayerSheet shown;
 
     public static CharacterDetailFragment newInstance(int position) {
+        return newInstance(position, CharacterSheet.TAB_STATS);
+    }
+
+    /** @param tab The tab to open on, {@link CharacterSheet#TAB_STATS} or {@link CharacterSheet#TAB_CONDITIONS}. */
+    public static CharacterDetailFragment newInstance(int position, int tab) {
         CharacterDetailFragment fragment = new CharacterDetailFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_POSITION, position);
         fragment.setArguments(args);
+        fragment.tab = tab;
         return fragment;
     }
 
@@ -78,6 +86,9 @@ public class CharacterDetailFragment extends Fragment implements SyncManager.Sta
                     encounter.notifyChanged();
                 },
                 () -> ((MainActivity) requireActivity()).showConditionWizard(encounter.indexOf(character)));
+        sheet.setOnEndSpell(spell -> SpellDialogs.askEnd(requireContext(), encounter, spell.getSpellId(),
+                spell.getName(), false, sheet::refreshConditions));
+        sheet.setGmEncounter(encounter);
         sheet.bind(character);
         shown = PlayerSheet.of(character);
         if (savedInstanceState != null) tab = savedInstanceState.getInt(STATE_TAB, tab);

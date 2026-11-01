@@ -4,8 +4,11 @@ import com.rekijan.initiativetrackersecondedition.core.util.NumberInput;
 import com.rekijan.initiativetrackersecondedition.feature.condition.Conditions;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * One combatant in the initiative order: a PC or an NPC/monster with initiative, hit points,
@@ -76,6 +79,17 @@ public class CharacterModel {
      * SyncIds. Null for characters the GM runs.
      */
     private String syncId;
+    /**
+     * Stays the same while the character exists, so a spell knows its caster whatever the order.
+     * Made the first time it is asked for. Not called "id": the saved JSON can hold an unused
+     * numeric "id".
+     */
+    private String stableId;
+    /**
+     * Set on a spell card: the stand-in that keeps a spell going on the initiative of a caster who
+     * left the fight. It holds the caster's name; null for every real character.
+     */
+    private String spellCardCaster;
 
     /** Empty character; also used by Gson when loading saved data. */
     public CharacterModel() {
@@ -101,21 +115,52 @@ public class CharacterModel {
         }
     }
 
+    /** End of this character's turn, see {@link #endTurn(Set)}; every spell counts down here. */
+    public List<DebuffModel> endTurn() {
+        return endTurn(Collections.emptySet());
+    }
+
     /**
-     * End of this character's turn: frightened goes down by 1 (and goes away at 0), and every
-     * (de)buff loses a round, never below 0.
+     * End of this character's turn: frightened goes down by 1 (and goes away at 0) unless a lock
+     * holds it, and every (de)buff with a duration loses a round. A spell whose caster is in the
+     * fight is left alone: it counts down at the start of the caster's turn. Then the locks that
+     * count on this character's own turn lose a round.
      *
+     * @param presentIds The stable ids of everyone in the fight.
      * @return The (de)buffs whose duration just reached 0, so the user can be asked to remove them.
      */
-    public List<DebuffModel> endTurn() {
+    public List<DebuffModel> endTurn(Set<String> presentIds) {
         lowerFrightened();
         List<DebuffModel> expired = new ArrayList<>();
         for (DebuffModel d : getDebuffList()) {
-            int duration = d.getDuration() - 1;
-            if (duration == 0) expired.add(d);
-            d.setDuration(duration);
+            String counter = d.getLockCounterId();
+            if (counter == null || !presentIds.contains(counter)) d.tickLock();
+            if (d.hasCaster() && presentIds.contains(d.getCasterId())) continue;
+            // Conditions without a duration (0) don't count down
+            if (d.getDuration() > 0 && d.tick()) expired.add(d);
         }
         return expired;
+    }
+
+    /** @return The id that stays the same while this character exists; made on first use. */
+    public String getStableId() {
+        if (stableId == null || stableId.isEmpty()) stableId = UUID.randomUUID().toString();
+        return stableId;
+    }
+
+    /** @return True for a spell card, which only keeps a removed caster's spell going. */
+    public boolean isSpellCard() {
+        return spellCardCaster != null;
+    }
+
+    /** @return The name of the caster a spell card stands in for, or "" for a real character. */
+    public String getSpellCardCaster() {
+        return spellCardCaster == null ? "" : spellCardCaster;
+    }
+
+    /** Makes this a spell card standing in for the caster with this name. */
+    public void setSpellCardCaster(String casterName) {
+        this.spellCardCaster = casterName == null ? "" : casterName;
     }
 
     /** @return The persistent damage this character takes at the end of their turn. */
@@ -133,8 +178,7 @@ public class CharacterModel {
             DebuffModel d = it.next();
             // Frightened without a value was added by hand; leave it to the user
             if (!Conditions.is(d, Conditions.FRIGHTENED) || d.getValue() <= 0) continue;
-            d.setValue(d.getValue() - 1);
-            if (d.getValue() == 0) it.remove();
+            if (d.lowerValue()) it.remove();
         }
     }
 

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ending a spell (it ran out, or End spell): who it comes off and, when its cast added a
+     condition such as Slowed, a ticked checkbox to remove that condition too. SpellDialogs fills it. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/space_4"
+    android:paddingTop="@dimen/space_1"
+    android:paddingEnd="@dimen/space_4">
+
+    <TextView
+        android:id="@+id/spell_end_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.Rekijan.Body"
+        android:textColor="?attr/colorOnSurfaceVariant" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/spell_end_added_checkBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_2"
+        android:checked="true"
+        android:minHeight="@dimen/touch_target"
+        android:textAppearance="@style/TextAppearance.Rekijan.Body"
+        android:textColor="?attr/colorOnSurface"
+        android:visibility="gone" />
+</LinearLayout>

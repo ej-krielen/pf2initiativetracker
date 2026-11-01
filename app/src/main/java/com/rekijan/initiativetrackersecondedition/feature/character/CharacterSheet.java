@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,6 +21,7 @@ import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.core.util.NumberInput;
 import com.rekijan.initiativetrackersecondedition.core.util.TextBinding;
 import com.rekijan.initiativetrackersecondedition.feature.condition.DebuffAdapter;
+import com.rekijan.initiativetrackersecondedition.feature.encounter.Encounter;
 import com.rekijan.initiativetrackersecondedition.feature.reaction.ReactionAdapter;
 
 import java.util.Set;
@@ -69,6 +71,10 @@ public class CharacterSheet {
     private final TextView conditionsEmpty;
     private CharacterModel character;
     private DebuffAdapter adapter;
+    @Nullable
+    private Consumer<DebuffModel> onEndSpell;
+    @Nullable
+    private Encounter gmEncounter;
     private final RecyclerView reactionList;
     private boolean conditionsUnsent;
     private Toast maxDyingToast;
@@ -158,8 +164,26 @@ public class CharacterSheet {
         bindText(R.id.saves_editText, character.getSaves(), character::setSaves);
         bindText(R.id.notes_editText, character.getCharacterNotes(), character::setCharacterNotes);
 
-        adapter = new DebuffAdapter(character, this::onConditionsChanged);
+        adapter = new DebuffAdapter(character, this::onConditionsChanged, onEndSpell, gmEncounter);
         conditionList.setAdapter(adapter);
+        updateConditionCount();
+    }
+
+    /** GM only, before {@link #bind}: what End on all targets on a spell condition does. */
+    public void setOnEndSpell(@Nullable Consumer<DebuffModel> onEndSpell) {
+        this.onEndSpell = onEndSpell;
+    }
+
+    /** GM only, before {@link #bind}: the fight, so valued conditions can be locked. */
+    public void setGmEncounter(@Nullable Encounter gmEncounter) {
+        this.gmEncounter = gmEncounter;
+    }
+
+    /** Redraws the conditions after they changed elsewhere (a spell ended on all targets). */
+    @SuppressLint("NotifyDataSetChanged") // Any number of conditions may be gone
+    public void refreshConditions() {
+        if (adapter == null) return;
+        adapter.notifyDataSetChanged();
         updateConditionCount();
     }
 

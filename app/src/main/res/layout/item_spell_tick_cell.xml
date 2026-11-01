@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Whether one target gets an added condition without a value in Cast spell: a tick with the
+     condition's name. SpellDialogs adds one per such condition. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="40dp"
+    android:background="@drawable/bg_spell_value_cell"
+    android:paddingStart="@dimen/space_1"
+    android:paddingEnd="@dimen/space_3">
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/spell_tick_checkBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:minHeight="40dp"
+        android:textAppearance="@style/TextAppearance.Rekijan.M3BodySmall"
+        android:textColor="?attr/colorOnSurface" />
+</FrameLayout>

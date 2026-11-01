@@ -30,6 +30,7 @@ import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.core.data.EncounterStore;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterDefaults;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
+import com.rekijan.initiativetrackersecondedition.feature.character.CharacterSheet;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterDetailFragment;
 import com.rekijan.initiativetrackersecondedition.feature.condition.ConditionWizardFragment;
 import com.rekijan.initiativetrackersecondedition.feature.encounter.CharacterDialogs;
@@ -358,14 +359,23 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
 
     // ---------------------------------------------------------------- Panes
 
-    /** Shows a character's details: next to the list on a tablet, instead of it on a phone. */
+    /**
+     * Shows a character's details: next to the list on a tablet, instead of it on a phone. A spell
+     * card has no details.
+     */
     public void showCharacterDetail(int position) {
+        showCharacterDetail(position, CharacterSheet.TAB_STATS);
+    }
+
+    /** Shows a character's details opened on a tab, e.g. the conditions from the card's conditions line. */
+    public void showCharacterDetail(int position, int tab) {
+        if (encounter.isValidPosition(position) && encounter.get(position).isSpellCard()) return;
         if (isTablet) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.second_fragment_container, CharacterDetailFragment.newInstance(position))
+                    .replace(R.id.second_fragment_container, CharacterDetailFragment.newInstance(position, tab))
                     .commit();
         } else {
-            showOnTop(CharacterDetailFragment.newInstance(position));
+            showOnTop(CharacterDetailFragment.newInstance(position, tab));
         }
     }
 

@@ -91,7 +91,7 @@
     <string name="sheet_tab_stats">Stats</string>
     <string name="sheet_tab_conditions">Conditions</string>
     <string name="sheet_tab_conditions_count">Conditions (%1$d)</string>
-    <string name="sheet_conditions_empty">No conditions. Tap Add for a condition, buff or persistent damage.</string>
+    <string name="sheet_conditions_empty">No conditions. Tap Add for a condition or persistent damage.</string>
     <string name="sheet_field_name">Name</string>
     <string name="sheet_field_initiative">Initiative</string>
     <string name="sheet_field_hp">HP</string>
@@ -130,10 +130,10 @@
     <string name="char_card_show_reactions">Show reactions</string>
 
     <!--Debuff Cards-->
-    <string name="debuff_card_name">(De)buff name</string>
+    <string name="debuff_card_name">Condition name</string>
     <string name="debuff_card_duration">10</string>
     <string name="debuff_card_duration_label">Rounds</string>
-    <string name="debuff_card_description">(De)buff description</string>
+    <string name="debuff_card_description">Condition description</string>
     <string name="debuff_card_remove_button">Remove</string>
     <string name="debuff_card_value_label">Value</string>
     <string name="debuff_card_value_hint">1</string>
@@ -176,7 +176,7 @@
     <string name="char_detail_ac">AC</string>
     <string name="char_detail_saves">Fort Ref Will</string>
     <string name="char_detail_notes">Notes</string>
-    <string name="char_detail_debuffs">Debuffs, buffs, spells</string>
+    <string name="char_detail_debuffs">Conditions</string>
     <string name="char_detail_add_button">Add</string>
     <string name="char_detail_clear_button">Clear all</string>
 
@@ -192,14 +192,14 @@
     <string name="EH_character_notes">Notes</string>
 
     <!--Toast debuffs-->
-    <string name="debuff_expired">Debuff %s expired</string>
+    <string name="debuff_expired">%s expired</string>
     <string name="debuff_top_left">top left</string>
     <string name="debuff_middle_top">middle top</string>
     <string name="debuff_top_right">top right</string>
     <string name="debuff_bottom_left">bottom left</string>
     <string name="debuff_middle_bottom">middle bottom</string>
     <string name="debuff_bottom_right">bottom right</string>
-    <string name="debuff_added_empty">Added empty (de)buff</string>
+    <string name="debuff_added_empty">Added empty condition</string>
     <string name="debuff_added_existing">Condition %1$s added</string>
     <string name="debuff_added_persistent_damage">Added persistent damage</string>
     <string name="debuff_added_poison">Added %1$s poison</string>
@@ -214,7 +214,7 @@
     <string name="debuff_wizard_search">Search conditions</string>
 
     <!-- Persistent Damage-->
-    <string name="persistent_dialog_title">Create a persistent damage debuff</string>
+    <string name="persistent_dialog_title">Add persistent damage</string>
     <string name="add_persistent_dialog">Add</string>
     <string name="persistent_name">Persistent %1$s damage (%2$s)</string>
     <string name="persistent_name_hint">Name</string>
@@ -272,7 +272,7 @@ The last step of starting your turn is always the same.\n\n\n
     <string name="dialog_reset_round_counter">Confirming will reset the round counter to 1.</string>
     <string name="dialog_reset_round_double_init">\n\nWARNING\n\nSome characters have the same initiative, you might want to edit the order and resolve this.\nPlease note this will not change who is first in the round for tracking turns (You will need to change numbers and sort again to do that).</string>
     <string name="dialog_reset_round_counter_cancel">No, keep current number</string>
-    <string name="removed_debuff">Debuff has been removed</string>
+    <string name="removed_debuff">Condition removed</string>
 
     <!--Privacy Policy dialog    -->
     <string name="dialog_privacy_info">Everything you enter stays on your device, including your parties, their characters and round counters, and your player characters.\n\n<b>Ads</b>\nThe free version shows ads from Google AdMob. Google may use information such as your device\'s advertising ID to show and measure ads. If you are in the EEA or the UK, you choose whether ads may be personalised, and you can change that later under Privacy Settings.\n\n<b>Remove Ads</b>\nIf you buy Remove Ads, the app stops loading ads altogether.\n\n<b>Purchases</b>\nTips, Remove Ads and party packs are handled by Google Play. The app only learns that a purchase was made.\n\nThe full policy is on the website.</string>
@@ -280,7 +280,7 @@ The last step of starting your turn is always the same.\n\n\n
     <string name="dialog_privacy_ok">Go to website</string>
 
     <!-- Dialog debuff expired -->
-    <string name="dialog_debuff_expired_title">Debuff expired</string>
+    <string name="dialog_debuff_expired_title">Condition expired</string>
     <string name="dialog_debuff_remove">Remove (after this turn)</string>
     <string name="dialog_debuff_keep">Keep anyway</string>
 
@@ -499,4 +499,70 @@ The last step of starting your turn is always the same.\n\n\n
     <string name="sheet_reactions_header">Reactions</string>
     <string name="sheet_reaction_available">Reaction available</string>
     <string name="sheet_reaction_add">Add reaction</string>
+
+    <!-- Spells (feature/spell): Cast spell in the turn bar, spell cards, ending a spell -->
+    <string name="action_cast_spell">Cast spell</string>
+    <string name="spell_caster">Caster</string>
+    <string name="spell_caster_active">%1$s (turn now)</string>
+    <string name="spell_name">Spell</string>
+    <string name="spell_duration">Duration</string>
+    <plurals name="spell_rounds_suffix">
+        <item quantity="one">rnd</item>
+        <item quantity="other">rnds</item>
+    </plurals>
+    <string name="spell_description">Description</string>
+    <string name="spell_added_conditions">Added conditions</string>
+    <string name="spell_add_condition">Add condition</string>
+    <string name="spell_condition">Condition</string>
+    <string name="spell_condition_lock">Lock while the spell lasts</string>
+    <string name="spell_condition_remove">Remove condition</string>
+    <string name="spell_lock_line">Locked while the spell lasts</string>
+    <string name="spell_added_value">Value</string>
+    <string name="spell_value_lower">Lower</string>
+    <string name="spell_value_raise">Raise</string>
+    <string name="spell_targets_values_hint">A new target gets the Value above. 0 or unticked: that target doesn\'t get it (e.g. it saved).</string>
+    <string name="spell_targets">Targets</string>
+    <string name="spell_active_tag">Active</string>
+    <plurals name="spell_cast_on">
+        <item quantity="one">Cast on %1$d</item>
+        <item quantity="other">Cast on %1$d</item>
+    </plurals>
+    <string name="spell_cast">Cast</string>
+    <string name="spell_error_name">Enter a spell name</string>
+    <string name="spell_error_duration">Enter 1 to %1$d rounds, or leave it empty for no timer</string>
+    <string name="spell_error_value">Enter 0 to %1$d</string>
+    <string name="lock_min">Not below</string>
+
+    <!-- Locking a valued condition (character details, card) -->
+    <string name="debuff_lock">Locked</string>
+    <string name="debuff_lock_rounds">Lock rounds</string>
+    <string name="debuff_lock_rounds_hint">Empty: until you unlock it.</string>
+    <string name="debuff_lock_counter">Counts on</string>
+    <string name="debuff_lock_counter_own">%1$s (end of own turn)</string>
+    <string name="debuff_lock_counter_other">%1$s (start of turn)</string>
+    <string name="debuff_lock_spell">Locked while %1$s lasts</string>
+    <string name="char_card_locked">locked</string>
+    <string name="spell_error_targets">Pick at least one target</string>
+    <string name="spell_need_characters">Add a character first</string>
+    <string name="dialog_spell_expired_title">Spell ended</string>
+    <string name="spell_expired">%1$s ended on %2$s.</string>
+    <string name="spell_expired_remove">Remove</string>
+    <string name="spell_also_remove">Also remove %1$s</string>
+    <string name="spell_caster_gone_title">%1$s left the fight</string>
+    <string name="spell_caster_gone_message">Selected spells keep going on %1$s\'s initiative as a spell card. The rest end, with the conditions they added.</string>
+    <string name="spell_caster_gone_item">%1$s (on %2$s)</string>
+    <string name="spell_caster_gone_done">Done</string>
+    <string name="char_card_spell">Spell</string>
+    <string name="spell_card_line">%1$s\'s spell · on %2$s</string>
+    <string name="spell_card_line_none">%1$s\'s spell</string>
+    <plurals name="spell_rounds">
+        <item quantity="one">%1$d rnd</item>
+        <item quantity="other">%1$d rnds</item>
+    </plurals>
+    <string name="debuff_cast_by">Cast by %1$s</string>
+    <string name="debuff_end_all">End on all targets</string>
+    <string name="spell_end_title">End %1$s?</string>
+    <string name="spell_end_message">%1$s comes off %2$s.</string>
+    <string name="spell_end_card_message">%1$s comes off %2$s, and its spell card leaves the order.</string>
+    <string name="spell_end">End spell</string>
 </resources>

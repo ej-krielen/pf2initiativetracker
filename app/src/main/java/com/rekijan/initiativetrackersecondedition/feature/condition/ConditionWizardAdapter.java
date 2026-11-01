@@ -16,11 +16,11 @@ import com.rekijan.initiativetrackersecondedition.feature.character.DebuffModel;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.function.Consumer;
 
 /**
- * The list of standard conditions in the condition wizard, searchable by name. Each row has a
+ * The list of standard conditions in the condition wizard, searchable by name (also the
+ * pre-remaster name, see {@link Conditions#searchLabel}). Each row has a
  * duration and, for valued conditions, a value; Add puts a copy on the character.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
@@ -30,6 +30,8 @@ public class ConditionWizardAdapter extends RecyclerView.Adapter<ConditionWizard
 
     private final List<ConditionProvider.Condition> allConditions;
     private final List<ConditionProvider.Condition> shown = new ArrayList<>();
+    /** What each shown row is called: its name, or with its pre-remaster name when that was searched. */
+    private final List<String> labels = new ArrayList<>();
     private final Consumer<DebuffModel> onAdd;
     private boolean hideDescriptions;
 
@@ -41,7 +43,7 @@ public class ConditionWizardAdapter extends RecyclerView.Adapter<ConditionWizard
         this.allConditions = conditions;
         this.hideDescriptions = hideDescriptions;
         this.onAdd = onAdd;
-        shown.addAll(conditions);
+        filter("");
     }
 
     static class ConditionViewHolder extends RecyclerView.ViewHolder {
@@ -63,13 +65,19 @@ public class ConditionWizardAdapter extends RecyclerView.Adapter<ConditionWizard
         }
     }
 
-    /** Shows only the conditions whose name contains the search text. */
+    /**
+     * Shows only the conditions that match the search text, also by pre-remaster name: "flat-f"
+     * shows "Off-Guard (flat-footed)".
+     */
     @SuppressLint("NotifyDataSetChanged") // The filtered list can change completely
     public void filter(String search) {
-        String query = search == null ? "" : search.trim().toLowerCase(Locale.getDefault());
         shown.clear();
+        labels.clear();
         for (ConditionProvider.Condition c : allConditions) {
-            if (c.name.toLowerCase(Locale.getDefault()).contains(query)) shown.add(c);
+            String label = Conditions.searchLabel(c.name, search);
+            if (label == null) continue;
+            shown.add(c);
+            labels.add(label);
         }
         notifyDataSetChanged();
     }
@@ -90,7 +98,7 @@ public class ConditionWizardAdapter extends RecyclerView.Adapter<ConditionWizard
     @Override
     public void onBindViewHolder(@NonNull ConditionViewHolder holder, int position) {
         ConditionProvider.Condition condition = shown.get(position);
-        holder.nameTextView.setText(condition.name);
+        holder.nameTextView.setText(labels.get(position));
         holder.descriptionTextView.setText(condition.description);
         holder.descriptionTextView.setVisibility(hideDescriptions ? View.GONE : View.VISIBLE);
         holder.durationEditText.setText("0");

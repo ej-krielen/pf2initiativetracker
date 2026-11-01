@@ -34,6 +34,8 @@ import com.rekijan.initiativetrackersecondedition.feature.character.CharacterMod
 import com.rekijan.initiativetrackersecondedition.feature.character.DebuffModel;
 import com.rekijan.initiativetrackersecondedition.feature.health.HealthDialogs;
 import com.rekijan.initiativetrackersecondedition.feature.health.HpDialog;
+import com.rekijan.initiativetrackersecondedition.feature.spell.SpellDialogs;
+import com.rekijan.initiativetrackersecondedition.feature.spell.Spells;
 import com.rekijan.initiativetrackersecondedition.feature.sync.SyncRules;
 
 import java.util.List;
@@ -42,11 +44,14 @@ import java.util.function.Function;
 
 /**
  * Shows the initiative order: one card per character with initiative and name (editable in
- * place), hp (tap to change), a summary of their (de)buffs and persistent damage, the reaction
+ * place), hp (tap to change), a summary of their conditions and persistent damage (tap for the
+ * Conditions tab of their details), the reaction
  * row (can be folded away, or hidden for everyone from the menu) and, while dying, the dying
  * track. PCs get gold cards, NPCs bordeaux and dying characters red; the character whose turn it
  * is (the top card) gets a gold outline. While hosting Table sync, a synced PC is tagged Synced,
- * or Player left when its player isn't in the session.
+ * or Player left when its player isn't in the session. Spell conditions show their caster in
+ * gold; a spell card (a removed caster's spell that goes on) gets a plain card with a gold
+ * outline, its caster, targets and rounds left, and no hp, details or reactions.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 17-9-2015
@@ -58,6 +63,9 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         void showDetails(int position);
 
         void showReactions(int position);
+
+        /** The details opened on the Conditions tab. */
+        void showConditions(int position);
     }
 
     private final Encounter encounter;
@@ -138,17 +146,39 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         Context context = holder.itemView.getContext();
         CharacterModel character = encounter.get(position);
 
-        bindColors(holder, context, character, position == 0);
+        boolean spellCard = character.isSpellCard();
+        if (spellCard) {
+            bindSpellCardColors(holder, context, position == 0);
+        } else {
+            bindColors(holder, context, character, position == 0);
+        }
         bindSyncTag(holder.syncTextView, context, syncStatus.apply(character));
 
         TextBinding.bindInt(holder.initiativeEditText, character.getInitiative(),
                 CharacterModel.MIN_INITIATIVE, CharacterModel.MAX_INITIATIVE, character::setInitiative);
         TextBinding.bindText(holder.nameEditText, character.getCharacterName(), character::setCharacterName);
 
+        holder.hpBox.setVisibility(spellCard ? View.GONE : View.VISIBLE);
+        holder.showDetailButton.setVisibility(spellCard ? View.GONE : View.VISIBLE);
         holder.hpTextView.setText(hpText(holder.hpTextView, character));
         holder.hpBox.setOnClickListener(v -> HpDialog.show(context, encounter, character));
 
-        bindDebuffs(context, holder, character.getDebuffList());
+        if (spellCard) {
+            holder.debuffsTextView.setVisibility(View.VISIBLE);
+            holder.debuffsTextView.setText(spellCardLine(context, character));
+            holder.persistentTextView.setVisibility(View.GONE);
+        } else {
+            bindDebuffs(context, holder, character.getDebuffList());
+        }
+
+        View.OnClickListener openConditions = v -> {
+            int pos = holder.getBindingAdapterPosition();
+            if (pos != RecyclerView.NO_POSITION && !spellCard) navigation.showConditions(pos);
+        };
+        holder.debuffsTextView.setOnClickListener(openConditions);
+        holder.persistentTextView.setOnClickListener(openConditions);
+        holder.debuffsTextView.setClickable(!spellCard);
+        holder.persistentTextView.setClickable(!spellCard);
 
         holder.showDetailButton.setOnClickListener(v -> {
             int pos = holder.getBindingAdapterPosition();
@@ -156,6 +186,35 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         });
         bindReactions(context, holder, character);
         bindDying(context, holder, character);
+        if (spellCard) holder.reactionRow.setVisibility(View.GONE);
+    }
+
+    /** A spell card: no hp, details or reactions, a gold outline and marker, Spell as its type. */
+    private static void bindSpellCardColors(CharacterViewHolder holder, Context context, boolean isActive) {
+        int gold = ContextCompat.getColor(context, R.color.rk_pc_marker);
+        holder.cardView.setCardBackgroundColor(
+                MaterialColors.getColor(holder.cardView, com.google.android.material.R.attr.colorSurfaceContainer));
+        holder.markerView.setBackgroundColor(gold);
+        holder.typeTextView.setText(R.string.char_card_spell);
+        holder.typeTextView.setTextColor(gold);
+        holder.cardView.setStrokeColor(gold);
+        holder.cardView.setStrokeWidth(context.getResources().getDimensionPixelSize(
+                isActive ? R.dimen.active_card_stroke : R.dimen.spell_card_stroke));
+    }
+
+    /** "Kyra's spell · on Ogre 1, Goblin · 2 rnds". */
+    private CharSequence spellCardLine(Context context, CharacterModel card) {
+        String caster = card.getSpellCardCaster().isEmpty()
+                ? context.getString(R.string.empty_character_name) : card.getSpellCardCaster();
+        String targets = SpellDialogs.targetNames(context, encounter, Spells.spellOfCard(encounter, card));
+        StringBuilder sb = new StringBuilder(targets.isEmpty()
+                ? context.getString(R.string.spell_card_line_none, caster)
+                : context.getString(R.string.spell_card_line, caster, targets));
+        int rounds = Spells.roundsLeft(encounter, card);
+        if (rounds > 0) {
+            sb.append(" · ").append(context.getResources().getQuantityString(R.plurals.spell_rounds, rounds, rounds));
+        }
+        return sb.toString();
     }
 
     @Override
@@ -228,7 +287,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
             if (d.isPersistentDamage()) {
                 appendPersistent(context, persistent, d);
             } else {
-                appendCondition(conditions, d);
+                appendCondition(context, holder.debuffsTextView, conditions, d);
             }
         }
         holder.debuffsTextView.setVisibility(conditions.length() == 0 ? View.GONE : View.VISIBLE);
@@ -237,15 +296,45 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         holder.persistentTextView.setText(persistent);
     }
 
-    /** E.g. "Frightened 2 · Off-Guard (1)": a value in bold, a duration of 0 left out. */
-    private static void appendCondition(SpannableStringBuilder sb, DebuffModel d) {
+    /**
+     * E.g. "Frightened 2 · Off-Guard (1) · Slow (3, Kyra)": a value in bold, a duration of 0 left
+     * out, a spell in gold with its caster, a gold lock after a locked condition.
+     */
+    private static void appendCondition(Context context, TextView view, SpannableStringBuilder sb, DebuffModel d) {
         if (sb.length() > 0) sb.append(" · ");
         int start = sb.length();
         sb.append(d.getDisplayName());
         if (d.getValue() > 0) {
             sb.setSpan(new StyleSpan(Typeface.BOLD), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-        if (d.getDuration() > 0) sb.append(" (").append(String.valueOf(d.getDuration())).append(")");
+        if (d.isLocked()) appendLock(context, view, sb);
+        String caster = d.getSpellId() != null ? d.getCasterName() : "";
+        if (d.getDuration() > 0 && !caster.isEmpty()) {
+            sb.append(" (").append(String.valueOf(d.getDuration())).append(", ").append(caster).append(")");
+        } else if (d.getDuration() > 0) {
+            sb.append(" (").append(String.valueOf(d.getDuration())).append(")");
+        } else if (!caster.isEmpty()) {
+            sb.append(" (").append(caster).append(")");
+        }
+        if (d.getSpellId() != null) {
+            sb.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.rk_pc_marker)),
+                    start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+    }
+
+    /** A lock icon in the accent color, read out as "locked". */
+    private static void appendLock(Context context, TextView view, SpannableStringBuilder sb) {
+        Drawable lock = AppCompatResources.getDrawable(context, R.drawable.ic_lock);
+        if (lock == null) return;
+        lock = lock.mutate();
+        lock.setTint(ContextCompat.getColor(context, R.color.rk_pc_marker));
+        int size = Math.round(view.getTextSize());
+        lock.setBounds(0, 0, size, size);
+        sb.append(" ");
+        int start = sb.length();
+        sb.append(context.getString(R.string.char_card_locked));
+        sb.setSpan(new ImageSpan(lock, DynamicDrawableSpan.ALIGN_BASELINE), start, sb.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     /** E.g. "1d6 fire · DC 15", the damage in bold; the name when no damage was entered. */

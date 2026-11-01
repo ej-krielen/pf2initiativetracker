@@ -154,9 +154,12 @@
                     android:src="@drawable/ic_chevron_right" />
             </LinearLayout>
 
-            <!-- (De)buffs, valued conditions in bold, e.g. "Frightened 2 · Off-Guard (1)" -->
+            <!-- Conditions, valued ones in bold, e.g. "Frightened 2 · Off-Guard (1)"; tap for the Conditions tab -->
             <TextView
                 android:id="@+id/initiative_character_debuff_overview_textView"
+            android:background="?attr/selectableItemBackground"
+            android:minHeight="32dp"
+            android:gravity="center_vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_2"
@@ -170,9 +173,12 @@
                 tools:text="Frightened 2 · Off-Guard (1) · Bless (3)"
                 tools:visibility="visible" />
 
-            <!-- Persistent damage, e.g. "1d6 fire · DC 15" -->
+            <!-- Persistent damage, e.g. "1d6 fire · DC 15"; tap for the Conditions tab -->
             <TextView
                 android:id="@+id/initiative_character_persistent_textView"
+            android:background="?attr/selectableItemBackground"
+            android:minHeight="32dp"
+            android:gravity="center_vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_1"

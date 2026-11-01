@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Turn bar under the encounter: the round with minus and plus, Edit
-     order, and Next turn, the main action, in thumb reach. EncounterFragment wires the buttons;
+<!-- Turn bar under the encounter: the round with minus and plus,
+     Cast spell, and Next turn, the main action, in thumb reach. EncounterFragment wires the buttons;
      Reset round is in the toolbar menu. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -65,14 +65,14 @@
             app:icon="@drawable/ic_add" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/edit_order_button"
+            android:id="@+id/cast_spell_button"
             style="@style/Widget.Rekijan.Button.Tonal.Icon"
             android:layout_width="@dimen/touch_target"
             android:layout_height="@dimen/touch_target"
             android:layout_marginStart="@dimen/space_2"
-            android:contentDescription="@string/edit_order_button_label"
-            android:tooltipText="@string/edit_order_button_label"
-            app:icon="@drawable/ic_swap_vert" />
+            android:contentDescription="@string/action_cast_spell"
+            android:tooltipText="@string/action_cast_spell"
+            app:icon="@drawable/ic_spellbook" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/next_turn_button"

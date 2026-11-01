@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The value one target gets for an added valued condition in Cast spell: the name, minus, the
+     value (0: that target doesn't get it) and plus. SpellDialogs adds one per valued condition. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_spell_value_cell"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/space_3"
+    android:paddingEnd="@dimen/space_1">
+
+    <TextView
+        android:id="@+id/spell_value_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.Rekijan.M3BodySmall"
+        android:textColor="?attr/colorOnSurface"
+        tools:text="Frightened" />
+
+    <ImageButton
+        android:id="@+id/spell_value_minus"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/spell_value_lower"
+        android:src="@drawable/ic_remove"
+        app:tint="?attr/colorSecondary" />
+
+    <TextView
+        android:id="@+id/spell_value_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:minWidth="20dp"
+        android:textAppearance="@style/TextAppearance.Rekijan.LabelLarge"
+        android:textColor="?attr/colorOnSurface"
+        tools:text="1" />
+
+    <ImageButton
+        android:id="@+id/spell_value_plus"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/spell_value_raise"
+        android:src="@drawable/ic_add"
+        app:tint="?attr/colorSecondary" />
+</LinearLayout>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One condition the Cast spell dialog adds next to the spell: the condition (type to search the
+     condition list, pre-remaster names included) and remove. For a valued condition a second line:
+     the Value every target gets and the lock toggle; locked, the lowest value it may drop to while
+     the spell lasts, explained on a line below. SpellDialogs binds it. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/space_2"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/spell_condition_layout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/spell_condition">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/spell_condition_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:completionThreshold="1"
+                android:imeOptions="actionDone"
+                android:importantForAutofill="no"
+                android:inputType="textCapWords"
+                android:maxLength="100"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageButton
+            android:id="@+id/spell_condition_remove_button"
+            style="@style/Widget.Rekijan.IconButton"
+            android:contentDescription="@string/spell_condition_remove"
+            android:src="@drawable/ic_delete" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/spell_condition_value_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_2"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/spell_condition_value_layout"
+            style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+            android:layout_width="96dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/spell_added_value">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/spell_condition_value_editText"
+                style="@style/Widget.Rekijan.NumberField"
+                android:gravity="center"
+                android:maxLength="2"
+                android:text="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageButton
+            android:id="@+id/spell_condition_lock_button"
+            style="@style/Widget.Rekijan.IconButton"
+            android:layout_marginStart="@dimen/space_1"
+            android:contentDescription="@string/spell_condition_lock"
+            android:src="@drawable/ic_lock" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/spell_condition_lock_min_layout"
+            style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+            android:layout_width="96dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_1"
+            android:hint="@string/lock_min"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/spell_condition_lock_min_editText"
+                style="@style/Widget.Rekijan.NumberField"
+                android:gravity="center"
+                android:maxLength="2"
+                android:text="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/spell_condition_lock_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_1"
+        android:drawablePadding="@dimen/space_1"
+        android:gravity="center_vertical"
+        android:text="@string/spell_lock_line"
+        android:textAppearance="@style/TextAppearance.Rekijan.M3BodySmall"
+        android:textColor="?attr/colorSecondary"
+        android:visibility="gone"
+        app:drawableStartCompat="@drawable/ic_lock"
+        app:drawableTint="?attr/colorSecondary"
+        tools:visibility="visible" />
+</LinearLayout>

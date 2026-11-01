@@ -3,6 +3,9 @@ package com.rekijan.initiativetrackersecondedition.feature.encounter;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
 import com.rekijan.initiativetrackersecondedition.feature.character.DebuffModel;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Something the user has to resolve when the turn moves on, such as persistent damage or a
  * recovery check. {@link Encounter.Turn#steps} lists them in the order they are asked.
@@ -17,6 +20,8 @@ public final class TurnStep {
         PERSISTENT_DAMAGE,
         /** End of turn: a (de)buff ran out, remove it? */
         EXPIRED_DEBUFF,
+        /** Start of turn: a spell the active character cast ran out on its targets, remove it? */
+        EXPIRED_SPELL,
         /** Start of turn: add fast healing? */
         FAST_HEALING,
         /** Start of turn: add regeneration? */
@@ -29,10 +34,17 @@ public final class TurnStep {
     public final CharacterModel character;
     /** The (de)buff for persistent damage and expired (de)buffs, else null. */
     public final DebuffModel debuff;
+    /** For an expired spell: every target it ran out on, all of the same spell; else empty. */
+    public final List<Encounter.Expired> spell;
 
     TurnStep(Kind kind, CharacterModel character, DebuffModel debuff) {
+        this(kind, character, debuff, Collections.emptyList());
+    }
+
+    TurnStep(Kind kind, CharacterModel character, DebuffModel debuff, List<Encounter.Expired> spell) {
         this.kind = kind;
         this.character = character;
         this.debuff = debuff;
+        this.spell = spell;
     }
 }

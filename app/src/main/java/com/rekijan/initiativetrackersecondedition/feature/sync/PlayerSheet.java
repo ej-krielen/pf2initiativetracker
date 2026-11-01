@@ -23,6 +23,10 @@ import java.util.Map;
  * and {@link DebuffModel}, texts are cut to the limits below and the lists have a maximum length,
  * the same limits the Firestore rules enforce. Plain Java, so the mapping and the limits are unit
  * tested.
+ * <p>
+ * A spell condition travels with its caster's name only ("caster"), so the player sees who cast
+ * it. The caster and spell ids stay with the GM: {@link #applyTo} keeps them on the conditions
+ * that come back, and also the link of a condition a spell's cast added.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 28-10-2026
@@ -76,6 +80,7 @@ public class PlayerSheet {
     static final String KEY_CONDITION_DAMAGE_TYPE = "damageType";
     static final String KEY_CONDITION_DAMAGE = "damage";
     static final String KEY_CONDITION_DC = "dc";
+    static final String KEY_CONDITION_CASTER = "caster";
     static final String KEY_SENT_AT = "sentAt";
 
     public String name = "";
@@ -219,6 +224,7 @@ public class PlayerSheet {
             item.put(KEY_CONDITION_DAMAGE_TYPE, d.getDamageType());
             item.put(KEY_CONDITION_DAMAGE, d.getDamageValue());
             item.put(KEY_CONDITION_DC, (long) d.getDifficultyClass());
+            if (!d.getCasterName().isEmpty()) item.put(KEY_CONDITION_CASTER, d.getCasterName());
             conditionList.add(item);
         }
         map.put(KEY_CONDITIONS, conditionList);
@@ -289,6 +295,8 @@ public class PlayerSheet {
                         whole(m.get(KEY_CONDITION_DC), DebuffModel.DEFAULT_PERSISTENT_DC), duration, description)
                         : new DebuffModel(name, description, duration, 0);
                 d.setValue(whole(m.get(KEY_CONDITION_VALUE), 0));
+                String caster = text(m.get(KEY_CONDITION_CASTER));
+                if (!caster.isEmpty()) d.setCasterName(caster);
                 s.conditions.add(d);
             }
         }
@@ -298,7 +306,9 @@ public class PlayerSheet {
 
     /**
      * Puts this sheet on a character: every shared field, and the reactions and conditions are
-     * replaced. Whether it is a PC, its turn order and its sync id stay as they are.
+     * replaced. Whether it is a PC, its turn order and its sync id stay as they are. A condition
+     * that matches one the character had (by name, in order) keeps that one's caster and spell
+     * links, so a spell keeps counting on its caster's turn after the GM approves a player's change.
      */
     public void applyTo(CharacterModel character) {
         PlayerSheet s = cleaned();
@@ -324,6 +334,16 @@ public class PlayerSheet {
         character.setReactionAvailable(s.reactionAvailable);
         character.getReactionList().clear();
         character.getReactionList().addAll(s.reactions);
+        List<DebuffModel> old = new ArrayList<>(character.getDebuffList());
+        for (DebuffModel d : s.conditions) {
+            for (int i = 0; i < old.size(); i++) {
+                if (old.get(i).getName().trim().equalsIgnoreCase(d.getName().trim())) {
+                    if (old.get(i).hasGmLinks()) d.copySpellFrom(old.get(i));
+                    old.remove(i);
+                    break;
+                }
+            }
+        }
         character.getDebuffList().clear();
         character.getDebuffList().addAll(s.conditions);
     }
@@ -337,6 +357,8 @@ public class PlayerSheet {
                 cutRaw(d.getDamageValue(), MAX_DAMAGE_TEXT), d.getDifficultyClass(), d.getDuration(), description)
                 : new DebuffModel(name, description, d.getDuration(), 0);
         c.setValue(d.getValue());
+        c.copySpellFrom(d);
+        if (!d.getCasterName().isEmpty()) c.setCasterName(cutRaw(d.getCasterName(), MAX_CONDITION_NAME));
         return c;
     }
 

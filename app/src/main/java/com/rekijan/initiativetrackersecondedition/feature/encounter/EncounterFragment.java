@@ -25,16 +25,20 @@ import com.rekijan.initiativetrackersecondedition.core.data.EncounterStore;
 import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
 import com.rekijan.initiativetrackersecondedition.core.util.RecyclerLongPressListener;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
+import com.rekijan.initiativetrackersecondedition.feature.character.CharacterSheet;
+import com.rekijan.initiativetrackersecondedition.feature.spell.SpellDialogs;
+import com.rekijan.initiativetrackersecondedition.feature.spell.Spells;
 import com.rekijan.initiativetrackersecondedition.feature.sync.SyncManager;
 import com.rekijan.initiativetrackersecondedition.feature.sync.SyncRules;
 
 import java.util.Collections;
 
 /**
- * The main screen: the initiative order and the turn bar (round, Edit order, Next turn). Long
- * press a card to remove that character; a synced PC can also be unlinked there, and its player is
- * told. The menu actions (sort, add, ...) are handled by
- * {@link MainActivity}.
+ * The main screen: the initiative order and the turn bar (round, Cast spell, Next
+ * turn). Long press a card to remove that character; a synced PC can also be unlinked there, and
+ * its player is told. Long press on a spell card ends its spell. When a caster leaves the fight,
+ * this screen asks which of their spells keep going. The menu actions (sort, add, ...) are
+ * handled by {@link MainActivity}.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 17-9-2015
@@ -70,7 +74,8 @@ public class EncounterFragment extends Fragment implements Encounter.Listener, S
         MaterialButton nextTurnButton = view.findViewById(R.id.next_turn_button);
         nextTurnButton.setOnClickListener(v -> activity.nextTurn());
         dropIconWhenNarrow(nextTurnButton);
-        view.findViewById(R.id.edit_order_button).setOnClickListener(v -> activity.showEditOrder());
+        view.findViewById(R.id.cast_spell_button).setOnClickListener(v ->
+                SpellDialogs.showCast(requireContext(), encounter));
 
         RecyclerView recyclerView = view.findViewById(R.id.initiative_recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -83,6 +88,11 @@ public class EncounterFragment extends Fragment implements Encounter.Listener, S
             @Override
             public void showReactions(int position) {
                 activity.showReactions(position);
+            }
+
+            @Override
+            public void showConditions(int position) {
+                activity.showCharacterDetail(position, CharacterSheet.TAB_CONDITIONS);
             }
         }, store::isHideReactions, sync::getStatus);
         recyclerView.setAdapter(adapter);
@@ -106,6 +116,15 @@ public class EncounterFragment extends Fragment implements Encounter.Listener, S
     public void onEncounterChanged() {
         roundTextView.setText(String.valueOf(encounter.getRound()));
         adapter.notifyDataSetChanged();
+        // A caster left (from any screen): ask which of their spells keep going. Posted, so a
+        // dialog that removed the caster can ask first, as part of its own questions.
+        View view = getView();
+        if (view != null) view.post(this::askCastersGone);
+    }
+
+    private void askCastersGone() {
+        if (!isAdded()) return;
+        SpellDialogs.askCastersGone(requireContext(), encounter, () -> { });
     }
 
     /** Players' sheets came or went: the Synced and Player left tags change. */
@@ -138,6 +157,11 @@ public class EncounterFragment extends Fragment implements Encounter.Listener, S
     private void askRemoveCharacter(int position) {
         if (!encounter.isValidPosition(position)) return;
         CharacterModel character = encounter.get(position);
+        if (character.isSpellCard()) {
+            SpellDialogs.askEnd(requireContext(), encounter, Spells.spellOfCard(encounter, character),
+                    character.getCharacterName(), true, null);
+            return;
+        }
         String name = character.getCharacterName();
         if (TextUtils.isEmpty(name)) name = getString(R.string.empty_character_name);
         if (sync.getStatus(character) != SyncRules.Status.NONE) {
