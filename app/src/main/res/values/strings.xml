@@ -2,8 +2,8 @@
 
     <!-- App wide-->
     <!-- Launcher label and toolbar wordmark; the full name is in About and the store listing -->
-    <string name="app_name">PF2 Combat Tracker</string>
-    <string name="app_full_name" translatable="false">Pathfinder 2 Combat Tracker</string>
+    <string name="app_name">Rekijan Combat Tracker</string>
+    <string name="app_full_name" translatable="false">Rekijan Combat Tracker</string>
 
     <!-- Menu-->
     <string name="action_next_turn">Next turn</string>
@@ -262,7 +262,7 @@ The last step of starting your turn is always the same.\n\n\n
 &#8226; You can use 1 free action or reaction with a trigger of “Your turn ends” or something similar.\n\n
 &#8226; Resolve anything else specified to happen at the end of your turn.</string>
     <string name="dialog_turn_end_info_title">End Your Turn info</string>
-    <string name="dialog_about_info">Pathfinder 2 Combat Tracker, by Rekijan Apps. To learn more about the app and its developer, visit the website.</string>
+    <string name="dialog_about_info">Rekijan Combat Tracker, by Rekijan Apps. To learn more about the app and its developer, visit the website.</string>
     <string name="dialog_about_info_title">About</string>
     <string name="dialog_about_ok">Go to website</string>
     <string name="licenses_button">Licenses</string>
@@ -275,7 +275,7 @@ The last step of starting your turn is always the same.\n\n\n
     <string name="removed_debuff">Condition removed</string>
 
     <!--Privacy Policy dialog    -->
-    <string name="dialog_privacy_info">Everything you enter stays on your device, including your parties, their characters and round counters, and your player characters.\n\n<b>Ads</b>\nThe free version shows ads from Google AdMob. Google may use information such as your device\'s advertising ID to show and measure ads. If you are in the EEA or the UK, you choose whether ads may be personalised, and you can change that later under Privacy Settings.\n\n<b>Remove Ads</b>\nIf you buy Remove Ads, the app stops loading ads altogether.\n\n<b>Purchases</b>\nTips, Remove Ads and party packs are handled by Google Play. The app only learns that a purchase was made.\n\nThe full policy is on the website.</string>
+    <string name="dialog_privacy_info">Everything you enter stays on your device, including your parties, their characters and round counters, and your player characters, unless you use Table sync.\n\n<b>Table sync</b>\nOnly when you start or join a session, the app signs in to Google Firebase with an anonymous ID (no name, email or account). A player\'s character (name, initiative, hp, healing, hero points, dying, wounded and doomed, AC, saves, skills, attack routine, notes, reactions and conditions) is sent to Firebase so the GM can approve it; a spell condition only carries the caster\'s name. The GM\'s app stores its version of that character there too, so the player\'s app can follow it; a player only sees their own character. Sessions and the characters sent to them are deleted when the GM stops the session; a player\'s character is deleted when they leave. A session expires 30 days after the GM last used it and is deleted when that GM starts a new one. To have a session removed sooner, email rekijan.apps@gmail.com with its code. Firebase App Check is used to block requests that don\'t come from this app.\n\n<b>Ads</b>\nThe free version shows ads from Google AdMob. Google may use information such as your device\'s advertising ID to show and measure ads. In the EEA, the UK and Switzerland you choose whether ads may be personalised, and in some US states you can opt out of personalised ads. You can change your choice later under Privacy Settings.\n\n<b>Remove Ads</b>\nIf you buy Remove Ads, the app stops loading ads altogether.\n\n<b>Purchases</b>\nTips, Remove Ads and party packs are handled by Google Play. The app only learns that a purchase was made.\n\nThe full policy is on the website.</string>
     <string name="dialog_privacy_info_title">Privacy Policy</string>
     <string name="dialog_privacy_ok">Go to website</string>
 
@@ -347,7 +347,7 @@ The last step of starting your turn is always the same.\n\n\n
 
     <!--Tip dialog    -->
     <string name="tip_dialog_title">Tip the developer</string>
-    <string name="tip_dialog_intro">Enjoying PF2 Combat Tracker? A tip helps keep it going.</string>
+    <string name="tip_dialog_intro">Enjoying Rekijan Combat Tracker? A tip helps keep it going.</string>
     <string name="tip_small">Small tip</string>
     <string name="tip_big">Big tip</string>
     <string name="tip_dialog_price_note">Price as shown by Google Play, in your currency.</string>
@@ -378,7 +378,7 @@ The last step of starting your turn is always the same.\n\n\n
     <string name="sync_copy">Copy</string>
     <string name="sync_copied">Code copied</string>
     <string name="sync_share">Share</string>
-    <string name="sync_share_text">Join my table in PF2 Combat Tracker: open your player character, tap Join and enter %1$s</string>
+    <string name="sync_share_text">Join my table in Rekijan Combat Tracker: open your player character, tap Join and enter %1$s</string>
     <string name="sync_host_party">Players join into %1$s.</string>
     <string name="sync_host_other_party">Switch to %1$s to receive their characters.</string>
     <string name="sync_players_none">No players yet</string>

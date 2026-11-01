@@ -16,7 +16,7 @@ import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
 public final class InfoDialogs {
 
     private static final String WEBSITE_URL = "https://rekijan.nl/";
-    private static final String PRIVACY_URL = "https://rekijan.nl/privacypolicy.php";
+    private static final String PRIVACY_URL = "https://rekijan.nl/privacypolicy-rekijancombattracker.php";
 
     private InfoDialogs() {
     }
@@ -32,7 +32,8 @@ public final class InfoDialogs {
     }
 
     /**
-     * Shows the licenses of the icons and the bundled fonts (Manrope, Cinzel). The SIL Open Font
+     * Shows the ORC notice for the game rules text, and the licenses of the icons and the bundled
+     * fonts (Manrope, Cinzel). The ORC License asks for the notice to ship with the app; the SIL Open Font
      * License asks for the font license text to ship with the app.
      */
     public static void licenses(Context context) {

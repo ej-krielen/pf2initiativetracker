@@ -43,7 +43,7 @@ android {
             buildConfigField "String", "ADMOB_BANNER_ID", "\"ca-app-pub-3940256099942544/6300978111\""
         }
         release {
-            // PF2 Combat Tracker's AdMob app and banner ad unit
+            // This app's AdMob app and banner ad unit
             manifestPlaceholders = [admobAppId: "ca-app-pub-8520752189469314~8582279081"]
             buildConfigField "String", "ADMOB_BANNER_ID", "\"ca-app-pub-8520752189469314/1497995988\""
             if (project.hasProperty("REKIJAN_UPLOAD_STORE_FILE")) {
