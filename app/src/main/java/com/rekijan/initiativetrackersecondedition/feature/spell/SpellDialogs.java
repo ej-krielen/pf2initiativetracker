@@ -23,6 +23,7 @@ import com.google.android.material.color.MaterialColors;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.rekijan.initiativetrackersecondedition.R;
+import com.rekijan.initiativetrackersecondedition.core.util.DialogHost;
 import com.rekijan.initiativetrackersecondedition.core.util.DialogQueue;
 import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
@@ -34,6 +35,7 @@ import com.rekijan.initiativetrackersecondedition.feature.encounter.Encounter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -41,7 +43,9 @@ import java.util.function.Consumer;
  * The spell dialogs on the GM's encounter: Cast spell (caster, spell, conditions to add next to
  * it, targets with a value per added condition), a spell that ran out, which spells of a caster
  * who left the fight keep going, and ending a spell on all its targets. Ending one offers to
- * remove the conditions its cast added too. The rules are in {@link Spells} and {@link Encounter}.
+ * remove the conditions its cast added too. A player's request to cast or end a spell opens the
+ * same dialogs with the request on top ({@link #showCastRequest}, {@link #showEndRequest}). The
+ * rules are in {@link Spells} and {@link Encounter}.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 28-10-2026
@@ -101,10 +105,101 @@ public final class SpellDialogs {
      * is a target, and shows what's wrong.
      */
     public static void showCast(Context context, Encounter encounter) {
+        AlertDialog dialog = buildCast(context, encounter, null, null);
+        if (dialog != null) dialog.show();
+    }
+
+    /** What a player asked for, to fill in the Cast spell dialog with. */
+    public static final class Request {
+        /** The player's PC; the caster can't be changed. */
+        public final CharacterModel caster;
+        public final String name;
+        public final int rounds;
+        /** A condition to add with it, or "". */
+        public final String condition;
+        public final int value;
+        /** The player's note about the targets. */
+        public final String targetsNote;
+
+        public Request(CharacterModel caster, String name, int rounds, String condition, int value,
+                       String targetsNote) {
+            this.caster = caster;
+            this.name = name;
+            this.rounds = rounds;
+            this.condition = condition == null ? "" : condition;
+            this.value = value;
+            this.targetsNote = targetsNote == null ? "" : targetsNote;
+        }
+    }
+
+    /** What the GM did with a player's spell request. */
+    public interface RequestListener {
+        /** @param done True when cast (or ended), false when rejected (or kept going). */
+        void onAnswer(boolean done);
+    }
+
+    /**
+     * A player's cast request: the Cast spell dialog filled in with what they asked for and their
+     * note about the targets on top. The GM ticks the targets and casts it, or rejects it. It can't
+     * be closed without an answer, since the player waits for it.
+     *
+     * @return The shown dialog, so the caller knows when it is gone; null when nobody can be a target.
+     */
+    @Nullable
+    public static AlertDialog showCastRequest(Context context, Encounter encounter, Request request,
+                                              RequestListener listener) {
+        AlertDialog dialog = buildCast(context, encounter, request, listener);
+        if (dialog != null) dialog.show();
+        return dialog;
+    }
+
+    /**
+     * A player asks to end one of their spells: the End spell dialog with the request on top.
+     * End spell takes it off all targets (and the added conditions while that box is ticked);
+     * Keep it leaves it going. It can't be closed without an answer.
+     *
+     * @return The shown dialog, so the caller knows when it is gone.
+     */
+    public static AlertDialog showEndRequest(Context context, Encounter encounter, String playerName,
+                                             String spellId, RequestListener listener) {
+        String spell = spellName(context, Spells.spellName(encounter, spellId));
+        String message = context.getString(R.string.spell_end_message, spell, targetNames(context, encounter, spellId));
+        View view = endView(context, message, Spells.addedConditionNames(encounter, spellId));
+        showRequestCard(view, context.getString(R.string.spell_request_label),
+                context.getString(R.string.spell_request_end, playerName, spell));
+        CompoundButton alsoRemove = view.findViewById(R.id.spell_end_added_checkBox);
+        return Dialogs.builder(context)
+                .setTitle(context.getString(R.string.spell_end_title, spell))
+                .setIcon(R.drawable.ic_spellbook)
+                .setView(view)
+                .setCancelable(false)
+                .setPositiveButton(R.string.spell_end, (d, w) -> {
+                    Spells.end(encounter, spellId, alsoRemove.isChecked());
+                    listener.onAnswer(true);
+                })
+                .setNegativeButton(R.string.spell_request_keep, (d, w) -> listener.onAnswer(false))
+                .show();
+    }
+
+    private static void showRequestCard(View dialogView, String label, String text) {
+        View card = dialogView.findViewById(R.id.spell_request_card);
+        ((TextView) card.findViewById(R.id.spell_request_label)).setText(label);
+        ((TextView) card.findViewById(R.id.spell_request_text)).setText(text);
+        card.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * @param request         Null for the GM's own cast; else what the player asked for.
+     * @param requestListener Told the GM's answer to {@code request}.
+     * @return The dialog, not shown yet; null (with a toast) when nobody can be a target.
+     */
+    @Nullable
+    private static AlertDialog buildCast(Context context, Encounter encounter, @Nullable Request request,
+                                         @Nullable RequestListener requestListener) {
         List<CharacterModel> combatants = Spells.combatants(encounter);
         if (combatants.isEmpty()) {
             Toast.makeText(context, R.string.spell_need_characters, Toast.LENGTH_SHORT).show();
-            return;
+            return null;
         }
         CharacterModel active = encounter.get(0);
         LayoutInflater inflater = LayoutInflater.from(context);
@@ -129,22 +224,33 @@ public final class SpellDialogs {
                     ? context.getString(R.string.spell_caster_active, name(context, c)) : name(context, c));
             if (c == active) casterIndex = i;
         }
+        // A player's request: their PC casts it
+        int requestCaster = request != null ? combatants.indexOf(request.caster) : -1;
+        if (requestCaster >= 0) casterIndex = requestCaster;
         int[] caster = {casterIndex};
         MaterialAutoCompleteTextView casterDropdown = view.findViewById(R.id.spell_caster_dropdown);
         casterDropdown.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, casterNames));
         casterDropdown.setText(casterNames.get(casterIndex), false);
         casterDropdown.setOnItemClickListener((parent, v, position, id) -> caster[0] = position);
+        if (requestCaster >= 0) view.findViewById(R.id.spell_caster_layout).setEnabled(false);
 
         List<MaterialCheckBox> boxes = new ArrayList<>();
         List<ViewGroup> valueCells = new ArrayList<>();
         List<Column> columns = new ArrayList<>();
-        AlertDialog dialog = Dialogs.builder(context)
-                .setTitle(R.string.action_cast_spell)
+        AlertDialog.Builder builder = Dialogs.builder(context)
+                .setTitle(request != null
+                        ? context.getString(R.string.spell_request_cast_title, name(context, request.caster))
+                        : context.getString(R.string.action_cast_spell))
                 .setIcon(R.drawable.ic_spellbook)
                 .setView(view)
-                .setPositiveButton(R.string.spell_cast, null)
-                .setNegativeButton(R.string.dialog_cancel, null)
-                .create();
+                .setPositiveButton(R.string.spell_cast, null);
+        if (request != null && requestListener != null) {
+            builder.setCancelable(false)
+                    .setNegativeButton(R.string.approval_reject, (d, w) -> requestListener.onAnswer(false));
+        } else {
+            builder.setNegativeButton(R.string.dialog_cancel, null);
+        }
+        AlertDialog dialog = builder.create();
 
         // Under every ticked target, its added conditions: a value to raise or lower, or a tick
         Runnable renderColumns = () -> {
@@ -265,6 +371,22 @@ public final class SpellDialogs {
         durationLayout.setSuffixText(suffix(context, 0));
         nameInput.addTextChangedListener(afterChange(s -> clearError(nameLayout)));
 
+        if (request != null) {
+            String note = request.targetsNote.trim().isEmpty()
+                    ? context.getString(R.string.spell_request_no_note)
+                    : context.getString(R.string.spell_request_quoted, request.targetsNote.trim());
+            showRequestCard(view, context.getString(R.string.spell_request_targets, name(context, request.caster)), note);
+            nameInput.setText(request.name);
+            if (request.rounds > 0) durationInput.setText(String.valueOf(request.rounds));
+            if (!request.condition.isEmpty()) {
+                addConditionButton.performClick();
+                Column column = columns.get(columns.size() - 1);
+                column.field.setText(request.condition, false);
+                if (column.valued) column.valueInput.setText(String.valueOf(Math.max(1, request.value)));
+                column.field.clearFocus();
+            }
+        }
+
         dialog.setOnShowListener(d -> {
             updateCastLabel.run();
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
@@ -315,10 +437,12 @@ public final class SpellDialogs {
                 if (!ok) return;
                 Spells.cast(encounter, combatants.get(caster[0]), targets, spellName, rounds,
                         descriptionInput.getText().toString(), added);
+                // Answer first, then close: closing shows the next request
+                if (requestListener != null) requestListener.onAnswer(true);
                 dialog.dismiss();
             });
         });
-        dialog.show();
+        return dialog;
     }
 
     /**
@@ -341,18 +465,21 @@ public final class SpellDialogs {
         List<String> names = new ArrayList<>();
         for (Encounter.Expired e : still) names.add(name(context, e.character));
         String spell = spellName(context, still.get(0).condition.getName());
-        View view = endView(context, context.getString(R.string.spell_expired, spell, TextUtils.join(", ", names)),
-                Spells.addedConditionNames(still));
-        CompoundButton alsoRemove = view.findViewById(R.id.spell_end_added_checkBox);
-        Dialogs.builder(context)
-                .setTitle(R.string.dialog_spell_expired_title)
-                .setIcon(R.drawable.ic_spellbook)
-                .setView(view)
-                .setPositiveButton(R.string.spell_expired_remove, (d, w) ->
-                        Spells.removeExpired(encounter, still, alsoRemove.isChecked()))
-                .setNegativeButton(R.string.dialog_debuff_keep, null)
-                .setOnDismissListener(d -> done.run())
-                .show();
+        String message = context.getString(R.string.spell_expired, spell, TextUtils.join(", ", names));
+        String added = Spells.addedConditionNames(still);
+        DialogHost.show(c -> {
+            View view = endView(c, message, added);
+            CompoundButton alsoRemove = view.findViewById(R.id.spell_end_added_checkBox);
+            return Dialogs.builder(c)
+                    .setTitle(R.string.dialog_spell_expired_title)
+                    .setIcon(R.drawable.ic_spellbook)
+                    .setView(view)
+                    .setPositiveButton(R.string.spell_expired_remove, (d, w) ->
+                            Spells.removeExpired(encounter, still, alsoRemove.isChecked()))
+                    .setNegativeButton(R.string.dialog_debuff_keep, null)
+                    .setOnDismissListener(d -> done.run())
+                    .create();
+        });
     }
 
     /**
@@ -377,34 +504,45 @@ public final class SpellDialogs {
                                       Runnable onDone) {
         Runnable done = DialogQueue.once(onDone);
         String caster = gone.casterName.isEmpty() ? context.getString(R.string.empty_character_name) : gone.casterName;
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.dialog_caster_gone, null);
-        ((TextView) view.findViewById(R.id.caster_gone_message)).setText(
-                context.getString(R.string.spell_caster_gone_message, caster));
-        ViewGroup list = view.findViewById(R.id.caster_gone_list);
-        List<MaterialCheckBox> boxes = new ArrayList<>();
         List<String> spellIds = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
         for (CharacterModel card : gone.spellCards) {
             String spellId = Spells.spellOfCard(encounter, card);
-            MaterialCheckBox box = (MaterialCheckBox) inflater.inflate(R.layout.item_approval_change, list, false);
-            box.setText(context.getString(R.string.spell_caster_gone_item, name(context, card),
-                    targetNames(context, encounter, spellId)));
-            box.setChecked(true);
-            list.addView(box);
-            boxes.add(box);
             spellIds.add(spellId);
+            labels.add(context.getString(R.string.spell_caster_gone_item, name(context, card),
+                    targetNames(context, encounter, spellId)));
         }
-        Dialogs.builder(context)
-                .setTitle(context.getString(R.string.spell_caster_gone_title, caster))
-                .setIcon(R.drawable.ic_spellbook)
-                .setView(view)
-                .setPositiveButton(R.string.spell_caster_gone_done, (d, w) -> {
-                    for (int i = 0; i < boxes.size(); i++) {
-                        if (!boxes.get(i).isChecked()) Spells.end(encounter, spellIds.get(i), true);
-                    }
-                })
-                .setOnDismissListener(d -> done.run())
-                .show();
+        // The ticks live here, so they are kept when the dialog is built again after a rotation
+        boolean[] keep = new boolean[spellIds.size()];
+        Arrays.fill(keep, true);
+        DialogHost.show(c -> {
+            LayoutInflater inflater = LayoutInflater.from(c);
+            View view = inflater.inflate(R.layout.dialog_caster_gone, null);
+            ((TextView) view.findViewById(R.id.caster_gone_message)).setText(
+                    c.getString(R.string.spell_caster_gone_message, caster));
+            ViewGroup list = view.findViewById(R.id.caster_gone_list);
+            for (int i = 0; i < labels.size(); i++) {
+                int index = i;
+                MaterialCheckBox box = (MaterialCheckBox) inflater.inflate(R.layout.item_approval_change, list, false);
+                // No id: the boxes share one, and their ticks come from keep
+                box.setId(View.NO_ID);
+                box.setText(labels.get(i));
+                box.setChecked(keep[i]);
+                box.setOnCheckedChangeListener((button, checked) -> keep[index] = checked);
+                list.addView(box);
+            }
+            return Dialogs.builder(c)
+                    .setTitle(c.getString(R.string.spell_caster_gone_title, caster))
+                    .setIcon(R.drawable.ic_spellbook)
+                    .setView(view)
+                    .setPositiveButton(R.string.spell_caster_gone_done, (d, w) -> {
+                        for (int i = 0; i < keep.length; i++) {
+                            if (!keep[i]) Spells.end(encounter, spellIds.get(i), true);
+                        }
+                    })
+                    .setOnDismissListener(d -> done.run())
+                    .create();
+        });
     }
 
     /**
@@ -416,19 +554,23 @@ public final class SpellDialogs {
                               boolean fromSpellCard, @Nullable Runnable afterEnd) {
         String spell = spellName(context, spellName);
         String targets = targetNames(context, encounter, spellId);
-        View view = endView(context, context.getString(fromSpellCard ? R.string.spell_end_card_message
-                : R.string.spell_end_message, spell, targets), Spells.addedConditionNames(encounter, spellId));
-        CompoundButton alsoRemove = view.findViewById(R.id.spell_end_added_checkBox);
-        Dialogs.builder(context)
-                .setTitle(context.getString(R.string.spell_end_title, spell))
-                .setIcon(R.drawable.ic_spellbook)
-                .setView(view)
-                .setPositiveButton(R.string.spell_end, (d, w) -> {
-                    Spells.end(encounter, spellId, alsoRemove.isChecked());
-                    if (afterEnd != null) afterEnd.run();
-                })
-                .setNegativeButton(R.string.dialog_cancel, null)
-                .show();
+        String message = context.getString(fromSpellCard ? R.string.spell_end_card_message
+                : R.string.spell_end_message, spell, targets);
+        String added = Spells.addedConditionNames(encounter, spellId);
+        DialogHost.show(c -> {
+            View view = endView(c, message, added);
+            CompoundButton alsoRemove = view.findViewById(R.id.spell_end_added_checkBox);
+            return Dialogs.builder(c)
+                    .setTitle(c.getString(R.string.spell_end_title, spell))
+                    .setIcon(R.drawable.ic_spellbook)
+                    .setView(view)
+                    .setPositiveButton(R.string.spell_end, (d, w) -> {
+                        Spells.end(encounter, spellId, alsoRemove.isChecked());
+                        if (afterEnd != null) afterEnd.run();
+                    })
+                    .setNegativeButton(R.string.dialog_cancel, null)
+                    .create();
+        });
     }
 
     /** @return "Ogre 1, Ogre 2, Goblin": who has this spell. */

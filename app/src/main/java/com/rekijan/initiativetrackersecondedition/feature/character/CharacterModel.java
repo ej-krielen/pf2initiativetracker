@@ -68,6 +68,7 @@ public class CharacterModel {
     private int doomedValue;
     private int recoveryDC;
     private int heroPoints;
+    private boolean winsInitiativeTies;
     private boolean reactionAvailable;
     private boolean reactionCollapsed;
     private String characterName;
@@ -431,6 +432,15 @@ public class CharacterModel {
 
     public void setHeroPoints(int heroPoints) {
         this.heroPoints = NumberInput.clamp(heroPoints, 0, MAX_HERO_POINTS);
+    }
+
+    /** @return True when this PC goes before monsters with the same initiative. */
+    public boolean winsInitiativeTies() {
+        return winsInitiativeTies;
+    }
+
+    public void setWinsInitiativeTies(boolean winsInitiativeTies) {
+        this.winsInitiativeTies = winsInitiativeTies;
     }
 
     /** @return True when the standard reaction has not been used since the start of the turn. */

@@ -2,83 +2,89 @@
 <!-- Content of the end-of-turn persistent damage dialog (title and Close come from the dialog
      builder): what the damage is, the damage to take (filled in for a fixed number, typed for
      dice), Take damage, and Flat check succeeded to end it. PersistentDamageDialogs wires it. -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Scrolls when the screen is short, e.g. a phone in landscape -->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingStart="@dimen/space_4"
-    android:paddingTop="@dimen/space_1"
-    android:paddingEnd="@dimen/space_4">
-
-    <TextView
-        android:id="@+id/persistent_damage_apply_name_textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:drawablePadding="@dimen/space_1"
-        android:gravity="center_vertical"
-        android:textAppearance="?attr/textAppearanceTitleMedium"
-        android:textColor="?attr/colorOnSurface"
-        android:textStyle="bold"
-        app:drawableStartCompat="@drawable/ic_flame"
-        app:drawableTint="@color/rk_dying"
-        tools:text="Persistent fire damage (1d6)" />
-
-    <TextView
-        android:id="@+id/persistent_damage_apply_values_textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_1"
-        android:textAppearance="?attr/textAppearanceBodyMedium"
-        android:textColor="?attr/colorOnSurfaceVariant"
-        tools:text="Type: fire, damage: 1d6, DC: 15, duration: 0." />
-
-    <TextView
-        android:id="@+id/persistent_damage_apply_description_textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_1"
-        android:textAppearance="?attr/textAppearanceBodyMedium"
-        android:textColor="?attr/colorOnSurfaceVariant" />
-
-    <!-- A plain field: the hint is the dice to roll, set from code -->
-    <EditText
-        android:id="@+id/persistent_damage_apply_overridden_editText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_2"
-        android:gravity="center"
-        android:hint="@string/persistent_damage_apply_hint"
-        android:imeOptions="actionDone"
-        android:importantForAutofill="no"
-        android:inputType="number"
-        android:maxLength="5"
-        android:minHeight="@dimen/touch_target"
-        android:selectAllOnFocus="true"
-        android:textAppearance="@style/TextAppearance.Rekijan.StatValue" />
+    android:layout_height="wrap_content">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_2"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:paddingStart="@dimen/space_4"
+        android:paddingTop="@dimen/space_1"
+        android:paddingEnd="@dimen/space_4">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/persistent_damage_take_damage_button"
-            style="@style/Widget.Rekijan.Button.Dialog"
-            android:layout_width="0dp"
+        <TextView
+            android:id="@+id/persistent_damage_apply_name_textView"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/persistent_damage_take_damage" />
+            android:drawablePadding="@dimen/space_1"
+            android:gravity="center_vertical"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:textColor="?attr/colorOnSurface"
+            android:textStyle="bold"
+            app:drawableStartCompat="@drawable/ic_flame"
+            app:drawableTint="@color/rk_dying"
+            tools:text="Persistent fire damage (1d6)" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/persistent_damage_flat_check_button"
-            style="@style/Widget.Rekijan.Button.Dialog"
-            android:layout_width="0dp"
+        <TextView
+            android:id="@+id/persistent_damage_apply_values_textView"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_2"
-            android:layout_weight="1"
-            android:text="@string/persistent_damage_flat_check_success" />
+            android:layout_marginTop="@dimen/space_1"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            tools:text="Type: fire, damage: 1d6, DC: 15, duration: 0." />
+
+        <TextView
+            android:id="@+id/persistent_damage_apply_description_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_1"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant" />
+
+        <!-- A plain field: the hint is the dice to roll, set from code -->
+        <EditText
+            android:id="@+id/persistent_damage_apply_overridden_editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:gravity="center"
+            android:hint="@string/persistent_damage_apply_hint"
+            android:imeOptions="actionDone"
+            android:importantForAutofill="no"
+            android:inputType="number"
+            android:maxLength="5"
+            android:minHeight="@dimen/touch_target"
+            android:selectAllOnFocus="true"
+            android:textAppearance="@style/TextAppearance.Rekijan.StatValue" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/persistent_damage_take_damage_button"
+                style="@style/Widget.Rekijan.Button.Dialog"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/persistent_damage_take_damage" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/persistent_damage_flat_check_button"
+                style="@style/Widget.Rekijan.Button.Dialog"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_2"
+                android:layout_weight="1"
+                android:text="@string/persistent_damage_flat_check_success" />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</androidx.core.widget.NestedScrollView>

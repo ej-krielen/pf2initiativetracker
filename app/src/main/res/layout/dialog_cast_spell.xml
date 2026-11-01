@@ -16,6 +16,11 @@
         android:paddingTop="@dimen/space_1"
         android:paddingEnd="@dimen/space_4">
 
+        <!-- A player's request: their note about the targets -->
+        <include
+            android:id="@+id/spell_request_card"
+            layout="@layout/view_spell_request" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/spell_caster_layout"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"

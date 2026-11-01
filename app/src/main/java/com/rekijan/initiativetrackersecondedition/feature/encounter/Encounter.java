@@ -134,11 +134,20 @@ public class Encounter {
         }
     }
 
-    /** High to low initiative; on a tie monsters go before PCs (Player Core). */
+    /**
+     * High to low initiative. On a tie monsters go before PCs (Player Core), except PCs that win
+     * initiative ties: they go before the monsters.
+     */
     static final Comparator<CharacterModel> INITIATIVE_ORDER = (a, b) -> {
         int compare = Integer.compare(b.getInitiative(), a.getInitiative());
-        return compare != 0 ? compare : Boolean.compare(a.isPC(), b.isPC());
+        return compare != 0 ? compare : Integer.compare(tieRank(a), tieRank(b));
     };
+
+    /** @return The place on an initiative tie: PCs that win ties, then monsters, then other PCs. */
+    private static int tieRank(CharacterModel character) {
+        if (!character.isPC()) return 1;
+        return character.winsInitiativeTies() ? 0 : 2;
+    }
 
     private final List<CharacterModel> characters = new ArrayList<>();
     private final List<Listener> listeners = new ArrayList<>();
@@ -338,8 +347,8 @@ public class Encounter {
     }
 
     /**
-     * Sorts high to low on initiative, monsters before PCs on a tie, and makes the top character
-     * first in round.
+     * Sorts high to low on initiative (ties: see {@link #INITIATIVE_ORDER}) and makes the top
+     * character first in round.
      *
      * @return True when two characters of the same side share an initiative, so the user can
      * check the order.

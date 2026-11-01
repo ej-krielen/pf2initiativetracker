@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A spell the player's PC has going: rounds left, the name with how many targets and the
+     conditions it added, and End (or "End asked" while that request waits). PlayerSpellsPane
+     binds it. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/space_2"
+    android:background="@drawable/bg_stat_box"
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/touch_target"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/space_2"
+    android:paddingTop="@dimen/space_1"
+    android:paddingEnd="@dimen/space_1"
+    android:paddingBottom="@dimen/space_1">
+
+    <TextView
+        android:id="@+id/player_spell_rounds"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="32dp"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.Rekijan.StatValue"
+        android:textColor="?attr/colorSecondary"
+        tools:text="3" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_2"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/player_spell_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Rekijan.Body"
+            android:textColor="?attr/colorOnSurface"
+            android:textStyle="bold"
+            tools:text="Fear" />
+
+        <TextView
+            android:id="@+id/player_spell_detail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Rekijan.BodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            tools:text="3 rnds · on 2 targets · Frightened 1" />
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/player_spell_end_button"
+        style="@style/Widget.Rekijan.Button.Text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="0dp"
+        android:text="@string/player_spells_end" />
+
+    <TextView
+        android:id="@+id/player_spell_end_asked"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/space_2"
+        android:background="@drawable/bg_sync_tag"
+        android:backgroundTint="@color/rk_status_wait"
+        android:paddingStart="@dimen/space_2"
+        android:paddingTop="2dp"
+        android:paddingEnd="@dimen/space_2"
+        android:paddingBottom="2dp"
+        android:text="@string/player_spells_end_asked"
+        android:textAppearance="@style/TextAppearance.Rekijan.BodySmall"
+        android:textColor="@color/rk_status_wait"
+        android:visibility="gone" />
+</LinearLayout>

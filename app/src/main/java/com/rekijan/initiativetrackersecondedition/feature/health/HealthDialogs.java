@@ -11,6 +11,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.app.CombatTrackerApp;
 import com.rekijan.initiativetrackersecondedition.core.util.DialogQueue;
+import com.rekijan.initiativetrackersecondedition.core.util.DialogHost;
 import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel.RecoveryResult;
@@ -58,27 +59,27 @@ public final class HealthDialogs {
         encounter.notifyChanged();
         switch (outcome) {
             case OFFER_REMOVAL:
-                Dialogs.builder(context)
+                DialogHost.show(c -> Dialogs.builder(c)
                         .setTitle(R.string.dialog_delete_low_title)
                         .setMessage(R.string.dialog_delete_low)
                         .setPositiveButton(R.string.dialog_delete_low_positive, (d, w) -> {
-                            remove(context, character);
+                            remove(c, character);
                             done.run();
                         })
                         .setNegativeButton(R.string.dialog_delete_low_negative,
-                                (d, w) -> askKnockOut(context, encounter, character, done))
+                                (d, w) -> askKnockOut(c, encounter, character, done))
                         .setOnCancelListener(d -> done.run())
-                        .show();
+                        .create());
                 break;
             case ASK_KNOCK_OUT:
-                Dialogs.builder(context)
+                DialogHost.show(c -> Dialogs.builder(c)
                         .setTitle(R.string.dialog_dying_pc_title)
                         .setMessage(R.string.dialog_dying_pc)
                         .setPositiveButton(R.string.dialog_dying_pc_positive,
-                                (d, w) -> askKnockOut(context, encounter, character, done))
+                                (d, w) -> askKnockOut(c, encounter, character, done))
                         .setNegativeButton(R.string.dialog_pc_dying_negative, (d, w) -> done.run())
                         .setOnCancelListener(d -> done.run())
-                        .show();
+                        .create());
                 break;
             case RECOVERED_BY_HEALING:
                 Toast.makeText(context, context.getString(R.string.toast_recovered_from_dying_by_healing,
@@ -102,6 +103,11 @@ public final class HealthDialogs {
     public static void askRecoveryCheck(Context context, Encounter encounter, CharacterModel character,
                                         Runnable onDone) {
         Runnable done = DialogQueue.once(onDone);
+        DialogHost.show(c -> recoveryCheckDialog(c, encounter, character, done));
+    }
+
+    private static AlertDialog recoveryCheckDialog(Context context, Encounter encounter, CharacterModel character,
+                                                   Runnable done) {
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_recovery, null);
         TextView dcTextView = view.findViewById(R.id.recovery_dialog_dc_label);
         dcTextView.setText(context.getString(R.string.dialog_recovery_dc, character.getRecoveryCheckDc()));
@@ -121,17 +127,17 @@ public final class HealthDialogs {
                 view.findViewById(R.id.recovery_dialog_failure_btn), RecoveryResult.FAILURE);
         bindRecoveryButton(context, encounter, character, dialog, done,
                 view.findViewById(R.id.recovery_dialog_crit_failure_btn), RecoveryResult.CRITICAL_FAILURE);
-        dialog.show();
+        return dialog;
     }
 
     /** Explains where to find the full death and dying rules, and opens them. */
     public static void showDyingRules(Context context) {
-        Dialogs.builder(context)
+        DialogHost.show(c -> Dialogs.builder(c)
                 .setTitle(R.string.dialog_dying_rules_title)
                 .setMessage(R.string.dialog_dying_rules)
-                .setPositiveButton(R.string.dialog_about_ok, (d, w) -> Dialogs.openUrl(context, DYING_RULES_URL))
+                .setPositiveButton(R.string.dialog_about_ok, (d, w) -> Dialogs.openUrl(c, DYING_RULES_URL))
                 .setNegativeButton(R.string.dialog_cancel, null)
-                .show();
+                .create());
     }
 
     private static void bindRecoveryButton(Context context, Encounter encounter, CharacterModel character,
@@ -155,33 +161,33 @@ public final class HealthDialogs {
 
     /** Knocked out: dying 2 from a critical hit or critical failure, else dying 1. */
     private static void askKnockOut(Context context, Encounter encounter, CharacterModel character, Runnable done) {
-        Dialogs.builder(context)
+        DialogHost.show(c -> Dialogs.builder(c)
                 .setTitle(R.string.dialog_dying_crit_title)
                 .setMessage(R.string.dialog_dying_crit)
                 .setPositiveButton(R.string.dialog_dying_crit_positive, (d, w) -> {
                     encounter.knockOut(character, 2);
-                    askHeroPoints(context, encounter, character, done);
+                    askHeroPoints(c, encounter, character, done);
                 })
                 .setNegativeButton(R.string.dialog_dying_crit_negative, (d, w) -> {
                     encounter.knockOut(character, 1);
-                    askHeroPoints(context, encounter, character, done);
+                    askHeroPoints(c, encounter, character, done);
                 })
                 .setOnCancelListener(d -> done.run())
-                .show();
+                .create());
     }
 
     /** Damage while dying: dying goes up by 2 on a critical, else by 1. */
     private static void askDamageWhileDying(Context context, Encounter encounter, CharacterModel character,
                                             Runnable done) {
-        Dialogs.builder(context)
+        DialogHost.show(c -> Dialogs.builder(c)
                 .setTitle(R.string.dialog_dying_crit_title)
                 .setMessage(R.string.dialog_dying_damaged_again)
                 .setPositiveButton(R.string.dialog_dying_damaged_again_positive,
-                        (d, w) -> increaseDying(context, encounter, character, 2, done))
+                        (d, w) -> increaseDying(c, encounter, character, 2, done))
                 .setNegativeButton(R.string.dialog_dying_damaged_again_negative,
-                        (d, w) -> increaseDying(context, encounter, character, 1, done))
+                        (d, w) -> increaseDying(c, encounter, character, 1, done))
                 .setOnCancelListener(d -> done.run())
-                .show();
+                .create());
     }
 
     private static void increaseDying(Context context, Encounter encounter, CharacterModel character, int amount,
@@ -198,20 +204,20 @@ public final class HealthDialogs {
             askRemoveWhenDead(context, encounter, character, done);
             return;
         }
-        Dialogs.builder(context)
+        DialogHost.show(c -> Dialogs.builder(c)
                 .setTitle(R.string.dialog_dying_hero_point_title)
                 .setMessage(R.string.dialog_dying_hero_point)
                 .setPositiveButton(R.string.dialog_dying_hero_point_positive, (d, w) -> {
                     character.useHeroPointsToStabilize();
                     encounter.notifyChanged();
-                    Toast.makeText(context, context.getString(R.string.toast_recovered_from_dying_by_hero_points,
+                    Toast.makeText(c, c.getString(R.string.toast_recovered_from_dying_by_hero_points,
                             character.getCharacterName()), Toast.LENGTH_LONG).show();
                     done.run();
                 })
                 .setNegativeButton(R.string.dialog_dying_hero_point_negative,
-                        (d, w) -> askRemoveWhenDead(context, encounter, character, done))
+                        (d, w) -> askRemoveWhenDead(c, encounter, character, done))
                 .setOnCancelListener(d -> done.run())
-                .show();
+                .create());
     }
 
     /** Removes the character through Table sync, so a synced player is told. */
@@ -226,16 +232,16 @@ public final class HealthDialogs {
             done.run();
             return;
         }
-        Dialogs.builder(context)
+        DialogHost.show(c -> Dialogs.builder(c)
                 .setTitle(R.string.dialog_delete_low_title)
                 .setMessage(R.string.dialog_delete_low)
                 .setPositiveButton(R.string.dialog_delete_low_positive, (d, w) -> {
-                    remove(context, character);
+                    remove(c, character);
                     // A caster's spells may go on as spell cards: ask now, before the next question
-                    SpellDialogs.askCastersGone(context, encounter, done);
+                    SpellDialogs.askCastersGone(c, encounter, done);
                 })
                 .setNegativeButton(R.string.dialog_delete_low_negative, (d, w) -> done.run())
                 .setOnCancelListener(d -> done.run())
-                .show();
+                .create());
     }
 }

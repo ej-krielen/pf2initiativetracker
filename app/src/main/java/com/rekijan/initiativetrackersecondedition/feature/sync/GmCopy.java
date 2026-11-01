@@ -2,6 +2,8 @@ package com.rekijan.initiativetrackersecondedition.feature.sync;
 
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,7 +14,9 @@ import java.util.Map;
  * Besides the whole sheet it says which of the player's sends the GM answered last
  * ({@link #answeredSentAt}), so the player's app knows its request was decided, and whether the
  * GM rejected the character joining ({@link #rejected}), or removed or unlinked it later
- * ({@link #ended}). Plain Java, so it is unit tested.
+ * ({@link #ended}). It also lists the spells the PC has going ({@link #spells}) and answers the
+ * player's spell requests ({@link #castAnswer}, {@link #endAnswer}); those three are only written
+ * when there is something to say. Plain Java, so it is unit tested.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 28-10-2026
@@ -54,6 +58,12 @@ public class GmCopy {
     public boolean rejected;
     /** Set when the GM removed or unlinked this character; see {@link SyncRules#endsPlayer}. */
     public Ending ended = Ending.NONE;
+    /** The spells this PC has going. */
+    public List<SpellRequests.Spell> spells = new ArrayList<>();
+    /** The answer to the player's last cast request; at 0 when none yet. */
+    public SpellRequests.Answer castAnswer = new SpellRequests.Answer();
+    /** The answer to the player's last end request; at 0 when none yet. */
+    public SpellRequests.Answer endAnswer = new SpellRequests.Answer();
 
     /** @return The GM's copy of this character. */
     public static GmCopy of(CharacterModel character, long answeredSentAt) {
@@ -86,9 +96,15 @@ public class GmCopy {
     public Map<String, Object> toMap() {
         Map<String, Object> map = sheet.toMap();
         map.remove(PlayerSheet.KEY_SENT_AT);
+        // A rejection copies the player's send, requests included; those belong to the player's doc
+        map.remove(SpellRequests.KEY_CAST);
+        map.remove(SpellRequests.KEY_END);
         map.put(KEY_ANSWERED_SENT_AT, Math.max(0, answeredSentAt));
         map.put(KEY_REJECTED, rejected);
         map.put(KEY_ENDED, ended.value);
+        if (!spells.isEmpty()) map.put(SpellRequests.KEY_SPELLS, SpellRequests.spellsToList(spells));
+        if (castAnswer.at > 0) map.put(SpellRequests.KEY_CAST_ANSWER, castAnswer.toMap());
+        if (endAnswer.at > 0) map.put(SpellRequests.KEY_END_ANSWER, endAnswer.toMap());
         return map;
     }
 
@@ -103,10 +119,15 @@ public class GmCopy {
         GmCopy copy = new GmCopy();
         copy.sheet = PlayerSheet.read(map);
         copy.sheet.sentAt = 0;
+        copy.sheet.cast = null;
+        copy.sheet.end = null;
         Object answered = map.get(KEY_ANSWERED_SENT_AT);
         copy.answeredSentAt = answered instanceof Number ? Math.max(0, ((Number) answered).longValue()) : 0;
         copy.rejected = Boolean.TRUE.equals(map.get(KEY_REJECTED));
         copy.ended = Ending.of(map.get(KEY_ENDED));
+        copy.spells = SpellRequests.readSpells(map.get(SpellRequests.KEY_SPELLS));
+        copy.castAnswer = SpellRequests.Answer.read(map.get(SpellRequests.KEY_CAST_ANSWER));
+        copy.endAnswer = SpellRequests.Answer.read(map.get(SpellRequests.KEY_END_ANSWER));
         return copy;
     }
 }

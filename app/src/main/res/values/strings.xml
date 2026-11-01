@@ -1,8 +1,10 @@
 <resources>
 
     <!-- App wide-->
-    <!-- Launcher label and toolbar wordmark; the full name is in About and the store listing -->
-    <string name="app_name">Rekijan Combat Tracker</string>
+    <!-- Launcher label and toolbar wordmark: short, so the launcher shows it whole and it fits next to the
+         toolbar icons, also with a large font size -->
+    <string name="app_name">Combat Tracker</string>
+    <!-- Drawer wordmark; the full name is also in About and the store listing -->
     <string name="app_full_name" translatable="false">Rekijan Combat Tracker</string>
 
     <!-- Menu-->
@@ -156,6 +158,9 @@
 
     <!--Character detail fragment-->
     <string name="char_detail_switch_pc_on">Player character (PC)</string>
+    <string name="char_detail_switch_wins_initiative_ties">Wins tie</string>
+    <string name="char_detail_wins_initiative_ties_info_title">Wins tie</string>
+    <string name="char_detail_wins_initiative_ties_info">Has an ability that lets it go before monsters in initiative when they are tied.</string>
     <string name="char_detail_switch_is_dying_on">Is dying</string>
     <string name="char_detail_initiative_bonus">Initiative bonus</string>
     <string name="char_detail_max_hp">Max HP</string>
@@ -339,10 +344,9 @@ The last step of starting your turn is always the same.\n\n\n
     <string name="edit_order_button_label">Edit order</string>
 
     <!--Character details-->
-    <string name="character_details_name_title">Character details for: %1$s</string>
+    <string name="character_details_title">Character details</string>
     <string name="character_details_ac">AC %1$d</string>
     <string name="standard_saves">Fort %1$d Ref %1$d Will %1$d</string>
-    <string name="standard__mobile_saves">Fort %1$d Ref %1$d \n Will %1$d</string>
     <string name="maneuvers">CMB +%1$d CMD %2$d</string>
 
     <!--Tip dialog    -->
@@ -484,6 +488,7 @@ The last step of starting your turn is always the same.\n\n\n
     <string name="player_notice_unlinked">Your GM unlinked %1$s and runs it from now on, so it left the session. Your sheet stays on this phone.</string>
     <string name="player_notice_session_ended_title">Session ended</string>
     <string name="player_notice_session_ended">Your GM ended the session, so %1$s left it. Ask your GM for a new code to join again.</string>
+    <string name="sync_field_wins_initiative_ties">Wins tie</string>
     <string name="sync_field_dying">Dying</string>
     <string name="sync_field_reaction">Reaction</string>
     <string name="sync_value_yes">yes</string>
@@ -565,4 +570,42 @@ The last step of starting your turn is always the same.\n\n\n
     <string name="spell_end_message">%1$s comes off %2$s.</string>
     <string name="spell_end_card_message">%1$s comes off %2$s, and its spell card leaves the order.</string>
     <string name="spell_end">End spell</string>
+
+    <!-- A player's spell request on the GM's side (SpellDialogs, Table sync) -->
+    <string name="spell_request_cast_title">%1$s casts a spell</string>
+    <string name="spell_request_targets">%1$s\'s targets</string>
+    <string name="spell_request_quoted">“%1$s”</string>
+    <string name="spell_request_no_note">No note about the targets.</string>
+    <string name="spell_request_label">Request</string>
+    <string name="spell_request_end">%1$s asks to end %2$s.</string>
+    <string name="spell_request_keep">Keep it</string>
+
+    <!-- The player's Spells tab and Cast spell request (feature/player) -->
+    <string name="sheet_tab_spells">Spells</string>
+    <string name="player_spells_cast">Cast spell</string>
+    <string name="player_spells_waiting">Waiting for the GM</string>
+    <string name="player_spells_yours">Your spells</string>
+    <string name="player_spells_empty">No spells going. Cast spell asks your GM to cast one.</string>
+    <string name="player_spells_need_session">Casting a spell is a request to your GM. Join your GM\'s session above to cast spells and see the ones you have going.</string>
+    <string name="player_spells_pending_cast">Cast %1$s</string>
+    <string name="player_spells_pending_end">End %1$s</string>
+    <string name="player_spells_no_timer">no timer</string>
+    <plurals name="player_spells_targets">
+        <item quantity="one">on %1$d target</item>
+        <item quantity="other">on %1$d targets</item>
+    </plurals>
+    <string name="player_spells_end">End</string>
+    <string name="player_spells_end_asked">End asked</string>
+    <string name="player_spells_end_label">End %1$s</string>
+    <string name="player_cast_condition">Condition (optional)</string>
+    <string name="player_cast_targets">Targets</string>
+    <string name="player_cast_targets_help">Who or what you aim at. The GM picks the real targets.</string>
+    <string name="player_cast_send">Send to GM</string>
+    <string name="player_cast_condition_error">Pick a condition from the list, or leave it empty</string>
+    <string name="player_cast_value_error">Enter 1 to %1$d</string>
+    <string name="player_spell_request_sent">Asked your GM</string>
+    <string name="player_spell_answer_cast">Your GM cast %1$s</string>
+    <string name="player_spell_answer_rejected">Your GM didn\'t cast %1$s</string>
+    <string name="player_spell_answer_ended">%1$s ended</string>
+    <string name="player_spell_answer_kept">Your GM keeps %1$s going</string>
 </resources>

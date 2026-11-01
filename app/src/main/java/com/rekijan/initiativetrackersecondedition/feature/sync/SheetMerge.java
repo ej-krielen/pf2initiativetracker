@@ -36,6 +36,7 @@ public final class SheetMerge {
         m.fastHealing = pick(b.fastHealing, l.fastHealing, r.fastHealing);
         m.regeneration = pick(b.regeneration, l.regeneration, r.regeneration);
         m.heroPoints = pick(b.heroPoints, l.heroPoints, r.heroPoints);
+        m.winsInitiativeTies = pick(b.winsInitiativeTies, l.winsInitiativeTies, r.winsInitiativeTies);
         m.dying = pick(b.dying, l.dying, r.dying);
         m.dyingValue = pick(b.dyingValue, l.dyingValue, r.dyingValue);
         m.maxDying = pick(b.maxDying, l.maxDying, r.maxDying);

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,7 +14,9 @@ import androidx.fragment.app.Fragment;
 import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.app.CombatTrackerApp;
 import com.rekijan.initiativetrackersecondedition.app.MainActivity;
+import com.rekijan.initiativetrackersecondedition.core.util.DialogHost;
 import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
+import com.rekijan.initiativetrackersecondedition.core.util.TextBinding;
 import com.rekijan.initiativetrackersecondedition.feature.encounter.Encounter;
 import com.rekijan.initiativetrackersecondedition.feature.spell.SpellDialogs;
 import com.rekijan.initiativetrackersecondedition.feature.sync.PlayerSheet;
@@ -39,6 +42,7 @@ public class CharacterDetailFragment extends Fragment implements SyncManager.Sta
     private static final String STATE_TAB = "sheet_tab";
 
     private CharacterSheet sheet;
+    private Encounter encounter;
     private int tab = CharacterSheet.TAB_STATS;
     private SyncManager sync;
     private CharacterModel character;
@@ -68,7 +72,7 @@ public class CharacterDetailFragment extends Fragment implements SyncManager.Sta
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         CombatTrackerApp app = (CombatTrackerApp) requireActivity().getApplication();
-        Encounter encounter = app.getEncounter();
+        encounter = app.getEncounter();
         sync = app.getSync();
         int position = requireArguments().getInt(ARG_POSITION);
         if (!encounter.isValidPosition(position)) {
@@ -78,9 +82,7 @@ public class CharacterDetailFragment extends Fragment implements SyncManager.Sta
         }
         character = encounter.get(position);
 
-        TextView titleTextView = view.findViewById(R.id.character_detail_textView);
-        titleTextView.setText(getString(R.string.character_details_name_title, character.getCharacterName()));
-
+        bindName();
         sheet = new CharacterSheet(view.findViewById(R.id.character_sheet), false, () -> {
                     shown = PlayerSheet.of(character);
                     encounter.notifyChanged();
@@ -96,12 +98,12 @@ public class CharacterDetailFragment extends Fragment implements SyncManager.Sta
 
         String shownName = character.getCharacterName().trim().isEmpty()
                 ? getString(R.string.empty_character_name) : character.getCharacterName();
-        view.findViewById(R.id.character_unlink_button).setOnClickListener(v -> Dialogs.builder(requireContext())
-                .setTitle(getString(R.string.sync_unlink_title, shownName))
-                .setMessage(getString(R.string.sync_unlink_message, shownName))
+        view.findViewById(R.id.character_unlink_button).setOnClickListener(v -> DialogHost.show(c -> Dialogs.builder(c)
+                .setTitle(c.getString(R.string.sync_unlink_title, shownName))
+                .setMessage(c.getString(R.string.sync_unlink_message, shownName))
                 .setPositiveButton(R.string.sync_unlink, (d, w) -> sync.unlink(character))
                 .setNegativeButton(R.string.dialog_cancel, null)
-                .show());
+                .create()));
         renderSync();
     }
 
@@ -123,9 +125,22 @@ public class CharacterDetailFragment extends Fragment implements SyncManager.Sta
         // An approved change from the player: show it
         if (sheet != null && character != null && !PlayerSheet.of(character).toMap().equals(shown.toMap())) {
             sheet.bind(character);
+            bindName();
             shown = PlayerSheet.of(character);
         }
         renderSync();
+    }
+
+    /** The name field: an edit goes straight into the character and redraws its card. */
+    private void bindName() {
+        View view = getView();
+        if (view == null) return;
+        EditText nameEditText = view.findViewById(R.id.character_detail_name_editText);
+        TextBinding.bindText(nameEditText, character.getCharacterName(), name -> {
+            character.setCharacterName(name);
+            shown = PlayerSheet.of(character);
+            encounter.notifyChanged();
+        });
     }
 
     /** The sync row: shown while the character is synced, or linked to a player who left. */

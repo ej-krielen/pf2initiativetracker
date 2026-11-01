@@ -152,6 +152,23 @@ public class SyncRepository {
                 });
     }
 
+    /**
+     * Puts a spell request on the player's sheet that is already in the session, leaving the
+     * sheet itself (and its sentAt) as it is, so the GM only sees the request.
+     *
+     * @param key   {@link SpellRequests#KEY_CAST} or {@link SpellRequests#KEY_END}.
+     * @param value The request as a map.
+     */
+    public void savePlayerRequest(@NonNull String code, @NonNull String docId, @NonNull String key,
+                                  @NonNull Map<String, Object> value, @NonNull CompletionCallback callback) {
+        withTimeout(playerRef(code, docId).update(key, value), "savePlayerRequest " + code)
+                .addOnSuccessListener(unused -> callback.onSuccess())
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "savePlayerRequest failed for " + code, e);
+                    callback.onFailure(e);
+                });
+    }
+
     /** Removes the player's own sheet when they leave. Best effort: it expires anyway. */
     public void deletePlayer(@NonNull String code, @NonNull String docId) {
         playerRef(code, docId).delete().addOnFailureListener(e ->

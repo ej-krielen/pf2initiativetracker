@@ -22,6 +22,7 @@ import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.app.CombatTrackerApp;
 import com.rekijan.initiativetrackersecondedition.app.MainActivity;
 import com.rekijan.initiativetrackersecondedition.core.data.EncounterStore;
+import com.rekijan.initiativetrackersecondedition.core.util.DialogHost;
 import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
 import com.rekijan.initiativetrackersecondedition.core.util.RecyclerLongPressListener;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
@@ -162,25 +163,25 @@ public class EncounterFragment extends Fragment implements Encounter.Listener, S
                     character.getCharacterName(), true, null);
             return;
         }
-        String name = character.getCharacterName();
-        if (TextUtils.isEmpty(name)) name = getString(R.string.empty_character_name);
+        String name = TextUtils.isEmpty(character.getCharacterName())
+                ? getString(R.string.empty_character_name) : character.getCharacterName();
         if (sync.getStatus(character) != SyncRules.Status.NONE) {
-            Dialogs.builder(requireContext())
-                    .setTitle(getString(R.string.sync_remove_title, name))
-                    .setMessage(getString(R.string.sync_remove_message, name))
+            DialogHost.show(c -> Dialogs.builder(c)
+                    .setTitle(c.getString(R.string.sync_remove_title, name))
+                    .setMessage(c.getString(R.string.sync_remove_message, name))
                     .setPositiveButton(R.string.sync_remove, (d, w) ->
                             sync.removeCharacters(Collections.singletonList(character)))
                     .setNeutralButton(R.string.sync_keep_unlink, (d, w) -> sync.unlink(character))
                     .setNegativeButton(R.string.dialog_cancel, null)
-                    .show();
+                    .create());
             return;
         }
-        Dialogs.builder(requireContext())
+        DialogHost.show(c -> Dialogs.builder(c)
                 .setTitle(R.string.dialog_delete_title)
-                .setMessage(getString(R.string.dialog_delete) + " " + name + "?")
+                .setMessage(c.getString(R.string.dialog_delete) + " " + name + "?")
                 .setPositiveButton(R.string.dialog_ok, (d, w) ->
                         sync.removeCharacters(Collections.singletonList(character)))
                 .setNegativeButton(R.string.dialog_cancel, null)
-                .show();
+                .create());
     }
 }

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Main screen: toolbar, the panes (content_main: the encounter, or the details / Edit Order in
-    its place; on a large screen the details sit next to the list; or the profile list or a
-    player character) and the ad bar under both panes, with the navigation drawer over it.
+    Main screen: toolbar, one pane (the encounter, or the details, reactions, condition wizard or
+    Edit order in its place; or the profile list or a player character) and the ad bar, with the
+    navigation drawer over it. layout-land puts the details next to the list.
     The ad bar takes its own space, so it never covers the turn bar. Edge-to-edge: MainActivity pads
     the root and the drawer for the status bar, navigation bar and keyboard, so nothing here uses
     fitsSystemWindows.
@@ -29,8 +29,8 @@
             app:title="@string/app_name"
             app:titleTextColor="@color/rk_wordmark" />
 
-        <include
-            layout="@layout/content_main"
+        <FrameLayout
+            android:id="@+id/main_fragment_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1" />

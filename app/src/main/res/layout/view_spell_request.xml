@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A player's spell request on top of the GM's Cast spell or End spell dialog: a gold label
+     ("Kyra's targets", "Request") and the player's words. SpellDialogs fills it. -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/space_3"
+    android:visibility="gone"
+    app:cardBackgroundColor="@color/rk_pc_container"
+    app:cardElevation="0dp"
+    app:contentPadding="@dimen/space_2"
+    app:strokeColor="?attr/colorSecondary"
+    app:strokeWidth="1dp"
+    tools:visibility="visible">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/spell_request_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Rekijan.StatLabel"
+            android:textColor="?attr/colorSecondary"
+            tools:text="Kyra's targets" />
+
+        <TextView
+            android:id="@+id/spell_request_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_1"
+            android:textAppearance="@style/TextAppearance.Rekijan.Body"
+            android:textColor="?attr/colorOnSurface"
+            tools:text="“the two goblins in the burst”" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

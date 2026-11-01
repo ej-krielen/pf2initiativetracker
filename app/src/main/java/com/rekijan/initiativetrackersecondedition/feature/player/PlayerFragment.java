@@ -22,6 +22,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.app.CombatTrackerApp;
 import com.rekijan.initiativetrackersecondedition.app.MainActivity;
+import com.rekijan.initiativetrackersecondedition.core.util.DialogHost;
 import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterSheet;
@@ -36,8 +37,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A player's own character: the session card on top, the sheet with the Stats and Conditions
- * tabs ({@link CharacterSheet}), and Send to GM. Every edit is saved on the phone straight away.
+ * A player's own character: the session card on top, the sheet with the Stats, Conditions and
+ * Spells tabs ({@link CharacterSheet}, {@link PlayerSpellsPane}), and Send to GM. Every edit is saved on the phone straight away.
  * Add opens the condition wizard for this character.
  * <p>
  * Not joined, the card has the session code and Join, which also sends the sheet. Joined, the GM
@@ -59,6 +60,7 @@ public class PlayerFragment extends Fragment implements SyncManager.StateListene
     private String characterId;
     private CharacterModel character;
     private CharacterSheet sheet;
+    private PlayerSpellsPane spells;
     private int tab = CharacterSheet.TAB_STATS;
     private boolean busy;
 
@@ -92,6 +94,7 @@ public class PlayerFragment extends Fragment implements SyncManager.StateListene
         sheet = new CharacterSheet(view.findViewById(R.id.player_sheet), true, this::onSheetChanged,
                 () -> ((MainActivity) requireActivity()).showPlayerConditionWizard(characterId));
         sheet.bind(character);
+        spells = new PlayerSpellsPane(view.findViewById(R.id.sheet_spells_pane), sync, characterId);
         if (savedInstanceState != null) tab = savedInstanceState.getInt(STATE_TAB, tab);
         sheet.selectTab(tab);
 
@@ -179,23 +182,32 @@ public class PlayerFragment extends Fragment implements SyncManager.StateListene
         }
     }
 
+    @Override
+    public void onSpellAnswered(String id, String spellName, boolean cast, boolean done) {
+        if (!id.equals(characterId) || getView() == null) return;
+        int message = cast ? (done ? R.string.player_spell_answer_cast : R.string.player_spell_answer_rejected)
+                : (done ? R.string.player_spell_answer_ended : R.string.player_spell_answer_kept);
+        toast(getString(message, spellName));
+    }
+
     /** The GM ended the link: a popup, since the player may not be looking at the screen. */
     private void showNotice(String title, String message) {
-        Dialogs.builder(requireContext())
+        DialogHost.show(c -> Dialogs.builder(c)
                 .setTitle(title)
                 .setMessage(message)
                 .setPositiveButton(R.string.dialog_ok, null)
-                .show();
+                .create());
     }
 
     /** Leaving is easy to tap by mistake, and the GM keeps the character: ask first. */
     private void askLeave() {
-        Dialogs.builder(requireContext())
+        String name = displayName();
+        DialogHost.show(c -> Dialogs.builder(c)
                 .setTitle(R.string.player_leave_title)
-                .setMessage(getString(R.string.player_leave_message, displayName()))
+                .setMessage(c.getString(R.string.player_leave_message, name))
                 .setPositiveButton(R.string.sync_leave, (d, w) -> sync.leave(characterId))
                 .setNegativeButton(R.string.dialog_cancel, null)
-                .show();
+                .create());
     }
 
     private String displayName() {
@@ -213,6 +225,7 @@ public class PlayerFragment extends Fragment implements SyncManager.StateListene
     private void render() {
         View view = getView();
         if (view == null || sheet == null) return;
+        spells.render();
         String code = sync.getPlayerCode(characterId);
         boolean joined = code != null;
         view.findViewById(R.id.player_join_row).setVisibility(joined ? View.GONE : View.VISIBLE);

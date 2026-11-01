@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- A character sheet with two tabs: Stats (PC and dying switches, the
+<!-- A character sheet with two tabs: Stats (PC, initiative tie and dying switches, the
      numbers, the dying track numbers and hero points, the free-text stat lines and notes) and
-     Conditions (conditions, buffs and persistent damage, with Clear all and Add). Used by the GM's
+     Conditions (conditions, buffs and persistent damage, with Clear all and Add). The player's
+     sheet gets a third tab, Spells, added by CharacterSheet. Used by the GM's
      character details and the player screen; CharacterSheet binds it. The player-only rows (name,
-     initiative, hp) are hidden for the GM, the PC switch is hidden for the player. Two fields per
-     row so the labels fit at a large font size. -->
+     initiative, hp) are hidden for the GM, the PC switch is hidden for the player, the
+     initiative tie switch only shows for a PC. Two fields per row so the labels fit at a large
+     font size. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -117,6 +119,43 @@
                     android:minHeight="@dimen/touch_target"
                     android:text="@string/char_detail_switch_pc_on"
                     android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+                <!-- Wins tie: the label, an info button that explains it, and the switch -->
+                <LinearLayout
+                    android:id="@+id/wins_initiative_ties_row"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/wins_initiative_ties_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@id/wins_initiative_ties_switch"
+                        android:text="@string/char_detail_switch_wins_initiative_ties"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOnSurface" />
+
+                    <ImageButton
+                        android:id="@+id/wins_initiative_ties_info_button"
+                        style="@style/Widget.Rekijan.IconButton"
+                        android:contentDescription="@string/char_detail_wins_initiative_ties_info_title"
+                        android:src="@drawable/ic_info"
+                        app:tint="?attr/colorOnSurfaceVariant" />
+
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/wins_initiative_ties_switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/char_detail_switch_wins_initiative_ties"
+                        android:minHeight="@dimen/touch_target" />
+                </LinearLayout>
         
                 <com.google.android.material.materialswitch.MaterialSwitch
                     android:id="@+id/is_dying_switch"
@@ -443,5 +482,90 @@
                     app:icon="@drawable/ic_add" />
             </LinearLayout>
         </LinearLayout>
+
+        <!-- ================= Spells (player only) ================= -->
+        <!-- Cast spell, the requests waiting for the GM, and the spells this PC has going.
+             Outside a session only the explanation shows. PlayerSpellsPane fills it. -->
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/sheet_spells_pane"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/space_3"
+                android:paddingTop="@dimen/space_3"
+                android:paddingEnd="@dimen/space_3"
+                android:paddingBottom="@dimen/space_3">
+
+                <TextView
+                    android:id="@+id/spells_need_session_textView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="@dimen/space_4"
+                    android:text="@string/player_spells_need_session"
+                    android:textAppearance="@style/TextAppearance.Rekijan.Body"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <LinearLayout
+                    android:id="@+id/spells_joined_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/spells_cast_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/player_spells_cast"
+                        app:icon="@drawable/ic_spellbook" />
+
+                    <TextView
+                        android:id="@+id/spells_waiting_header"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_3"
+                        android:text="@string/player_spells_waiting"
+                        android:textAppearance="@style/TextAppearance.Rekijan.StatLabel"
+                        android:textColor="?attr/colorSecondary" />
+
+                    <LinearLayout
+                        android:id="@+id/spells_waiting_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_1"
+                        android:orientation="vertical" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_3"
+                        android:text="@string/player_spells_yours"
+                        android:textAppearance="@style/TextAppearance.Rekijan.StatLabel"
+                        android:textColor="?attr/colorSecondary" />
+
+                    <LinearLayout
+                        android:id="@+id/spells_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_1"
+                        android:orientation="vertical" />
+
+                    <TextView
+                        android:id="@+id/spells_empty_textView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="@dimen/space_2"
+                        android:paddingBottom="@dimen/space_2"
+                        android:text="@string/player_spells_empty"
+                        android:textAppearance="@style/TextAppearance.Rekijan.Body"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
     </FrameLayout>
 </LinearLayout>

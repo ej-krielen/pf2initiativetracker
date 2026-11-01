@@ -47,6 +47,11 @@ import java.util.function.Consumer;
  * its screen is open it follows the GM's copy live and merges it in ({@link SheetMerge}), so the
  * GM's answer and later changes arrive by themselves and unsent edits are kept.
  * <p>
+ * Spells ({@link SpellRequests}): a player asks the GM to cast a spell or to end one of theirs
+ * ({@link #requestCast}, {@link #requestEnd}); the request is added to their doc without a new
+ * send. The GM gets it in the same queue, after the sheet requests, and answers it
+ * ({@link #answerCast}, {@link #answerEnd}); the GM's copy carries the answer and the PC's spells.
+ * <p>
  * Signing in (anonymously) only happens when the user starts or joins a session, so users who
  * never use Table sync never get a Firebase account. Firebase itself (App Check, Firestore) is
  * only set up then too, or at startup when a session is still running, so a GM who plays
@@ -98,6 +103,14 @@ public class SyncManager implements Encounter.Listener {
          * @param kept        With {@link Answer#KEPT}: how many sent values the GM kept as they were.
          */
         void onPlayerUpdated(String characterId, Answer answer, int kept);
+
+        /**
+         * The GM answered a spell request of this player character.
+         *
+         * @param cast True for a cast request, false for an end request.
+         * @param done True when the GM cast (or ended) it, false when they rejected it (or kept it going).
+         */
+        void onSpellAnswered(String characterId, String spellName, boolean cast, boolean done);
     }
 
     /** The GM's answer to a player's send, as the player sees it. */
@@ -118,7 +131,10 @@ public class SyncManager implements Encounter.Listener {
         SESSION_ENDED
     }
 
-    /** A player's send waiting for the GM. */
+    /**
+     * A player's send waiting for the GM: a join, sheet changes, or a spell request
+     * ({@link #cast} or {@link #end} set, with the PC in {@link #caster}).
+     */
     public static final class Request {
         public final String docId;
         public final PlayerSheet sheet;
@@ -130,15 +146,39 @@ public class SyncManager implements Encounter.Listener {
         public final List<CharacterModel> linkCandidates;
         /** For a join: the GM removed this player's character from this party before. */
         public final boolean removedBefore;
+        /** A spell the player asks the GM to cast, or null. */
+        @Nullable
+        public final SpellRequests.Cast cast;
+        /** A spell the player asks the GM to end, or null. */
+        @Nullable
+        public final SpellRequests.End end;
+        /** For a spell request: the player's PC in the party. */
+        @Nullable
+        public final CharacterModel caster;
 
         Request(String docId, PlayerSheet sheet, boolean join, List<SyncDiff.Change> changes,
                 List<CharacterModel> linkCandidates, boolean removedBefore) {
+            this(docId, sheet, join, changes, linkCandidates, removedBefore, null, null, null);
+        }
+
+        private Request(String docId, PlayerSheet sheet, boolean join, List<SyncDiff.Change> changes,
+                        List<CharacterModel> linkCandidates, boolean removedBefore, SpellRequests.Cast cast,
+                        SpellRequests.End end, CharacterModel caster) {
             this.docId = docId;
             this.sheet = sheet;
             this.join = join;
             this.changes = changes;
             this.linkCandidates = linkCandidates;
             this.removedBefore = removedBefore;
+            this.cast = cast;
+            this.end = end;
+            this.caster = caster;
+        }
+
+        static Request spell(String docId, PlayerSheet sheet, CharacterModel caster, SpellRequests.Cast cast,
+                             SpellRequests.End end) {
+            return new Request(docId, sheet, false, Collections.emptyList(), Collections.emptyList(), false,
+                    cast, end, caster);
         }
     }
 
@@ -171,6 +211,10 @@ public class SyncManager implements Encounter.Listener {
     private boolean playersLoaded;
     /** Per document id, the latest send the GM hasn't answered yet. */
     private final Map<String, PlayerSheet> requests = new LinkedHashMap<>();
+    /** Per document id, the cast request the GM hasn't answered yet. */
+    private final Map<String, SpellRequests.Cast> castRequests = new LinkedHashMap<>();
+    /** Per document id, the end spell request the GM hasn't answered yet. */
+    private final Map<String, SpellRequests.End> endRequests = new LinkedHashMap<>();
     /** Per document id, the GM's copy last uploaded in this run, to skip unchanged ones. */
     private final Map<String, Map<String, Object>> uploaded = new HashMap<>();
     /** Per player character id, the live listener on its GM's copy. */
@@ -250,6 +294,8 @@ public class SyncManager implements Encounter.Listener {
                         lastSheets = new LinkedHashMap<>();
                         playersLoaded = false;
                         requests.clear();
+                        castRequests.clear();
+                        endRequests.clear();
                         uploaded.clear();
                         startWatchingParty();
                         attachListener(code);
@@ -344,6 +390,31 @@ public class SyncManager implements Encounter.Listener {
             markAnswered(docId, sheet.sentAt);
             answeredAny = true;
         }
+        // Spell requests come after the sheets, and only from PCs in the party
+        if (next == null) {
+            for (Map.Entry<String, SpellRequests.Cast> e : castRequests.entrySet()) {
+                CharacterModel caster = find(e.getKey());
+                PlayerSheet sheet = lastSheets.get(e.getKey());
+                if (caster == null || sheet == null) continue;
+                next = Request.spell(e.getKey(), sheet, caster, e.getValue(), null);
+                break;
+            }
+        }
+        if (next == null) {
+            for (Map.Entry<String, SpellRequests.End> e : new ArrayList<>(endRequests.entrySet())) {
+                CharacterModel caster = find(e.getKey());
+                PlayerSheet sheet = lastSheets.get(e.getKey());
+                if (caster == null || sheet == null) continue;
+                if (!SpellRequests.contains(SpellRequests.spellsOf(host.getEncounter(), caster), e.getValue().spellId)) {
+                    // Ended already (ran out, or the GM ended it): the player only needs to hear that
+                    answerEnd(e.getKey(), e.getValue().at, true);
+                    answeredAny = true;
+                    continue;
+                }
+                next = Request.spell(e.getKey(), sheet, caster, null, e.getValue());
+                break;
+            }
+        }
         // The player waits for an answer, also when nothing changed
         if (answeredAny) uploadNow();
         return next;
@@ -392,6 +463,39 @@ public class SyncManager implements Encounter.Listener {
             uploadNow();
         }
         notifyRequests();
+    }
+
+    /**
+     * The GM answered a cast request: cast (the spell is already on its targets) or rejected.
+     * The player gets the answer with the GM's copy, and their spell list with it.
+     */
+    public void answerCast(@NonNull Request request, boolean cast) {
+        if (request.cast == null) return;
+        Map<String, SpellRequests.Answer> answers = store.loadCastAnswers();
+        answers.put(request.docId, new SpellRequests.Answer(request.cast.at, cast));
+        store.saveCastAnswers(answers);
+        SpellRequests.Cast waiting = castRequests.get(request.docId);
+        if (waiting != null && waiting.at <= request.cast.at) castRequests.remove(request.docId);
+        if (cast) host.saveEncounter();
+        uploadNow();
+        notifyRequests();
+    }
+
+    /** The GM answered an end spell request: ended (the spell is already off its targets) or kept. */
+    public void answerEnd(@NonNull Request request, boolean ended) {
+        if (request.end == null) return;
+        answerEnd(request.docId, request.end.at, ended);
+        if (ended) host.saveEncounter();
+        uploadNow();
+        notifyRequests();
+    }
+
+    private void answerEnd(String docId, long at, boolean ended) {
+        Map<String, SpellRequests.Answer> answers = store.loadEndAnswers();
+        answers.put(docId, new SpellRequests.Answer(at, ended));
+        store.saveEndAnswers(answers);
+        SpellRequests.End waiting = endRequests.get(docId);
+        if (waiting != null && waiting.at <= at) endRequests.remove(docId);
     }
 
     /**
@@ -521,6 +625,9 @@ public class SyncManager implements Encounter.Listener {
             return;
         }
         PlayerSheet sheet = PlayerSheet.of(character);
+        // Open spell requests stay on the player's doc, which a send writes as a whole
+        sheet.cast = store.loadPlayerCast(characterId);
+        sheet.end = store.loadPlayerEnd(characterId);
         signIn(new SignInCallback() {
             @Override
             public void onSignedIn(String uid) {
@@ -588,6 +695,101 @@ public class SyncManager implements Encounter.Listener {
                 } else {
                     callback.onFailure(e);
                 }
+            }
+        });
+    }
+
+    /** @return The cast request waiting for the GM, or null. */
+    @Nullable
+    public SpellRequests.Cast getPendingCast(String characterId) {
+        return store.getPlayerCode(characterId) != null ? store.loadPlayerCast(characterId) : null;
+    }
+
+    /** @return The end spell request waiting for the GM, or null. */
+    @Nullable
+    public SpellRequests.End getPendingEnd(String characterId) {
+        return store.getPlayerCode(characterId) != null ? store.loadPlayerEnd(characterId) : null;
+    }
+
+    /** @return The spells this character has going, as the GM last said; empty outside a session. */
+    public List<SpellRequests.Spell> getPlayerSpells(String characterId) {
+        return store.getPlayerCode(characterId) != null ? store.loadPlayerSpells(characterId) : new ArrayList<>();
+    }
+
+    /** Asks the GM to cast a spell; the GM picks the targets. One request waits at a time. */
+    public void requestCast(@NonNull String characterId, @NonNull SpellRequests.Cast cast, @NonNull Callback callback) {
+        cast.at = store.nextRequestAt(characterId, System.currentTimeMillis());
+        SpellRequests.Cast clean = cast.cleaned();
+        sendRequest(characterId, SpellRequests.KEY_CAST, clean.toMap(),
+                () -> store.savePlayerCast(characterId, clean), () -> store.savePlayerCast(characterId, null), callback);
+    }
+
+    /** Asks the GM to end one of this character's spells. One request waits at a time. */
+    public void requestEnd(@NonNull String characterId, @NonNull SpellRequests.Spell spell, @NonNull Callback callback) {
+        SpellRequests.End end = new SpellRequests.End();
+        end.at = store.nextRequestAt(characterId, System.currentTimeMillis());
+        end.spellId = spell.id;
+        end.name = spell.name;
+        SpellRequests.End clean = end.cleaned();
+        sendRequest(characterId, SpellRequests.KEY_END, clean.toMap(),
+                () -> store.savePlayerEnd(characterId, clean), () -> store.savePlayerEnd(characterId, null), callback);
+    }
+
+    /**
+     * Puts a spell request on the player's doc in the session. It is saved first, so a whole send
+     * carries it too; when only adding it fails (the doc isn't there, or the session's expiry
+     * changed), the whole sheet is sent with it. Forgotten again when that fails as well.
+     */
+    private void sendRequest(String characterId, String key, Map<String, Object> value, Runnable save,
+                             Runnable forget, Callback callback) {
+        String code = store.getPlayerCode(characterId);
+        if (code == null) {
+            callback.onNotFound();
+            return;
+        }
+        save.run();
+        notifyStateChanged();
+        Callback result = new Callback() {
+            @Override
+            public void onSuccess() {
+                notifyStateChanged();
+                callback.onSuccess();
+            }
+
+            @Override
+            public void onNotFound() {
+                forget.run();
+                notifyStateChanged();
+                callback.onNotFound();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                forget.run();
+                notifyStateChanged();
+                callback.onFailure(e);
+            }
+        };
+        signIn(new SignInCallback() {
+            @Override
+            public void onSignedIn(String uid) {
+                repository.savePlayerRequest(code, SyncIds.playerDocId(uid, characterId), key, value,
+                        new SyncRepository.CompletionCallback() {
+                            @Override
+                            public void onSuccess() {
+                                result.onSuccess();
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                send(characterId, host.loadPlayer(characterId), result);
+                            }
+                        });
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                result.onFailure(e);
             }
         });
     }
@@ -678,6 +880,14 @@ public class SyncManager implements Encounter.Listener {
         }
         if (copy.rejected) return;
 
+        store.savePlayerSpells(characterId, copy.spells);
+        SpellRequests.Cast cast = store.loadPlayerCast(characterId);
+        boolean castAnswered = cast != null && copy.castAnswer.answers(cast.at);
+        if (castAnswered) store.savePlayerCast(characterId, null);
+        SpellRequests.End end = store.loadPlayerEnd(characterId);
+        boolean endAnswered = end != null && copy.endAnswer.answers(end.at);
+        if (endAnswered) store.savePlayerEnd(characterId, null);
+
         CharacterModel character = host.loadPlayer(characterId);
         PlayerSheet local = PlayerSheet.of(character);
         PlayerSheet base = store.loadPlayerBase(characterId);
@@ -699,7 +909,11 @@ public class SyncManager implements Encounter.Listener {
             host.savePlayer(characterId, character);
         }
         notifyStateChanged();
-        if (playerUpdateListener != null) playerUpdateListener.onPlayerUpdated(characterId, result, kept);
+        if (playerUpdateListener != null) {
+            playerUpdateListener.onPlayerUpdated(characterId, result, kept);
+            if (castAnswered) playerUpdateListener.onSpellAnswered(characterId, cast.name, true, copy.castAnswer.ok);
+            if (endAnswered) playerUpdateListener.onSpellAnswered(characterId, end.name, false, copy.endAnswer.ok);
+        }
     }
 
     /**
@@ -849,6 +1063,22 @@ public class SyncManager implements Encounter.Listener {
                         requests.remove(e.getKey());
                     }
                 }
+                Map<String, SpellRequests.Answer> castAnswers = store.loadCastAnswers();
+                Map<String, SpellRequests.Answer> endAnswers = store.loadEndAnswers();
+                castRequests.clear();
+                endRequests.clear();
+                for (Map.Entry<String, PlayerSheet> e : sheets.entrySet()) {
+                    SpellRequests.Cast cast = e.getValue().cast;
+                    SpellRequests.Answer castAnswer = castAnswers.get(e.getKey());
+                    if (cast != null && (castAnswer == null || !castAnswer.answers(cast.at))) {
+                        castRequests.put(e.getKey(), cast);
+                    }
+                    SpellRequests.End end = e.getValue().end;
+                    SpellRequests.Answer endAnswer = endAnswers.get(e.getKey());
+                    if (end != null && (endAnswer == null || !endAnswer.answers(end.at))) {
+                        endRequests.put(e.getKey(), end);
+                    }
+                }
                 notifyStateChanged();
                 notifyRequests();
                 // Once per run, all the GM's copies go up: an answer lost on its way (app closed, connection
@@ -930,12 +1160,17 @@ public class SyncManager implements Encounter.Listener {
         if (!hostedPartyIsActive()) return;
         String code = store.getHostCode();
         Map<String, Long> answered = store.loadApplied();
+        Map<String, SpellRequests.Answer> castAnswers = store.loadCastAnswers();
+        Map<String, SpellRequests.Answer> endAnswers = store.loadEndAnswers();
         Map<String, GmCopy> changed = new HashMap<>();
         for (CharacterModel c : host.getEncounter().getCharacters()) {
             String docId = c.getSyncId();
             if (docId == null || SyncIds.ownerUid(docId).isEmpty() || changed.containsKey(docId)) continue;
             Long last = answered.get(docId);
             GmCopy copy = GmCopy.of(c, last != null ? last : 0);
+            copy.spells = SpellRequests.spellsOf(host.getEncounter(), c);
+            if (castAnswers.containsKey(docId)) copy.castAnswer = castAnswers.get(docId);
+            if (endAnswers.containsKey(docId)) copy.endAnswer = endAnswers.get(docId);
             if (!copy.toMap().equals(uploaded.get(docId))) changed.put(docId, copy);
         }
         if (changed.isEmpty()) return;
@@ -991,6 +1226,8 @@ public class SyncManager implements Encounter.Listener {
         lastSheets = new LinkedHashMap<>();
         playersLoaded = false;
         requests.clear();
+        castRequests.clear();
+        endRequests.clear();
         uploaded.clear();
         retryDelayMs = RETRY_MIN_MS;
         notifyStateChanged();

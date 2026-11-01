@@ -12,7 +12,8 @@ import java.util.Map;
 
 /**
  * Everything Table sync shares about one player character, in both directions: name, initiative
- * and initiative bonus, hp and max hp, fast healing and regeneration, hero points, the dying track
+ * and initiative bonus, hp and max hp, fast healing and regeneration, hero points, whether the PC
+ * goes before monsters on an initiative tie, the dying track
  * (dying on/off, dying, max dying, wounded, doomed, recovery DC), the free-text lines (AC, saves,
  * skills, attack routine, notes), the reaction and the custom reactions, and the conditions with
  * their value, duration and persistent damage. The player sends it to ask the GM for changes; the
@@ -27,6 +28,9 @@ import java.util.Map;
  * A spell condition travels with its caster's name only ("caster"), so the player sees who cast
  * it. The caster and spell ids stay with the GM: {@link #applyTo} keeps them on the conditions
  * that come back, and also the link of a condition a spell's cast added.
+ * <p>
+ * A player's send may also carry their open spell requests ({@link #cast}, {@link #end}); they
+ * are not part of the sheet itself, so {@link SyncDiff} and {@link #applyTo} leave them alone.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 28-10-2026
@@ -55,6 +59,7 @@ public class PlayerSheet {
     static final String KEY_FAST_HEALING = "fastHealing";
     static final String KEY_REGENERATION = "regeneration";
     static final String KEY_HERO_POINTS = "heroPoints";
+    static final String KEY_WINS_INITIATIVE_TIES = "winsInitiativeTies";
     static final String KEY_DYING = "dying";
     static final String KEY_DYING_VALUE = "dyingValue";
     static final String KEY_MAX_DYING = "maxDying";
@@ -91,6 +96,7 @@ public class PlayerSheet {
     public int fastHealing;
     public int regeneration;
     public int heroPoints;
+    public boolean winsInitiativeTies;
     public boolean dying;
     public int dyingValue;
     public int maxDying = CharacterModel.DEFAULT_MAX_DYING;
@@ -107,6 +113,10 @@ public class PlayerSheet {
     public List<DebuffModel> conditions = new ArrayList<>();
     /** When the player sent this, in ms; only compared with the same player's earlier sends. */
     public long sentAt;
+    /** A spell the player asks the GM to cast, or null. */
+    public SpellRequests.Cast cast;
+    /** A spell the player asks the GM to end, or null. */
+    public SpellRequests.End end;
 
     /** @return Everything Table sync shares about this character (sentAt still 0). */
     public static PlayerSheet of(CharacterModel character) {
@@ -119,6 +129,7 @@ public class PlayerSheet {
         s.fastHealing = character.getFastHealing();
         s.regeneration = character.getRegeneration();
         s.heroPoints = character.getHeroPoints();
+        s.winsInitiativeTies = character.winsInitiativeTies();
         s.dying = character.isDying();
         s.dyingValue = character.getDyingValue();
         s.maxDying = character.getMaxDyingValue();
@@ -152,6 +163,7 @@ public class PlayerSheet {
         s.fastHealing = NumberInput.clamp(fastHealing, 0, CharacterModel.MAX_HEALING);
         s.regeneration = NumberInput.clamp(regeneration, 0, CharacterModel.MAX_HEALING);
         s.heroPoints = NumberInput.clamp(heroPoints, 0, CharacterModel.MAX_HERO_POINTS);
+        s.winsInitiativeTies = winsInitiativeTies;
         s.dying = dying;
         s.dyingValue = NumberInput.clamp(dyingValue, 0, CharacterModel.MAX_CONDITION_VALUE);
         s.maxDying = NumberInput.clamp(maxDying, 1, CharacterModel.MAX_DYING_VALUE);
@@ -177,6 +189,8 @@ public class PlayerSheet {
             }
         }
         s.sentAt = Math.max(0, sentAt);
+        s.cast = cast != null ? cast.cleaned() : null;
+        s.end = end != null ? end.cleaned() : null;
         return s;
     }
 
@@ -192,6 +206,7 @@ public class PlayerSheet {
         map.put(KEY_FAST_HEALING, (long) s.fastHealing);
         map.put(KEY_REGENERATION, (long) s.regeneration);
         map.put(KEY_HERO_POINTS, (long) s.heroPoints);
+        map.put(KEY_WINS_INITIATIVE_TIES, s.winsInitiativeTies);
         map.put(KEY_DYING, s.dying);
         map.put(KEY_DYING_VALUE, (long) s.dyingValue);
         map.put(KEY_MAX_DYING, (long) s.maxDying);
@@ -229,6 +244,8 @@ public class PlayerSheet {
         }
         map.put(KEY_CONDITIONS, conditionList);
         map.put(KEY_SENT_AT, s.sentAt);
+        if (s.cast != null) map.put(SpellRequests.KEY_CAST, s.cast.toMap());
+        if (s.end != null) map.put(SpellRequests.KEY_END, s.end.toMap());
         return map;
     }
 
@@ -260,6 +277,7 @@ public class PlayerSheet {
         s.fastHealing = whole(map.get(KEY_FAST_HEALING), 0);
         s.regeneration = whole(map.get(KEY_REGENERATION), 0);
         s.heroPoints = whole(map.get(KEY_HERO_POINTS), 0);
+        s.winsInitiativeTies = Boolean.TRUE.equals(map.get(KEY_WINS_INITIATIVE_TIES));
         s.dying = Boolean.TRUE.equals(map.get(KEY_DYING));
         s.dyingValue = whole(map.get(KEY_DYING_VALUE), 0);
         s.maxDying = whole(map.get(KEY_MAX_DYING), CharacterModel.DEFAULT_MAX_DYING);
@@ -301,6 +319,8 @@ public class PlayerSheet {
             }
         }
         s.sentAt = number(map.get(KEY_SENT_AT));
+        s.cast = SpellRequests.Cast.read(map.get(SpellRequests.KEY_CAST));
+        s.end = SpellRequests.End.read(map.get(SpellRequests.KEY_END));
         return s.cleaned();
     }
 
@@ -320,6 +340,7 @@ public class PlayerSheet {
         character.setFastHealing(s.fastHealing);
         character.setRegeneration(s.regeneration);
         character.setHeroPoints(s.heroPoints);
+        character.setWinsInitiativeTies(s.winsInitiativeTies);
         character.setDying(s.dying);
         character.setDyingValue(s.dyingValue);
         character.setMaxDyingValue(s.maxDying);

@@ -3,6 +3,7 @@ package com.rekijan.initiativetrackersecondedition.feature.info;
 import android.content.Context;
 
 import com.rekijan.initiativetrackersecondedition.R;
+import com.rekijan.initiativetrackersecondedition.core.util.DialogHost;
 import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
 
 /**
@@ -22,13 +23,13 @@ public final class InfoDialogs {
     }
 
     public static void about(Context context) {
-        Dialogs.builder(context)
+        DialogHost.show(c -> Dialogs.builder(c)
                 .setTitle(R.string.dialog_about_info_title)
                 .setMessage(R.string.dialog_about_info)
-                .setPositiveButton(R.string.dialog_about_ok, (d, w) -> Dialogs.openUrl(context, WEBSITE_URL))
-                .setNeutralButton(R.string.licenses_button, (d, w) -> licenses(context))
+                .setPositiveButton(R.string.dialog_about_ok, (d, w) -> Dialogs.openUrl(c, WEBSITE_URL))
+                .setNeutralButton(R.string.licenses_button, (d, w) -> licenses(c))
                 .setNegativeButton(R.string.dialog_cancel, null)
-                .show();
+                .create());
     }
 
     /**
@@ -37,20 +38,20 @@ public final class InfoDialogs {
      * License asks for the font license text to ship with the app.
      */
     public static void licenses(Context context) {
-        Dialogs.builder(context)
+        DialogHost.show(c -> Dialogs.builder(c)
                 .setTitle(R.string.licenses_title)
-                .setMessage(Dialogs.readRawText(context, R.raw.licenses))
+                .setMessage(Dialogs.readRawText(c, R.raw.licenses))
                 .setPositiveButton(R.string.dialog_ok, null)
-                .show();
+                .create());
     }
 
     public static void privacyPolicy(Context context) {
-        Dialogs.builder(context)
+        DialogHost.show(c -> Dialogs.builder(c)
                 .setTitle(R.string.dialog_privacy_info_title)
                 .setMessage(R.string.dialog_privacy_info)
-                .setPositiveButton(R.string.dialog_about_ok, (d, w) -> Dialogs.openUrl(context, PRIVACY_URL))
+                .setPositiveButton(R.string.dialog_about_ok, (d, w) -> Dialogs.openUrl(c, PRIVACY_URL))
                 .setNegativeButton(R.string.dialog_cancel, null)
-                .show();
+                .create());
     }
 
     public static void howToDeleteCharacter(Context context) {
@@ -66,10 +67,10 @@ public final class InfoDialogs {
     }
 
     private static void message(Context context, int titleRes, int messageRes) {
-        Dialogs.builder(context)
+        DialogHost.show(c -> Dialogs.builder(c)
                 .setTitle(titleRes)
                 .setMessage(messageRes)
                 .setPositiveButton(R.string.dialog_ok, null)
-                .show();
+                .create());
     }
 }

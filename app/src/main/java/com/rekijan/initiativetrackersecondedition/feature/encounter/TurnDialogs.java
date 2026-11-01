@@ -3,6 +3,7 @@ package com.rekijan.initiativetrackersecondedition.feature.encounter;
 import android.content.Context;
 
 import com.rekijan.initiativetrackersecondedition.R;
+import com.rekijan.initiativetrackersecondedition.core.util.DialogHost;
 import com.rekijan.initiativetrackersecondedition.core.util.DialogQueue;
 import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
@@ -46,12 +47,13 @@ public final class TurnDialogs {
     public static void askRoundReset(Context context, Encounter encounter, boolean duplicateInitiative) {
         String message = context.getString(R.string.dialog_reset_round_counter);
         if (duplicateInitiative) message += context.getString(R.string.dialog_reset_round_double_init);
-        Dialogs.builder(context)
+        String text = message;
+        DialogHost.show(c -> Dialogs.builder(c)
                 .setTitle(R.string.dialog_reset_round_counter_title)
-                .setMessage(message)
+                .setMessage(text)
                 .setPositiveButton(R.string.dialog_ok, (d, w) -> encounter.resetRound())
                 .setNegativeButton(R.string.dialog_cancel, null)
-                .show();
+                .create());
     }
 
     private static void show(Context context, Encounter encounter, TurnStep step, Runnable done) {
@@ -89,38 +91,38 @@ public final class TurnDialogs {
             done.run();
             return;
         }
-        Dialogs.builder(context)
+        DialogHost.show(c -> Dialogs.builder(c)
                 .setTitle(R.string.dialog_debuff_expired_title)
-                .setMessage(context.getString(R.string.debuff_expired, debuff.getDisplayName()))
+                .setMessage(c.getString(R.string.debuff_expired, debuff.getDisplayName()))
                 .setPositiveButton(R.string.dialog_debuff_remove, (d, w) -> {
                     character.getDebuffList().remove(debuff);
                     encounter.notifyChanged();
                 })
                 .setNegativeButton(R.string.dialog_debuff_keep, null)
                 .setOnDismissListener(d -> done.run())
-                .show();
+                .create());
     }
 
     private static void askAutomaticHealing(Context context, Encounter encounter, CharacterModel character,
                                             int healing, int titleRes, int messageRes, Runnable done) {
-        Dialogs.builder(context)
+        DialogHost.show(c -> Dialogs.builder(c)
                 .setTitle(titleRes)
                 .setMessage(messageRes)
                 .setPositiveButton(R.string.dialog_yes, (d, w) -> {
                     character.heal(healing);
                     boolean aboveMax = character.isAboveMaxHp();
-                    HealthDialogs.onHpChanged(context, encounter, character,
+                    HealthDialogs.onHpChanged(c, encounter, character,
                             HpChange.apply(character, character.getHp()),
-                            aboveMax ? () -> askCapAtMaxHp(context, encounter, character, done) : done);
+                            aboveMax ? () -> askCapAtMaxHp(c, encounter, character, done) : done);
                 })
                 .setNegativeButton(R.string.dialog_no, (d, w) -> done.run())
                 .setOnCancelListener(d -> done.run())
-                .show();
+                .create());
     }
 
     private static void askCapAtMaxHp(Context context, Encounter encounter, CharacterModel character,
                                       Runnable done) {
-        Dialogs.builder(context)
+        DialogHost.show(c -> Dialogs.builder(c)
                 .setTitle(R.string.auto_healing_dialog_max_exceeded_title)
                 .setMessage(R.string.auto_healing_dialog_max_exceeded_message)
                 .setPositiveButton(R.string.dialog_yes, (d, w) -> {
@@ -129,6 +131,6 @@ public final class TurnDialogs {
                 })
                 .setNegativeButton(R.string.dialog_no, null)
                 .setOnDismissListener(d -> done.run())
-                .show();
+                .create());
     }
 }

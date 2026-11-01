@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 
 import com.rekijan.initiativetrackersecondedition.R;
+import com.rekijan.initiativetrackersecondedition.core.util.DialogHost;
 import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
 import com.rekijan.initiativetrackersecondedition.core.util.NumberInput;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
@@ -30,6 +31,10 @@ public final class HpDialog {
     }
 
     public static void show(Context context, Encounter encounter, CharacterModel character) {
+        DialogHost.show(c -> create(c, encounter, character));
+    }
+
+    private static AlertDialog create(Context context, Encounter encounter, CharacterModel character) {
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_hp, null);
         TextView oldValueTextView = view.findViewById(R.id.old_value_textView);
         TextView addPreviewTextView = view.findViewById(R.id.add_preview_textView);
@@ -73,8 +78,7 @@ public final class HpDialog {
                 apply(context, encounter, character, dialog, amount(inputEditText)));
         view.findViewById(R.id.subtract_btn).setOnClickListener(v ->
                 apply(context, encounter, character, dialog, character.getHp() - amount(inputEditText)));
-
-        dialog.show();
+        return dialog;
     }
 
     private static void apply(Context context, Encounter encounter, CharacterModel character,

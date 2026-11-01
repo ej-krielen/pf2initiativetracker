@@ -258,7 +258,7 @@ public final class ApprovalDialogs {
         return name == null || name.trim().isEmpty() ? context.getString(R.string.approval_reaction_unnamed) : name;
     }
 
-    /** @return The value as the GM reads it: yes/no for dying, available/used for the reaction. */
+    /** @return The value as the GM reads it: yes/no for the initiative tie and dying, available/used for the reaction. */
     private static String value(Context context, SyncDiff.Field field, String raw) {
         if (!field.isSwitch()) return raw;
         boolean on = Boolean.parseBoolean(raw);
@@ -279,6 +279,7 @@ public final class ApprovalDialogs {
             case FAST_HEALING: return R.string.char_detail_fast_healing;
             case REGENERATION: return R.string.char_detail_regeneration;
             case HERO_POINTS: return R.string.char_detail_hero_points;
+            case WINS_INITIATIVE_TIES: return R.string.sync_field_wins_initiative_ties;
             case DYING: return R.string.sync_field_dying;
             case DYING_VALUE: return R.string.char_detail_dying;
             case MAX_DYING: return R.string.char_detail_max_dying;

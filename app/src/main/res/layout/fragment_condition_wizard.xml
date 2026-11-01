@@ -4,6 +4,7 @@
      its room at a large font size. ConditionWizardFragment wires it. -->
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/condition_wizard_scrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipToPadding="false"

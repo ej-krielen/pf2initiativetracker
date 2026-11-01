@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The details of one character in the GM's encounter: the name, then the sheet with the Stats
-     and Conditions tabs (view_character_sheet). CharacterDetailFragment binds it. -->
+<!-- The details of one character in the GM's encounter: a "Character details" label and the
+     name as an input field, then the sheet with the Stats and Conditions tabs
+     (view_character_sheet). CharacterDetailFragment binds it. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,19 +9,33 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/character_detail_textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:maxLines="1"
         android:paddingStart="@dimen/space_3"
         android:paddingTop="@dimen/space_2"
         android:paddingEnd="@dimen/space_3"
-        android:paddingBottom="@dimen/space_1"
-        android:textAppearance="?attr/textAppearanceTitleLarge"
-        android:textColor="?attr/colorOnSurface"
-        android:textStyle="bold"
-        tools:text="Character details for: Valeros" />
+        android:text="@string/character_details_title"
+        android:textAppearance="@style/TextAppearance.Rekijan.SectionHeader" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_3"
+        android:layout_marginTop="@dimen/space_2"
+        android:layout_marginEnd="@dimen/space_3"
+        android:layout_marginBottom="@dimen/space_1"
+        android:hint="@string/sheet_field_name">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/character_detail_name_editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:importantForAutofill="no"
+            android:inputType="textPersonName|textCapWords"
+            android:maxLength="50"
+            tools:text="Valeros" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <!-- While hosting Table sync, for a synced PC: its status and Unlink -->
     <LinearLayout

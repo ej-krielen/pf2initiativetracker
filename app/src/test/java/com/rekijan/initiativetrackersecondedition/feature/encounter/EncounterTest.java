@@ -16,8 +16,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Tests the turn order rules of {@link Encounter}: sorting (monsters first on a tie), next turn
- * with its end and start of turn steps, round counting, removing, knocking out and reordering.
+ * Tests the turn order rules of {@link Encounter}: sorting (monsters first on a tie, unless a PC
+ * wins ties), next turn with its end and start of turn steps, round counting, removing, knocking
+ * out and reordering.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026
@@ -54,6 +55,17 @@ public class EncounterTest {
         assertEquals(Arrays.asList("Valeros", "Goblin", "Seoni", "Rat"), names(e));
         assertTrue(e.get(0).isFirstInRound());
         assertFalse(e.get(2).isFirstInRound());
+    }
+
+    @Test
+    public void sortPutsPcsThatWinTiesBeforeMonsters() {
+        CharacterModel kyra = character("Kyra", 12, true);
+        kyra.setWinsInitiativeTies(true);
+        Encounter e = encounterOf(character("Seoni", 12, true), character("Goblin", 12, false), kyra);
+
+        e.sortByInitiative();
+
+        assertEquals(Arrays.asList("Kyra", "Goblin", "Seoni"), names(e));
     }
 
     @Test

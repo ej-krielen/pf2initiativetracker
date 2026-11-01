@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 
 import com.rekijan.initiativetrackersecondedition.R;
+import com.rekijan.initiativetrackersecondedition.core.util.DialogHost;
 import com.rekijan.initiativetrackersecondedition.core.util.DialogQueue;
 import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
 import com.rekijan.initiativetrackersecondedition.core.util.NumberInput;
@@ -37,6 +38,11 @@ public final class PersistentDamageDialogs {
 
     /** Asks for the damage type, damage, DC, duration and description of new persistent damage. */
     public static void create(Context context, Consumer<DebuffModel> onCreated) {
+        // Not kept through a rotation: onCreated belongs to the screen that asked
+        createDialog(context, onCreated).show();
+    }
+
+    private static AlertDialog createDialog(Context context, Consumer<DebuffModel> onCreated) {
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_persistent_damage_create, null);
         EditText typeEditText = view.findViewById(R.id.persistent_damage_dialog_type_editText);
         EditText damageEditText = view.findViewById(R.id.persistent_damage_dialog_value_editText);
@@ -69,7 +75,7 @@ public final class PersistentDamageDialogs {
                     descriptionEditText.getText().toString()));
             dialog.dismiss();
         });
-        dialog.show();
+        return dialog;
     }
 
     /**
@@ -88,6 +94,14 @@ public final class PersistentDamageDialogs {
             open[0]--;
             if (open[0] == 0) done.run();
         };
+        // Kept outside the dialog, so it is still known when the dialog is built again after a rotation
+        boolean[] damageTaken = {false};
+        DialogHost.show(c -> endOfTurnDialog(c, encounter, character, debuff, open, damageTaken, closeOne));
+    }
+
+    private static AlertDialog endOfTurnDialog(Context context, Encounter encounter, CharacterModel character,
+                                               DebuffModel debuff, int[] open, boolean[] damageTaken,
+                                               Runnable closeOne) {
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_persistent_damage_activate, null);
         TextView nameTextView = view.findViewById(R.id.persistent_damage_apply_name_textView);
         TextView valuesTextView = view.findViewById(R.id.persistent_damage_apply_values_textView);
@@ -95,6 +109,8 @@ public final class PersistentDamageDialogs {
         EditText damageEditText = view.findViewById(R.id.persistent_damage_apply_overridden_editText);
         Button damageButton = view.findViewById(R.id.persistent_damage_take_damage_button);
         Button flatCheckButton = view.findViewById(R.id.persistent_damage_flat_check_button);
+        if (damageTaken[0]) damageButton.setVisibility(View.GONE);
+        if (!character.getDebuffList().contains(debuff)) flatCheckButton.setVisibility(View.GONE);
 
         nameTextView.setText(debuff.getName());
         valuesTextView.setText(context.getString(R.string.apply_persistent_values, debuff.getDamageType(),
@@ -125,6 +141,7 @@ public final class PersistentDamageDialogs {
                 return;
             }
             int damage = NumberInput.parseInt(input, 0, 0, CharacterModel.MAX_HP);
+            damageTaken[0] = true;
             damageButton.setVisibility(View.GONE);
             open[0]++;
             HealthDialogs.onHpChanged(context, encounter, character,
@@ -136,6 +153,6 @@ public final class PersistentDamageDialogs {
             encounter.notifyChanged();
             Toast.makeText(context, R.string.removed_debuff, Toast.LENGTH_LONG).show();
         });
-        dialog.show();
+        return dialog;
     }
 }

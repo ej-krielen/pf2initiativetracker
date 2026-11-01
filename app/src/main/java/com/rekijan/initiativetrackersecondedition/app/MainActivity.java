@@ -21,6 +21,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Lifecycle;
 
 import com.google.android.material.appbar.MaterialToolbar;
@@ -28,6 +29,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.rekijan.initiativetrackersecondedition.BuildConfig;
 import com.rekijan.initiativetrackersecondedition.R;
 import com.rekijan.initiativetrackersecondedition.core.data.EncounterStore;
+import com.rekijan.initiativetrackersecondedition.core.util.DialogHost;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterDefaults;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterModel;
 import com.rekijan.initiativetrackersecondedition.feature.character.CharacterSheet;
@@ -45,7 +47,9 @@ import com.rekijan.initiativetrackersecondedition.feature.party.PartySlots;
 import com.rekijan.initiativetrackersecondedition.feature.player.PlayerFragment;
 import com.rekijan.initiativetrackersecondedition.feature.profile.ProfilesFragment;
 import com.rekijan.initiativetrackersecondedition.feature.reaction.ReactionsFragment;
+import com.rekijan.initiativetrackersecondedition.feature.spell.SpellDialogs;
 import com.rekijan.initiativetrackersecondedition.feature.sync.ApprovalDialogs;
+import com.rekijan.initiativetrackersecondedition.feature.sync.SpellRequests;
 import com.rekijan.initiativetrackersecondedition.feature.sync.SyncDiff;
 import com.rekijan.initiativetrackersecondedition.feature.sync.SyncFragment;
 import com.rekijan.initiativetrackersecondedition.feature.sync.SyncManager;
@@ -62,10 +66,14 @@ import java.util.List;
  * profile in the drawer, goes to the profile list ({@link ProfilesFragment}); back on the list
  * closes the app.
  * <p>
- * For the GM, the encounter list is swapped on a phone for the character details, reactions,
- * condition wizard, Edit order or Table sync; on a tablet those sit next to the list. The toolbar holds PCs to
- * max HP and Sort as icons and the other encounter actions in the overflow; Next turn is in the
- * encounter's turn bar. The navigation drawer ({@link NavDrawer}) holds Switch profile, Add
+ * For the GM in portrait, on phones and tablets, the encounter list is swapped for the character
+ * details, reactions, condition wizard, Edit order or Table sync. In landscape (layout-land) the
+ * details, reactions, condition wizard and Edit order sit next to the list; Next turn shows the
+ * details of whoever's turn it is. When a rotation changes the number of panes, the open screen
+ * moves to the other pane with its state (see {@link #setUpPanes}), and open dialogs come back
+ * through {@link DialogHost}. The toolbar
+ * holds PCs to max HP and Sort as icons and the other encounter actions in the overflow; Next turn
+ * is in the encounter's turn bar. The navigation drawer ({@link NavDrawer}) holds Switch profile, Add
  * character, Delete characters, Edit order, Table sync and the app items. It also runs the ad
  * consent flow and the ad bar, billing (tips, Remove Ads, party packs), shows the GM's Table sync
  * requests ({@link ApprovalDialogs}) one at a time, and saves the fight when the app goes to the
@@ -81,6 +89,12 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
             R.id.action_settings_reset_round, R.id.action_settings_hide_reactions,
             R.id.action_settings_start_turn_info, R.id.action_settings_end_turn_info};
     private static final String LOG_TAG = "MainActivity";
+    private static final String STATE_TWO_PANE = "two_pane";
+    private static final String STATE_DETAILS_CHOSEN = "details_chosen";
+    /** The argument key under which the details, reactions and condition wizard keep their character's position. */
+    private static final String ARG_POSITION = "POSITION";
+    /** Back stack name of the screens opened over the details in the second pane. */
+    private static final String BACK_STACK_SECOND_PANE = "second_pane";
 
     private CombatTrackerApp app;
     private Encounter encounter;
@@ -93,7 +107,13 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
     private DrawerLayout drawerLayout;
     private NavDrawer navDrawer;
     private OnBackPressedCallback profileRootBack;
-    private boolean isTablet;
+    /** True in landscape (layout-land): the details sit next to the list. */
+    private boolean isTwoPane;
+    /**
+     * True when the user opened the character in the details pane. Characters the second pane
+     * shows by itself (the first one, or whoever's turn it is) don't open in one pane after a rotation.
+     */
+    private boolean detailsChosen;
 
     /**
      * Reacts to the consent outcome, at startup and after the user changed their choice in the
@@ -128,22 +148,16 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
         app = (CombatTrackerApp) getApplication();
         encounter = app.getEncounter();
         store = app.getStore();
-        isTablet = getResources().getBoolean(R.bool.isTablet);
+        isTwoPane = findViewById(R.id.second_fragment_container) != null;
+        if (savedInstanceState != null) detailsChosen = savedInstanceState.getBoolean(STATE_DETAILS_CHOSEN);
 
         // Back callbacks: the one added last wins, so the drawer (close first) comes after this one
         setUpProfileRootBack();
         setUpDrawer();
         applySystemBarInsets();
 
+        setUpPanes(savedInstanceState);
         FragmentManager fm = getSupportFragmentManager();
-        if (savedInstanceState == null) {
-            String playerId = app.getOpenPlayerId();
-            fm.beginTransaction()
-                    .add(R.id.main_fragment_container, playerId != null
-                            ? PlayerFragment.newInstance(playerId) : EncounterFragment.newInstance())
-                    .commitNow();
-            if (playerId == null) showFirstCharacterOnTablet();
-        }
         fm.addOnBackStackChangedListener(this::onScreenChanged);
         fm.registerFragmentLifecycleCallbacks(new FragmentManager.FragmentLifecycleCallbacks() {
             @Override
@@ -187,9 +201,11 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
     @Override
     protected void onResume() {
         super.onResume();
+        DialogHost.attach(this);
         adBar.resume();
         app.getSync().setRequestListener(this::showNextRequest);
-        showNextRequest();
+        // The lifecycle only counts as resumed once onResume has returned, and showNextRequest checks that
+        getWindow().getDecorView().post(this::showNextRequest);
     }
 
     @Override
@@ -202,9 +218,22 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
 
     @Override
     protected void onDestroy() {
+        // A Table sync request stays in the queue, so it is asked again on the next screen
+        if (requestDialog != null) {
+            requestDialog.setOnDismissListener(null);
+            requestDialog.dismiss();
+        }
+        DialogHost.detach(this);
         billingManager.endConnection();
         adBar.destroyCurrentAd();
         super.onDestroy();
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(STATE_TWO_PANE, isTwoPane);
+        outState.putBoolean(STATE_DETAILS_CHOSEN, detailsChosen);
     }
 
     @Override
@@ -227,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_settings_sort) {
-            closeDetailsOnPhone();
+            closeDetailsInOnePane();
             TurnDialogs.askRoundReset(this, encounter, encounter.sortByInitiative());
         } else if (id == R.id.action_settings_set_pcs_max_hp) {
             showMaxHpResult(encounter.setPcsToMaxHp());
@@ -305,27 +334,30 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
 
     @Override
     public void onAddCharacter() {
-        closeDetailsOnPhone();
+        closeDetailsInOnePane();
         encounter.add(CharacterDefaults.newCharacter(this));
     }
 
     @Override
     public void onDeleteCharacters() {
-        closeDetailsOnPhone();
-        CharacterDialogs.askDeleteCharacters(this, encounter, this::showFirstCharacterOnTablet);
+        closeDetailsInOnePane();
+        CharacterDialogs.askDeleteCharacters(this, encounter, this::showFirstCharacterInTwoPanes);
     }
 
     @Override
     public void onEditOrder() {
-        if (mainPane() instanceof EditOrderFragment) return;
-        closeDetailsOnPhone();
+        if (mainPane() instanceof EditOrderFragment
+                || getSupportFragmentManager().findFragmentById(R.id.second_fragment_container) instanceof EditOrderFragment) {
+            return;
+        }
+        closeDetailsInOnePane();
         showEditOrder();
     }
 
     @Override
     public void onTableSync() {
         if (mainPane() instanceof SyncFragment) return;
-        closeDetailsOnPhone();
+        closeDetailsInOnePane();
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.main_fragment_container, SyncFragment.newInstance())
                 .addToBackStack(null)
@@ -360,8 +392,8 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
     // ---------------------------------------------------------------- Panes
 
     /**
-     * Shows a character's details: next to the list on a tablet, instead of it on a phone. A spell
-     * card has no details.
+     * Shows a character's details, which the user chose: next to the list in landscape, instead of
+     * it in portrait. A spell card has no details.
      */
     public void showCharacterDetail(int position) {
         showCharacterDetail(position, CharacterSheet.TAB_STATS);
@@ -370,10 +402,9 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
     /** Shows a character's details opened on a tab, e.g. the conditions from the card's conditions line. */
     public void showCharacterDetail(int position, int tab) {
         if (encounter.isValidPosition(position) && encounter.get(position).isSpellCard()) return;
-        if (isTablet) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.second_fragment_container, CharacterDetailFragment.newInstance(position, tab))
-                    .commit();
+        detailsChosen = true;
+        if (isTwoPane) {
+            showInSecondPane(position, tab);
         } else {
             showOnTop(CharacterDetailFragment.newInstance(position, tab));
         }
@@ -387,7 +418,7 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
         showOnTop(ConditionWizardFragment.newInstance(position));
     }
 
-    /** The condition wizard for a player character, over the player screen (also on a tablet). */
+    /** The condition wizard for a player character, over the player screen (also in landscape). */
     public void showPlayerConditionWizard(String playerId) {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.main_fragment_container, ConditionWizardFragment.newForPlayer(playerId))
@@ -396,24 +427,120 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
     }
 
     public void showEditOrder() {
+        showOnTop(EditOrderFragment.newInstance());
+    }
+
+    /**
+     * Opens a screen with a way back: over the details in landscape, over the list in portrait.
+     * In landscape it takes the place of a screen opened there before, so back goes to the details.
+     */
+    private void showOnTop(Fragment fragment) {
+        if (isTwoPane) popSecondPaneScreens();
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_fragment_container, EditOrderFragment.newInstance())
-                .addToBackStack(null)
+                .replace(isTwoPane ? R.id.second_fragment_container : R.id.main_fragment_container, fragment)
+                .addToBackStack(isTwoPane ? BACK_STACK_SECOND_PANE : null)
                 .commit();
     }
 
-    /** Opens a screen with a way back: in the side panel on a tablet, over the list on a phone. */
-    private void showOnTop(Fragment fragment) {
-        int container = isTablet ? R.id.second_fragment_container : R.id.main_fragment_container;
+    /** Landscape: the details of a character in the second pane, in place of what was open there. */
+    private void showInSecondPane(int position, int tab) {
+        popSecondPaneScreens();
         getSupportFragmentManager().beginTransaction()
-                .replace(container, fragment)
-                .addToBackStack(null)
+                .replace(R.id.second_fragment_container, CharacterDetailFragment.newInstance(position, tab))
                 .commit();
+    }
+
+    /** Landscape: closes the reactions, condition wizard or Edit order opened over the details. */
+    private void popSecondPaneScreens() {
+        FragmentManager fm = getSupportFragmentManager();
+        while (fm.getBackStackEntryCount() > 0
+                && BACK_STACK_SECOND_PANE.equals(fm.getBackStackEntryAt(fm.getBackStackEntryCount() - 1).getName())) {
+            fm.popBackStackImmediate();
+        }
+    }
+
+    /**
+     * First start: the profile used last. After a rotation the screens come back by themselves when
+     * the number of panes stayed the same. Otherwise the screen that was open on the GM's side
+     * (details, reactions, condition wizard or Edit order) moves between the second pane and the
+     * main pane, keeping its own state (tab, scroll position, typed text), and Table sync stays open.
+     */
+    private void setUpPanes(@Nullable Bundle savedInstanceState) {
+        FragmentManager fm = getSupportFragmentManager();
+        if (savedInstanceState == null) {
+            String playerId = app.getOpenPlayerId();
+            fm.beginTransaction()
+                    .add(R.id.main_fragment_container, playerId != null
+                            ? PlayerFragment.newInstance(playerId) : EncounterFragment.newInstance())
+                    .commitNow();
+            if (playerId == null) showFirstCharacterInTwoPanes();
+            return;
+        }
+        boolean wasTwoPane = savedInstanceState.getBoolean(STATE_TWO_PANE);
+        if (wasTwoPane == isTwoPane) return;
+
+        Fragment main = mainPane();
+        Fragment second = fm.findFragmentById(R.id.second_fragment_container);
+        if (isTwoPane) {
+            // To landscape: a screen over the list moves next to it, with the details under it
+            if (!isSecondPaneScreen(main)) {
+                // The list, Table sync or a player screen stays where it is
+                if (second == null && isGmScreen(main)) showFirstCharacterInTwoPanes();
+                return;
+            }
+            Fragment open = copyOf(main);
+            fm.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            if (open instanceof CharacterDetailFragment) {
+                fm.beginTransaction().replace(R.id.second_fragment_container, open).commitNow();
+            } else {
+                detailsChosen = false;
+                Bundle args = open.getArguments();
+                int position = args != null ? args.getInt(ARG_POSITION, 0) : 0;
+                if (encounter.isValidPosition(position) && !encounter.get(position).isSpellCard()) {
+                    fm.beginTransaction().replace(R.id.second_fragment_container,
+                            CharacterDetailFragment.newInstance(position, CharacterSheet.TAB_STATS)).commitNow();
+                }
+                fm.beginTransaction().replace(R.id.second_fragment_container, open)
+                        .addToBackStack(BACK_STACK_SECOND_PANE).commit();
+            }
+        } else {
+            // To portrait: the second pane is gone. What the user opened there goes over the list.
+            boolean keep = second != null && (!(second instanceof CharacterDetailFragment) || detailsChosen);
+            Fragment open = keep ? copyOf(second) : null;
+            Fragment sync = main instanceof SyncFragment ? copyOf(main) : null;
+            if (fm.getBackStackEntryCount() > 0) {
+                fm.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            }
+            FragmentTransaction removeSecond = fm.beginTransaction();
+            for (Fragment f : fm.getFragments()) {
+                if (f.getId() == R.id.second_fragment_container) removeSecond.remove(f);
+            }
+            removeSecond.commitNow();
+            Fragment top = sync != null ? sync : open;
+            if (top != null) {
+                fm.beginTransaction().replace(R.id.main_fragment_container, top).addToBackStack(null).commit();
+            }
+        }
+    }
+
+    /** @return A new instance of the screen with the same arguments and its saved state, to show in the other pane. */
+    private Fragment copyOf(Fragment fragment) {
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment copy = fm.getFragmentFactory().instantiate(getClassLoader(), fragment.getClass().getName());
+        copy.setArguments(fragment.getArguments());
+        copy.setInitialSavedState(fm.saveFragmentInstanceState(fragment));
+        return copy;
+    }
+
+    /** @return True for the GM's screens that sit next to the list in landscape. */
+    private static boolean isSecondPaneScreen(@Nullable Fragment f) {
+        return f instanceof CharacterDetailFragment || f instanceof ReactionsFragment || f instanceof EditOrderFragment
+                || (f instanceof ConditionWizardFragment && !((ConditionWizardFragment) f).isForPlayer());
     }
 
     /**
      * Puts a root screen (encounter, player or profile list) in the main pane: the back stack and
-     * the details pane are cleared, and on a tablet the encounter gets its first character's details.
+     * the details pane are cleared, and in landscape the encounter gets its first character's details.
      */
     private void showRoot(Fragment root) {
         FragmentManager fm = getSupportFragmentManager();
@@ -423,16 +550,18 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
         fm.beginTransaction().replace(R.id.main_fragment_container, root).commitNow();
         Fragment detailPane = fm.findFragmentById(R.id.second_fragment_container);
         if (detailPane != null) fm.beginTransaction().remove(detailPane).commitNow();
-        if (root instanceof EncounterFragment) showFirstCharacterOnTablet();
+        if (root instanceof EncounterFragment) showFirstCharacterInTwoPanes();
         onScreenChanged();
     }
 
-    /** On a tablet: the details of the first character, or nothing when the party is empty. */
-    private void showFirstCharacterOnTablet() {
-        if (!isTablet) return;
-        if (encounter.size() > 0) {
-            showCharacterDetail(0);
+    /** In landscape: the details of the first character, or nothing when the party is empty. */
+    private void showFirstCharacterInTwoPanes() {
+        if (!isTwoPane) return;
+        detailsChosen = false;
+        if (encounter.size() > 0 && !encounter.get(0).isSpellCard()) {
+            showInSecondPane(0, CharacterSheet.TAB_STATS);
         } else {
+            popSecondPaneScreens();
             Fragment detailPane = getSupportFragmentManager().findFragmentById(R.id.second_fragment_container);
             if (detailPane != null) getSupportFragmentManager().beginTransaction().remove(detailPane).commit();
         }
@@ -443,14 +572,14 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
         Encounter.Turn turn = encounter.nextTurn();
         if (turn == null) return;
         TurnDialogs.onTurnChanged(this, encounter, turn);
-        // On a tablet the details follow whoever's turn it is
-        if (isTablet) showCharacterDetail(0);
+        // In landscape the details follow whoever's turn it is
+        showFirstCharacterInTwoPanes();
     }
 
-    /** Encounter actions go back to the list first on a phone. */
-    private void closeDetailsOnPhone() {
+    /** Encounter actions go back to the list first when there is one pane. */
+    private void closeDetailsInOnePane() {
         FragmentManager fm = getSupportFragmentManager();
-        if (!isTablet && fm.getBackStackEntryCount() > 0) {
+        if (!isTwoPane && fm.getBackStackEntryCount() > 0) {
             fm.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     }
@@ -604,7 +733,7 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
                 ? DrawerLayout.LOCK_MODE_LOCKED_CLOSED : DrawerLayout.LOCK_MODE_UNLOCKED);
         profileRootBack.setEnabled(!canGoBack && !(main instanceof ProfilesFragment));
 
-        if (isTablet) {
+        if (isTwoPane) {
             int visibility = isGmScreen(main) ? View.VISIBLE : View.GONE;
             findViewById(R.id.second_fragment_container).setVisibility(visibility);
             findViewById(R.id.pane_divider).setVisibility(visibility);
@@ -624,6 +753,15 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
         SyncManager sync = app.getSync();
         SyncManager.Request request = sync.nextRequest();
         if (request == null) return;
+        if (request.caster != null && (request.cast != null || request.end != null)) {
+            requestDialog = showSpellRequest(sync, request);
+            if (requestDialog == null) return;
+            requestDialog.setOnDismissListener(d -> {
+                requestDialog = null;
+                showNextRequest();
+            });
+            return;
+        }
         ApprovalDialogs.Listener answer = new ApprovalDialogs.Listener() {
             @Override
             public void onApprove(List<SyncDiff.Change> accepted) {
@@ -649,6 +787,27 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
             requestDialog = null;
             showNextRequest();
         });
+    }
+
+    /**
+     * A player's spell request: the Cast spell dialog filled in with it, or End spell for one of
+     * their spells. The cast or end happens in the dialog; the sync manager only hears the answer.
+     *
+     * @return The shown dialog, or null when it couldn't be shown.
+     */
+    @Nullable
+    private AlertDialog showSpellRequest(SyncManager sync, SyncManager.Request request) {
+        CharacterModel caster = request.caster;
+        if (request.cast != null) {
+            SpellRequests.Cast cast = request.cast;
+            return SpellDialogs.showCastRequest(this, app.getEncounter(),
+                    new SpellDialogs.Request(caster, cast.name, cast.rounds, cast.condition, cast.value, cast.targets),
+                    done -> sync.answerCast(request, done));
+        }
+        String name = caster.getCharacterName().isEmpty() ? getString(R.string.empty_character_name)
+                : caster.getCharacterName();
+        return SpellDialogs.showEndRequest(this, app.getEncounter(), name, request.end.spellId,
+                done -> sync.answerEnd(request, done));
     }
 
     /**

@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputLayout;
 import com.rekijan.initiativetrackersecondedition.R;
+import com.rekijan.initiativetrackersecondedition.core.util.Dialogs;
 import com.rekijan.initiativetrackersecondedition.core.util.NumberInput;
 import com.rekijan.initiativetrackersecondedition.core.util.TextBinding;
 import com.rekijan.initiativetrackersecondedition.feature.condition.DebuffAdapter;
@@ -29,16 +30,17 @@ import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
 /**
- * Binds a character to the sheet layout (view_character_sheet): the Stats tab with the PC and
- * dying switches, the numbers, the dying track numbers (dying, max dying, wounded, doomed,
- * recovery DC), hero points, the free-text stat lines and notes, and the Conditions tab with the
- * conditions, buffs and persistent damage. Every edit goes straight into the character and is
- * reported to the change callback.
+ * Binds a character to the sheet layout (view_character_sheet): the Stats tab with the PC,
+ * initiative tie and dying switches, the numbers, the dying track numbers (dying, max dying,
+ * wounded, doomed, recovery DC), hero points, the free-text stat lines and notes, and the
+ * Conditions tab with the conditions, buffs and persistent damage. Every edit goes straight into
+ * the character and is reported to the change callback.
  * <p>
  * Used by the GM's character details and by the player screen. The player sheet also shows name,
  * initiative and hp (the GM edits those on the card) and hides the PC switch, since a player's
  * own character is always a PC. Add opens the condition wizard through the add callback. The
- * player sheet also has the reaction and the custom reactions, which the GM has on the card.
+ * player sheet also has the reaction and the custom reactions, which the GM has on the card, and a
+ * third tab, Spells, which the player screen fills.
  * <p>
  * On the player's sheet, fields that differ from the GM's version can be marked as not sent yet
  * ({@link #markUnsent}).
@@ -50,6 +52,8 @@ public class CharacterSheet {
 
     public static final int TAB_STATS = 0;
     public static final int TAB_CONDITIONS = 1;
+    /** Player sheet only. */
+    public static final int TAB_SPELLS = 2;
 
     /** The edit texts that can be marked as not sent yet. */
     private static final int[] MARKABLE_FIELDS = {
@@ -67,6 +71,7 @@ public class CharacterSheet {
     private final TabLayout tabs;
     private final View statsPane;
     private final View conditionsPane;
+    private final View spellsPane;
     private final RecyclerView conditionList;
     private final TextView conditionsEmpty;
     private CharacterModel character;
@@ -92,6 +97,8 @@ public class CharacterSheet {
         tabs = root.findViewById(R.id.sheet_tabs);
         statsPane = root.findViewById(R.id.sheet_stats_pane);
         conditionsPane = root.findViewById(R.id.sheet_conditions_pane);
+        spellsPane = root.findViewById(R.id.sheet_spells_pane);
+        if (playerMode) tabs.addTab(tabs.newTab().setText(R.string.sheet_tab_spells));
         conditionList = root.findViewById(R.id.debuff_recyclerView);
         conditionsEmpty = root.findViewById(R.id.sheet_conditions_empty_textView);
         conditionList.setLayoutManager(new LinearLayoutManager(root.getContext()));
@@ -121,13 +128,19 @@ public class CharacterSheet {
         root.findViewById(R.id.clear_all_debuffs_button).setOnClickListener(v -> clearConditions());
         root.findViewById(R.id.add_debuff_button).setOnClickListener(v -> onAddCondition.run());
         root.findViewById(R.id.sheet_add_reaction_button).setOnClickListener(v -> addReaction());
+        root.findViewById(R.id.wins_initiative_ties_info_button).setOnClickListener(v -> showTieInfo());
     }
 
     /** Shows this character on the sheet. */
     public void bind(CharacterModel character) {
         this.character = character;
 
-        bindSwitch(R.id.is_pc_switch, character.isPC(), character::setPC);
+        bindSwitch(R.id.is_pc_switch, character.isPC(), isPC -> {
+            character.setPC(isPC);
+            updateTieSwitch();
+        });
+        bindSwitch(R.id.wins_initiative_ties_switch, character.winsInitiativeTies(), character::setWinsInitiativeTies);
+        updateTieSwitch();
         bindSwitch(R.id.is_dying_switch, character.isDying(), character::setDying);
 
         if (playerMode) {
@@ -187,20 +200,22 @@ public class CharacterSheet {
         updateConditionCount();
     }
 
-    /** @return The open tab, {@link #TAB_STATS} or {@link #TAB_CONDITIONS}, to keep it on rotation. */
+    /** @return The open tab ({@link #TAB_STATS}, {@link #TAB_CONDITIONS}, {@link #TAB_SPELLS}), to keep it on rotation. */
     public int getSelectedTab() {
         return tabs.getSelectedTabPosition();
     }
 
     public void selectTab(int tab) {
         TabLayout.Tab t = tabs.getTabAt(tab);
-        if (t != null) t.select();
+        if (t == null) return;
+        t.select();
         showPane(tab);
     }
 
     private void showPane(int tab) {
         statsPane.setVisibility(tab == TAB_STATS ? View.VISIBLE : View.GONE);
         conditionsPane.setVisibility(tab == TAB_CONDITIONS ? View.VISIBLE : View.GONE);
+        spellsPane.setVisibility(tab == TAB_SPELLS ? View.VISIBLE : View.GONE);
     }
 
     /** Player sheet: a new, available custom reaction at the end of the list. */
@@ -287,6 +302,21 @@ public class CharacterSheet {
         }
         character.setMaxDyingValue(value);
         onChanged.run();
+    }
+
+    /** Explains what Wins tie does. */
+    private void showTieInfo() {
+        Dialogs.builder(root.getContext())
+                .setTitle(R.string.char_detail_wins_initiative_ties_info_title)
+                .setMessage(R.string.char_detail_wins_initiative_ties_info)
+                .setPositiveButton(R.string.dialog_ok, null)
+                .show();
+    }
+
+    /** Shows the initiative tie switch only for a PC: monsters already win ties. */
+    private void updateTieSwitch() {
+        root.findViewById(R.id.wins_initiative_ties_row)
+                .setVisibility(character.isPC() ? View.VISIBLE : View.GONE);
     }
 
     private void bindSwitch(int id, boolean value, Consumer<Boolean> setter) {

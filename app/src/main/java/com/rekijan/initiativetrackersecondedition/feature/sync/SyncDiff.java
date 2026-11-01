@@ -24,12 +24,15 @@ public final class SyncDiff {
     /** The fields of a sheet, in the order they are listed. */
     public enum Field {
         NAME, INITIATIVE, INITIATIVE_BONUS, HP, MAX_HP, FAST_HEALING, REGENERATION, HERO_POINTS,
-        DYING, DYING_VALUE, MAX_DYING, WOUNDED, DOOMED, RECOVERY_DC,
+        WINS_INITIATIVE_TIES, DYING, DYING_VALUE, MAX_DYING, WOUNDED, DOOMED, RECOVERY_DC,
         AC, SAVES, SKILLS, ATTACK_ROUTINE, NOTES, REACTION, REACTIONS, CONDITIONS;
 
-        /** @return True for the on/off fields (dying, the reaction), whose values are "true" and "false". */
+        /**
+         * @return True for the on/off fields (initiative ties, dying, the reaction), whose values
+         * are "true" and "false".
+         */
         public boolean isSwitch() {
-            return this == DYING || this == REACTION;
+            return this == WINS_INITIATIVE_TIES || this == DYING || this == REACTION;
         }
     }
 
@@ -89,6 +92,7 @@ public final class SyncDiff {
         field(list, Field.FAST_HEALING, a.fastHealing, b.fastHealing);
         field(list, Field.REGENERATION, a.regeneration, b.regeneration);
         field(list, Field.HERO_POINTS, a.heroPoints, b.heroPoints);
+        field(list, Field.WINS_INITIATIVE_TIES, a.winsInitiativeTies, b.winsInitiativeTies);
         field(list, Field.DYING, a.dying, b.dying);
         field(list, Field.DYING_VALUE, a.dyingValue, b.dyingValue);
         field(list, Field.MAX_DYING, a.maxDying, b.maxDying);
@@ -264,6 +268,7 @@ public final class SyncDiff {
             case FAST_HEALING: r.fastHealing = s.fastHealing; break;
             case REGENERATION: r.regeneration = s.regeneration; break;
             case HERO_POINTS: r.heroPoints = s.heroPoints; break;
+            case WINS_INITIATIVE_TIES: r.winsInitiativeTies = s.winsInitiativeTies; break;
             case DYING: r.dying = s.dying; break;
             case DYING_VALUE: r.dyingValue = s.dyingValue; break;
             case MAX_DYING: r.maxDying = s.maxDying; break;

@@ -2,12 +2,16 @@ package com.rekijan.initiativetrackersecondedition.core.util;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RawRes;
+import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -19,7 +23,9 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * One place where the app's dialogs are built: MaterialAlertDialogBuilder, so they follow the
- * theme (Cinzel title, gold buttons, see ThemeOverlay.Rekijan.Dialog).
+ * theme (Cinzel title, gold buttons, see ThemeOverlay.Rekijan.Dialog). Their dismiss listener only
+ * runs when the user closes them, not when {@link DialogHost} closes them for a rotation; set it on the
+ * builder, not on the dialog.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 27-10-2026
@@ -32,7 +38,40 @@ public final class Dialogs {
     }
 
     public static MaterialAlertDialogBuilder builder(Context context) {
-        return new MaterialAlertDialogBuilder(context);
+        return new HostedBuilder(context);
+    }
+
+    /**
+     * Tells {@link DialogHost} when a dialog closes, and keeps its dismiss listener from running
+     * when DialogHost closed it for a rotation.
+     */
+    private static final class HostedBuilder extends MaterialAlertDialogBuilder {
+
+        @Nullable
+        private DialogInterface.OnDismissListener onDismiss;
+
+        HostedBuilder(Context context) {
+            super(context);
+        }
+
+        @NonNull
+        @Override
+        public MaterialAlertDialogBuilder setOnDismissListener(@Nullable DialogInterface.OnDismissListener listener) {
+            onDismiss = listener;
+            return this;
+        }
+
+        @NonNull
+        @Override
+        public AlertDialog create() {
+            AlertDialog dialog = super.create();
+            DialogHost.onCreated(dialog);
+            DialogInterface.OnDismissListener listener = onDismiss;
+            dialog.setOnDismissListener(d -> {
+                if (DialogHost.onDismissed(d) && listener != null) listener.onDismiss(d);
+            });
+            return dialog;
+        }
     }
 
     /** Opens a web page, or tells the user when there is no browser. */

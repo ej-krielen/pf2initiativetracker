@@ -1,29 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Ending a spell (it ran out, or End spell): who it comes off and, when its cast added a
      condition such as Slowed, a ticked checkbox to remove that condition too. SpellDialogs fills it. -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Scrolls when the screen is short, e.g. a phone in landscape -->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingStart="@dimen/space_4"
-    android:paddingTop="@dimen/space_1"
-    android:paddingEnd="@dimen/space_4">
+    android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/spell_end_message"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.Rekijan.Body"
-        android:textColor="?attr/colorOnSurfaceVariant" />
+        android:orientation="vertical"
+        android:paddingStart="@dimen/space_4"
+        android:paddingTop="@dimen/space_1"
+        android:paddingEnd="@dimen/space_4">
 
-    <com.google.android.material.checkbox.MaterialCheckBox
-        android:id="@+id/spell_end_added_checkBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_2"
-        android:checked="true"
-        android:minHeight="@dimen/touch_target"
-        android:textAppearance="@style/TextAppearance.Rekijan.Body"
-        android:textColor="?attr/colorOnSurface"
-        android:visibility="gone" />
-</LinearLayout>
+        <!-- A player's request to end it -->
+        <include
+            android:id="@+id/spell_request_card"
+            layout="@layout/view_spell_request" />
+
+        <TextView
+            android:id="@+id/spell_end_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Rekijan.Body"
+            android:textColor="?attr/colorOnSurfaceVariant" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/spell_end_added_checkBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:checked="true"
+            android:minHeight="@dimen/touch_target"
+            android:textAppearance="@style/TextAppearance.Rekijan.Body"
+            android:textColor="?attr/colorOnSurface"
+            android:visibility="gone" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
